@@ -30,7 +30,7 @@ class DeviceDetailPage extends StatelessWidget {
             onPressed: () {},
           ),
           IconButton(
-            icon: Image.asset(R.assetsImageShareIcon),
+            icon: Image.asset(R.assetsImageShareIcon ,height: 20, ),
             onPressed: () {
               showDialog(
                 context: context,

@@ -1,6 +1,10 @@
+import 'package:car_assistant/core/utils/loading_util.dart';
+import 'package:car_assistant/core/utils/logger_util.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
+import '../../core/network/api_service.dart';
 import '../../utils/social_login_button.dart';
 import '../../utils/custom_text_field.dart';
 import 'login_model.dart';
@@ -47,24 +51,41 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   // 处理登录按钮点击
-  void _handleLogin() {
+  Future<void> _handleLogin() async {
     if (_formKey.currentState!.validate()) {
-      final loginModel = LoginModel(
-        email: _emailController.text,
-        password: _passwordController.text,
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const MainPage()),
       );
-      
-      // 使用Provider进行登录
-      final authProvider = context.read<AuthProvider>();
-      authProvider.login(loginModel).then((_) {
-        // 检查widget是否仍然挂载
-        if (mounted && authProvider.isAuthenticated) {
-          // 登录成功后跳转到主页面
+      if(_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+        Fluttertoast.showToast(msg: "用户名或者密码不能为空", gravity: ToastGravity.CENTER);
+        return;
+      }
+      LoadingUtil.show(context, message: "登录中...");
+      try{
+        final response = await ApiService.login(
+          email: _emailController.text,
+          password: _passwordController.text,
+        );
+        LoadingUtil.hide();
+        if (response.success) {
+          // 登录成功，保存token
+          final token = response.data?['token'];
+          if (token != null) {
+            ApiService.setAuthToken(token);
+          }
+          LoggerUtil.i('登录成功: ${response.message}');
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => const MainPage()),
           );
+        } else {
+          Fluttertoast.showToast(msg: "登录失败：${response.message}", gravity: ToastGravity.CENTER);
+          LoggerUtil.e('登录失败: ${response.message}');
         }
-      });
+      }catch(e){
+        LoadingUtil.hide();
+        Fluttertoast.showToast(msg: "登录失败：$e", gravity: ToastGravity.CENTER);
+        LoggerUtil.e('登录异常: $e');
+      }
     }
   }
 

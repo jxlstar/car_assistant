@@ -5,7 +5,9 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.7.2
+  sdk: ">=3.3.4 <4.0.0"
+  flutter: 3.29.3
+
 flutter_native_splash:
   color: "#FFFFFF"
   image: assets/image/logo_icon.png
@@ -56,6 +58,7 @@ dependencies:
   # 地图功能
   google_maps_flutter: ^2.5.3
   location: ^5.0.3
+  fluttertoast: ^8.2.12
   
 dev_dependencies:
   flutter_test:
@@ -72,7 +75,15 @@ flutter:
   assets:
 # assets-generator-begin
   # assets/image/*
-  - assets/image/share_icon.png
-  - assets/image/avatar.png
-  - assets/image/logo_icon.png
+    - assets/image/home_icon.png
+    - assets/image/share_icon.png
+    - assets/image/home_icon_select.png
+    - assets/image/dealers_icon_select.png
+    - assets/image/personal_icon.png
+    - assets/image/avatar.png
+    - assets/image/source_icon_select.png
+    - assets/image/personal_icon_select.png
+    - assets/image/logo_icon.png
+    - assets/image/source_icon.png
+    - assets/image/dealers_icon.png
   # assets-generator-end

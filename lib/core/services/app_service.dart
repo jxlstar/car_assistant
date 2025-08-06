@@ -1,10 +1,8 @@
 import '../utils/logger_util.dart';
 import '../storage/storage_service.dart';
-import '../network/api_client.dart';
+import '../network/api_service.dart';
 
 class AppService {
-  static late ApiClient apiClient;
-  
   static Future<void> init() async {
     try {
       // 初始化日志
@@ -14,8 +12,11 @@ class AppService {
       // 初始化本地存储
       await StorageService.init();
       
-      // 初始化网络客户端
-      apiClient = ApiClient.create();
+      // 初始化API服务
+      ApiService.init();
+      
+      // 加载认证token
+      await ApiService.loadAuthToken();
       
       LoggerUtil.i('App services initialized successfully');
     } catch (e) {

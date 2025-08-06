@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../r.dart';
 import '../equipment/equipment_page.dart';
 import '../equipment/equipment_provider.dart';
 import '../resources/resources_page.dart';
@@ -40,21 +41,25 @@ class _MainPageState extends State<MainPage> {
             type: BottomNavigationBarType.fixed,
             selectedItemColor: Colors.blue,
             unselectedItemColor: Colors.grey,
-            items: const [
+            items:  [
               BottomNavigationBarItem(
-                icon: Icon(Icons.devices),
+                icon: Image.asset(R.assetsImageHomeIcon,height: 24),
+                activeIcon: Image.asset(R.assetsImageHomeIconSelect, height: 24),
                 label: 'Equipment',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.book),
+                icon:Image.asset(R.assetsImageSourceIcon,height: 24),
+                activeIcon: Image.asset(R.assetsImageSourceIconSelect, height: 24),
                 label: 'Resources',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.location_on),
+                icon: Image.asset(R.assetsImageDealersIcon,height: 24),
+                activeIcon: Image.asset(R.assetsImageDealersIconSelect, height: 24),
                 label: 'Dealers',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.person),
+                icon: Image.asset(R.assetsImagePersonalIcon,height: 24),
+                activeIcon: Image.asset(R.assetsImagePersonalIconSelect, height: 24),
                 label: 'Personal',
               ),
             ],
