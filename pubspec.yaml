@@ -1,0 +1,78 @@
+name: car_assistant
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.7.2
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: assets/image/logo_icon.png
+  ios: true
+  android: false
+  ios_content_mode: center  # center, scaleToFill, scaleToFit
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  
+  # 网络层
+  dio: ^5.4.0
+  retrofit: ^4.0.3
+  json_annotation: ^4.8.1
+  flutter_native_splash: ^2.3.1
+  
+  # 状态管理
+  provider: ^6.1.1
+  
+  # 日志组件
+  logger: ^2.0.2+1
+  
+  # 本地存储
+  shared_preferences: ^2.2.2
+  
+  # 路由管理
+  go_router: ^13.2.0
+  
+  # 工具类
+  equatable: ^2.0.5
+  
+  # 第三方登录
+  google_sign_in: ^6.2.1
+  flutter_facebook_auth: ^6.0.4  # 取消注释这一行
+  sign_in_with_apple: ^5.0.0
+  font_awesome_flutter: ^10.7.0  # 提供社交媒体图标
+  
+  # 表单验证
+  form_validator: ^2.1.1
+  
+  # 分享功能
+  share_plus: ^7.2.2
+  url_launcher: ^6.2.4
+  path_provider: ^2.1.2
+  
+  # 地图功能
+  google_maps_flutter: ^2.5.3
+  location: ^5.0.3
+  
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  
+  # 代码生成
+  build_runner: ^2.4.7
+  retrofit_generator: ^8.0.6
+  json_serializable: ^6.7.1
+
+flutter:
+  uses-material-design: true
+  assets:
+# assets-generator-begin
+  # assets/image/*
+  - assets/image/share_icon.png
+  - assets/image/avatar.png
+  - assets/image/logo_icon.png
+  # assets-generator-end
