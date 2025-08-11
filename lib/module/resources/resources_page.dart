@@ -487,7 +487,6 @@ class _ResourceThirdLevelPageState extends State<ResourceThirdLevelPage> {
     if (state.threeData.isEmpty) {
       return _buildEmptyState();
     }
-
     // 正常数据列表
     return ListView.builder(
       itemCount: state.threeData.length,
@@ -575,6 +574,7 @@ class _ResourceThirdLevelPageState extends State<ResourceThirdLevelPage> {
                 firstLevelTitle: widget.firstLevelTitle,
                 secondLevelTitle: widget.secondLevelTitle,
                 thirdLevelTitle: item.name ?? '',
+                item: item,
               ),
             ),
           );
@@ -616,18 +616,25 @@ class _ResourceThirdLevelPageState extends State<ResourceThirdLevelPage> {
   }
 }
 
-class ResourceFourthLevelPage extends StatelessWidget {
+class ResourceFourthLevelPage extends StatefulWidget {
   final String firstLevelTitle;
   final String secondLevelTitle;
   final String thirdLevelTitle;
+  final ResourceItem item;
 
   const ResourceFourthLevelPage({
     super.key,
     required this.firstLevelTitle,
     required this.secondLevelTitle,
     required this.thirdLevelTitle,
+    required this.item
   });
 
+  @override
+  State<ResourceFourthLevelPage> createState() => _ResourceFourthLevelPageState();
+}
+
+class _ResourceFourthLevelPageState extends State<ResourceFourthLevelPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -640,9 +647,9 @@ class ResourceFourthLevelPage extends StatelessWidget {
       body: Column(
         children: [
           _buildBreadcrumb([
-            BreadcrumbItem(title: firstLevelTitle, isSelected: false),
-            BreadcrumbItem(title: secondLevelTitle, isSelected: false),
-            BreadcrumbItem(title: thirdLevelTitle, isSelected: true),
+            BreadcrumbItem(title: widget.firstLevelTitle, isSelected: false),
+            BreadcrumbItem(title: widget.secondLevelTitle, isSelected: false),
+            BreadcrumbItem(title: widget.thirdLevelTitle, isSelected: true),
           ]),
           Expanded(
             child: SingleChildScrollView(
@@ -657,22 +664,19 @@ class ResourceFourthLevelPage extends StatelessWidget {
                       color: Colors.grey[200],
                       borderRadius: BorderRadius.circular(12.0),
                     ),
-                    child: const Icon(
-                      Icons.image,
-                      size: 80,
-                      color: Colors.grey,
-                    ),
+                    // child: Image.network(item.imageUrl ?? '', height: 80,),
+                    child: Image.asset(R.assetsImageWaji, height: 80,),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'S317',
+                  Text(
+                    widget.item.code ?? '',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const Text(
-                    'Equipment model',
+                  Text(
+                    widget.item.description ?? '',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey,
