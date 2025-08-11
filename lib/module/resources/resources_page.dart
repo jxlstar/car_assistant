@@ -1,4 +1,10 @@
+import 'package:car_assistant/module/resources/resources_logic.dart';
+import 'package:car_assistant/module/resources/resources_state.dart';
+import 'package:car_assistant/r.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_state_manager/src/simple/get_state.dart';
 
 class BreadcrumbItem {
   final String title;
@@ -7,23 +13,169 @@ class BreadcrumbItem {
   BreadcrumbItem({required this.title, this.isSelected = false});
 }
 
-class ResourcesPage extends StatelessWidget {
+class ResourcesPage extends StatefulWidget {
   const ResourcesPage({super.key});
 
   @override
+  State<ResourcesPage> createState() => _ResourcesPageState();
+}
+
+class _ResourcesPageState extends State<ResourcesPage> {
+
+  late final ResourcesLogic logic;
+  late final ResourcesState state;
+
+  @override
+  void initState() {
+    super.initState();
+    logic = Get.put(ResourcesLogic());
+    logic.loadAllResources();
+    state = logic.state;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Resources'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
-      ),
-      body: ListView.builder(
-        itemCount: resourceItems.length,
+    return GetBuilder<ResourcesLogic>(
+        init: logic,
+        builder: (controller) {
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Resources'),
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black,
+            elevation: 0,
+            actions: [
+              if (state.isLoading)
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ),
+            ],
+          ),
+          body: _buildContent(),
+        );
+      }
+    );
+  }
+
+  Widget _buildContent() {
+    // 加载状态
+    if (state.isLoading && state.allBrands.isEmpty) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    // 错误状态
+    if (state.errorMessage != null) {
+      return _buildErrorState();
+    }
+
+    // 空数据状态
+    if (state.allBrands.isEmpty) {
+      return _buildEmptyState();
+    }
+
+    // 正常数据列表
+    return RefreshIndicator(
+      onRefresh: () => logic.refreshCurrentData(),
+      child: ListView.builder(
+        itemCount: state.allBrands.length,
         itemBuilder: (context, index) {
-          return _buildResourceItem(context, resourceItems[index]);
+          return _buildResourceItem(context, state.allBrands[index]);
         },
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.inventory_2_outlined,
+            size: 80,
+            color: Colors.grey[400],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            '暂无资源数据',
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '当前没有可用的品牌资源\n请稍后再试或联系管理员',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[500],
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: () => logic.refreshCurrentData(),
+            icon: const Icon(Icons.refresh),
+            label: const Text('重新加载'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 80,
+            color: Colors.red[300],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            '加载失败',
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            state.errorMessage ?? '网络错误，请稍后重试',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[500],
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: () => logic.refreshCurrentData(),
+            icon: const Icon(Icons.refresh),
+            label: const Text('重试'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -44,21 +196,10 @@ class ResourcesPage extends StatelessWidget {
         ],
       ),
       child: ListTile(
-        leading: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: item.color,
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-          child: Icon(
-            item.icon,
-            color: Colors.white,
-            size: 24,
-          ),
-        ),
+        // leading: Image.network(item.imageUrl ?? '', height: 40,),
+        leading: Image.asset(R.assetsImageWaji, height: 40,),
         title: Text(
-          item.title,
+          item.name ?? '',
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
@@ -66,11 +207,13 @@ class ResourcesPage extends StatelessWidget {
         ),
         trailing: const Icon(Icons.chevron_right),
         onTap: () {
+          logic.showDeviceTypes(item.id, item.name ?? '');
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => ResourceSecondLevelPage(
-                firstLevelTitle: item.title,
+                firstLevelTitle: item.name ?? '',
+                logic: logic,
               ),
             ),
           );
@@ -110,50 +253,27 @@ class ResourcesPage extends StatelessWidget {
   }
 }
 
-class ResourceItem {
-  final String title;
-  final IconData icon;
-  final Color color;
+class ResourceSecondLevelPage extends StatefulWidget {
+  final String firstLevelTitle;
+  final ResourcesLogic logic;
 
-  ResourceItem({required this.title, required this.icon, required this.color});
+  const ResourceSecondLevelPage({super.key, required this.firstLevelTitle, required this.logic});
+
+  @override
+  State<ResourceSecondLevelPage> createState() => _ResourceSecondLevelPageState();
 }
 
-final List<ResourceItem> resourceItems = [
-  ResourceItem(title: 'Brooms', icon: Icons.cleaning_services, color: Colors.grey),
-  ResourceItem(title: 'Demolition', icon: Icons.construction, color: Colors.orange),
-  ResourceItem(title: 'Bale Grabbers & Spears', icon: Icons.agriculture, color: Colors.green),
-  ResourceItem(title: 'Grading & Scraping', icon: Icons.landscape, color: Colors.brown),
-  ResourceItem(title: 'Great Plains', icon: Icons.grass, color: Colors.lightGreen),
-  ResourceItem(title: 'Brooms', icon: Icons.cleaning_services, color: Colors.grey),
-  ResourceItem(title: 'Attachments', icon: Icons.build, color: Colors.blue),
-  ResourceItem(title: 'Great Plains', icon: Icons.grass, color: Colors.lightGreen),
-  ResourceItem(title: 'Bale Grabbers & Spears', icon: Icons.agriculture, color: Colors.green),
-  ResourceItem(title: 'Great Plains', icon: Icons.grass, color: Colors.lightGreen),
-  ResourceItem(title: 'Great Plains', icon: Icons.grass, color: Colors.lightGreen),
-];
+class _ResourceSecondLevelPageState extends State<ResourceSecondLevelPage> {
+  late final ResourcesLogic logic;
+  late final ResourcesState state;
 
-final List<ResourceItem> secondLevelItems = [
-  ResourceItem(title: 'Attachments', icon: Icons.build, color: Colors.blue),
-  ResourceItem(title: 'Great Plains', icon: Icons.grass, color: Colors.lightGreen),
-  ResourceItem(title: 'Brooms', icon: Icons.cleaning_services, color: Colors.grey),
-  ResourceItem(title: 'Demolition', icon: Icons.construction, color: Colors.orange),
-  ResourceItem(title: 'Bale Grabbers & Spears', icon: Icons.agriculture, color: Colors.green),
-  ResourceItem(title: 'Grading & Scraping', icon: Icons.landscape, color: Colors.brown),
-];
+  @override
+  void initState() {
+    super.initState();
+    logic = widget.logic;
+    state = logic.state;
+  }
 
-final List<ResourceItem> thirdLevelItems = [
-  ResourceItem(title: 'Great Plains', icon: Icons.grass, color: Colors.lightGreen),
-  ResourceItem(title: 'Brooms', icon: Icons.cleaning_services, color: Colors.grey),
-  ResourceItem(title: 'Great Plains', icon: Icons.grass, color: Colors.lightGreen),
-  ResourceItem(title: 'Great Plains', icon: Icons.grass, color: Colors.lightGreen),
-  ResourceItem(title: 'Bale Grabbers & Spears', icon: Icons.agriculture, color: Colors.green),
-  ResourceItem(title: 'Great Plains', icon: Icons.grass, color: Colors.lightGreen),
-];
-
-class ResourceSecondLevelPage extends StatelessWidget {
-  final String firstLevelTitle;
-
-  const ResourceSecondLevelPage({super.key, required this.firstLevelTitle});
 
   @override
   Widget build(BuildContext context) {
@@ -167,14 +287,68 @@ class ResourceSecondLevelPage extends StatelessWidget {
       body: Column(
         children: [
           _buildBreadcrumb([
-            BreadcrumbItem(title: firstLevelTitle, isSelected: false),
+            BreadcrumbItem(title: widget.firstLevelTitle, isSelected: false),
           ]),
           Expanded(
-            child: ListView.builder(
-              itemCount: secondLevelItems.length,
-              itemBuilder: (context, index) {
-                return _buildResourceItem(context, secondLevelItems[index]);
-              },
+            child: _buildContent(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContent() {
+    // 空数据状态
+    if (state.secondData.isEmpty) {
+      return _buildEmptyState();
+    }
+
+    // 正常数据列表
+    return ListView.builder(
+      itemCount: state.secondData.length,
+      itemBuilder: (context, index) {
+        return _buildResourceItem(context, state.secondData[index]);
+      },
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.category_outlined,
+            size: 80,
+            color: Colors.grey[400],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            '暂无设备类型',
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '该品牌下暂无可用的设备类型\n请返回选择其他品牌',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[500],
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.arrow_back),
+            label: const Text('返回品牌列表'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
           ),
         ],
@@ -198,21 +372,10 @@ class ResourceSecondLevelPage extends StatelessWidget {
         ],
       ),
       child: ListTile(
-        leading: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: item.color,
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-          child: Icon(
-            item.icon,
-            color: Colors.white,
-            size: 24,
-          ),
-        ),
+        // leading: Image.network(item.imageUrl ?? '', height: 40,),
+        leading: Image.asset(R.assetsImageWaji, height: 40,),
         title: Text(
-          item.title,
+          item.name ?? '',
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
@@ -220,12 +383,14 @@ class ResourceSecondLevelPage extends StatelessWidget {
         ),
         trailing: const Icon(Icons.chevron_right),
         onTap: () {
+          logic.showModels(item.id, item.name ?? '');
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => ResourceThirdLevelPage(
-                firstLevelTitle: firstLevelTitle,
-                secondLevelTitle: item.title,
+                firstLevelTitle: widget.firstLevelTitle,
+                secondLevelTitle: item.name ?? '',
+                logic: logic,
               ),
             ),
           );
@@ -267,15 +432,32 @@ class ResourceSecondLevelPage extends StatelessWidget {
   }
 }
 
-class ResourceThirdLevelPage extends StatelessWidget {
+class ResourceThirdLevelPage extends StatefulWidget {
   final String firstLevelTitle;
   final String secondLevelTitle;
+  final ResourcesLogic logic;
 
   const ResourceThirdLevelPage({
     super.key,
     required this.firstLevelTitle,
     required this.secondLevelTitle,
+    required this.logic,
   });
+
+  @override
+  State<ResourceThirdLevelPage> createState() => _ResourceThirdLevelPageState();
+}
+
+class _ResourceThirdLevelPageState extends State<ResourceThirdLevelPage> {
+  late final ResourcesLogic logic;
+  late final ResourcesState state;
+
+  @override
+  void initState() {
+    super.initState();
+    logic = widget.logic;
+    state = logic.state;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -289,15 +471,69 @@ class ResourceThirdLevelPage extends StatelessWidget {
       body: Column(
         children: [
           _buildBreadcrumb([
-            BreadcrumbItem(title: firstLevelTitle, isSelected: false),
-            BreadcrumbItem(title: secondLevelTitle, isSelected: true),
+            BreadcrumbItem(title: widget.firstLevelTitle, isSelected: false),
+            BreadcrumbItem(title: widget.secondLevelTitle, isSelected: true),
           ]),
           Expanded(
-            child: ListView.builder(
-              itemCount: thirdLevelItems.length,
-              itemBuilder: (context, index) {
-                return _buildResourceItem(context, thirdLevelItems[index]);
-              },
+            child: _buildContent(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContent() {
+    // 空数据状态
+    if (state.threeData.isEmpty) {
+      return _buildEmptyState();
+    }
+
+    // 正常数据列表
+    return ListView.builder(
+      itemCount: state.threeData.length,
+      itemBuilder: (context, index) {
+        return _buildResourceItem(context, state.threeData[index]);
+      },
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.precision_manufacturing_outlined,
+            size: 80,
+            color: Colors.grey[400],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            '暂无设备型号',
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '该设备类型下暂无可用的型号\n请返回选择其他设备类型',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[500],
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.arrow_back),
+            label: const Text('返回设备类型'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
           ),
         ],
@@ -321,21 +557,10 @@ class ResourceThirdLevelPage extends StatelessWidget {
         ],
       ),
       child: ListTile(
-        leading: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: item.color,
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-          child: Icon(
-            item.icon,
-            color: Colors.white,
-            size: 24,
-          ),
-        ),
+        // leading: Image.network(item.imageUrl ?? '', height: 40,),
+        leading: Image.asset(R.assetsImageWaji),
         title: Text(
-          item.title,
+          item.name ?? '',
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
@@ -347,9 +572,9 @@ class ResourceThirdLevelPage extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (context) => ResourceFourthLevelPage(
-                firstLevelTitle: firstLevelTitle,
-                secondLevelTitle: secondLevelTitle,
-                thirdLevelTitle: item.title,
+                firstLevelTitle: widget.firstLevelTitle,
+                secondLevelTitle: widget.secondLevelTitle,
+                thirdLevelTitle: item.name ?? '',
               ),
             ),
           );

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../r.dart';
 import '../equipment/equipment_page.dart';
-import '../equipment/equipment_provider.dart';
 import '../resources/resources_page.dart';
 import '../dealers/dealers_page.dart';
 import '../personal/personal_page.dart';

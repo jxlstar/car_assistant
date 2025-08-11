@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'device_detail_page.dart';
+import '../device_detail/device_detail_page.dart';
 
 class DeviceSearchPage extends StatefulWidget {
   @override
@@ -116,7 +116,7 @@ class _DeviceSearchPageState extends State<DeviceSearchPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => DeviceDetailPage(device: device),
+                    builder: (context) => DeviceDetailPage(deviceId: device['device_id']),
                   ),
                 );
               },

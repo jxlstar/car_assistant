@@ -7,7 +7,7 @@ class AppService {
     try {
       // 初始化日志
       LoggerUtil.init();
-      LoggerUtil.i('Initializing app services...');
+      // LoggerUtil.i('Initializing app services...');
       
       // 初始化本地存储
       await StorageService.init();
@@ -18,9 +18,9 @@ class AppService {
       // 加载认证token
       await ApiService.loadAuthToken();
       
-      LoggerUtil.i('App services initialized successfully');
+      // LoggerUtil.i('App services initialized successfully');
     } catch (e) {
-      LoggerUtil.e('Failed to initialize app services: $e');
+      // LoggerUtil.e('Failed to initialize app services: $e');
       rethrow;
     }
   }

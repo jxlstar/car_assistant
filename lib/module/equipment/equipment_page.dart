@@ -1,20 +1,38 @@
+import 'dart:math';
+
 import 'package:car_assistant/utils/colors_util.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:get/get.dart';
 import '../../r.dart';
-import 'device_detail_page.dart';
-import 'device_search_page.dart';
-import 'equipment_provider.dart';
-import 'find_devices_page.dart';
+import 'device_detail/device_detail_page.dart';
+import 'device_search/device_search_page.dart';
+import 'equipment_logic.dart';
+import 'bind_device/find_devices_page.dart';
 import '../../notification/notification_page.dart';
+import 'equipment_state.dart';
 
-class EquipmentPage extends StatelessWidget {
+class EquipmentPage extends StatefulWidget {
   const EquipmentPage({super.key});
 
   @override
+  State<EquipmentPage> createState() => _EquipmentPageState();
+}
+
+class _EquipmentPageState extends State<EquipmentPage> {
+  late final EquipmentLogic logic;
+
+  @override
+  void initState() {
+    super.initState();
+    logic = Get.put(EquipmentLogic());
+    logic.fetchDeviceList();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Consumer<EquipmentProvider>(
-      builder: (context, equipmentProvider, child) {
+    return GetBuilder<EquipmentLogic>(
+      init: logic,
+      builder: (controller) {
         return Scaffold(
           appBar: AppBar(
             title: Row(
@@ -39,10 +57,9 @@ class EquipmentPage extends StatelessWidget {
               ],
             ),
           ),
-          body:
-              equipmentProvider.devices.isNotEmpty
-                  ? _haveDataWidget(equipmentProvider, context)
-                  : _noDataWidget(context),
+          body: controller.devices.isNotEmpty
+              ? _haveDataWidget(controller, context)
+              : _noDataWidget(context),
         );
       },
     );
@@ -93,7 +110,7 @@ class EquipmentPage extends StatelessWidget {
     );
   }
 
-  Widget _haveDataWidget(EquipmentProvider provider, BuildContext context) {
+  Widget _haveDataWidget(EquipmentLogic logic, BuildContext context) {
     return Container(
       color: ColorsUtil.hexColor('#F1F5F8'),
       child: Column(
@@ -106,7 +123,7 @@ class EquipmentPage extends StatelessWidget {
               children: [
                 Spacer(),
                 GestureDetector(
-                  onTap: (){
+                  onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -125,9 +142,9 @@ class EquipmentPage extends StatelessWidget {
                   ),
                 ),
                 // Search button
-                SizedBox(width: 10,),
+                SizedBox(width: 10),
                 GestureDetector(
-                  onTap: (){
+                  onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -152,23 +169,15 @@ class EquipmentPage extends StatelessWidget {
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.all(16.0),
-              itemCount: provider.devices.length,
+              itemCount: logic.devices.length,
               itemBuilder: (context, index) {
-                final device = provider.devices[index];
+                final device = logic.devices[index];
                 return GestureDetector(
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder:
-                            (context) => DeviceDetailPage(
-                              device: {
-                                'rackNumber': device.rackNumber,
-                                'modelNo': device.modelNo,
-                                'pin': device.pin,
-                                'hours': device.hours.toString(),
-                              },
-                            ),
+                        builder: (context) => DeviceDetailPage(deviceId: device.deviceId),
                       ),
                     );
                   },
@@ -203,7 +212,7 @@ class EquipmentPage extends StatelessWidget {
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(8),
                                 child: Image.asset(
-                                  R.assetsImageAvatar, // 假设有挖掘机图片
+                                  R.assetsImageAvatar,
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) {
                                     return const Icon(
@@ -222,7 +231,7 @@ class EquipmentPage extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    device.rackNumber,
+                                    device.rackNumber ?? '',
                                     style: const TextStyle(
                                       fontSize: 24,
                                       fontWeight: FontWeight.bold,
@@ -241,28 +250,7 @@ class EquipmentPage extends StatelessWidget {
                                       ),
                                       const SizedBox(width: 40),
                                       Text(
-                                        device.modelNo,
-                                        style: const TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        'PIN',
-                                        style: TextStyle(
-                                          color: Colors.grey[600],
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 56),
-                                      Text(
-                                        device.pin,
+                                        device.modelNo ?? '',
                                         style: const TextStyle(
                                           color: Colors.black,
                                           fontSize: 14,
@@ -469,4 +457,168 @@ class EquipmentPage extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget _buildDeviceCard(Device device, BuildContext context) {
+  return GestureDetector(
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DeviceDetailPage(
+            deviceId: device.deviceId,
+          ),
+        ),
+      );
+    },
+    child: Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // 设备基本信息
+          Row(
+            children: [
+              // 设备图片
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.asset(
+                    R.assetsImageWaji, // 使用新的挖掘机图片
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Icon(
+                        Icons.construction,
+                        color: Colors.grey,
+                        size: 40,
+                      );
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              // 设备信息
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          device.deviceName ?? '',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: device.status == 'online' ? Colors.green : Colors.red,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            device.status == 'online' ? '在线' : '离线',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '型号: ${device.model}',
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '运行时长: ${device.runtimeHours}h',
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // 状态指示器和箭头
+              Column(
+                children: [
+                  Icon(
+                    device.lockStatus!.isLocked ? Icons.lock : Icons.lock_open,
+                    color: device.lockStatus!.isLocked ? Colors.red : Colors.green,
+                    size: 20,
+                  ),
+                  const SizedBox(height: 8),
+                  const Icon(
+                    Icons.chevron_right,
+                    color: Colors.blue,
+                    size: 24,
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          // 设备状态信息
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildStatusItem('电量', '${device.batteryLevel}%', Icons.battery_full),
+              _buildStatusItem('油量', '${device.fuelLevel}%', Icons.local_gas_station),
+              _buildStatusItem('水温', '${device.waterTemperature}°C', Icons.thermostat),
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget _buildStatusItem(String label, String value, IconData icon) {
+  return Column(
+    children: [
+      Icon(icon, size: 20, color: Colors.blue),
+      const SizedBox(height: 4),
+      Text(
+        label,
+        style: TextStyle(
+          fontSize: 12,
+          color: Colors.grey[600],
+        ),
+      ),
+      Text(
+        value,
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ],
+  );
 }

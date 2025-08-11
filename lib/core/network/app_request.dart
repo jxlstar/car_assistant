@@ -33,28 +33,28 @@ class AppRequest {
           if (_authToken != null) {
             options.headers['Authorization'] = 'Bearer $_authToken';
           }
-          LoggerUtil.d('Request: ${options.method} ${options.path}');
-          LoggerUtil.d('Headers: ${options.headers}');
-          LoggerUtil.d('Data: ${options.data}');
+          // LoggerUtil.d('Request: ${options.method} ${options.path}');
+          // LoggerUtil.d('Headers: ${options.headers}');
+          // LoggerUtil.d('Data: ${options.data}');
           handler.next(options);
         },
         onResponse: (response, handler) {
-          LoggerUtil.d('Response: ${response.statusCode} ${response.data}');
+          // LoggerUtil.d('Response: ${response.statusCode} ${response.data}');
           handler.next(response);
         },
         onError: (error, handler) {
-          LoggerUtil.e('API Error: ${error.message}');
-          LoggerUtil.e('Error Data: ${error.response?.data}');
+          // LoggerUtil.e('API Error: ${error.message}');
+          // LoggerUtil.e('Error Data: ${error.response?.data}');
           handler.next(error);
         },
       ),
       // 日志拦截器
-      if (AppConfig.isDebug)
-        LogInterceptor(
-          requestBody: true,
-          responseBody: true,
-          logPrint: (obj) => LoggerUtil.d(obj.toString()),
-        ),
+      // if (AppConfig.isDebug)
+      //   LogInterceptor(
+      //     requestBody: true,
+      //     responseBody: true,
+      //     logPrint: (obj) => LoggerUtil.d(obj.toString()),
+      //   ),
     ]);
   }
 
@@ -85,7 +85,6 @@ class AppRequest {
   }) async {
     try {
       Response response;
-      
       switch (method.toUpperCase()) {
         case 'GET':
           response = await _dio.get(
@@ -93,6 +92,7 @@ class AppRequest {
             queryParameters: queryParameters,
             options: options,
           );
+          LoggerUtil.i('get response========${response.data}');
           break;
         case 'POST':
           response = await _dio.post(
@@ -178,6 +178,8 @@ class AppRequest {
     Map<String, dynamic>? queryParameters,
     Options? options,
   }) {
+    LoggerUtil.i('api_path==== $path');
+    LoggerUtil.i('queryParameters==== $queryParameters');
     return _request<T>('GET', path,
         queryParameters: queryParameters, options: options);
   }
@@ -189,7 +191,7 @@ class AppRequest {
     Map<String, dynamic>? queryParameters,
     Options? options,
   }) {
-
+   LoggerUtil.e('reqeust-params: $data');
     return _request<T>('POST', path,
         data: data, queryParameters: queryParameters, options: options);
   }

@@ -44,31 +44,23 @@ class ApiService {
       return _request.post<Map<String, dynamic>>('/api/app/auth/refresh');
     }
     // 获取设备列表
-    static Future<ApiResponse<List<dynamic>>> getDeviceList({
-      int page = 1,
-      int limit = 20,
-      String? search,
-    }) {
-      return _request.get<List<dynamic>>('/api/app/equipment/devices', queryParameters: {
-        'page': page,
-        'limit': limit,
-        if (search != null) 'search': search,
-      });
+    static Future<ApiResponse<Map<String, dynamic>>> getDeviceList() {
+      return _request.get<Map<String, dynamic>>('/api/app/devices/bound');
     }
 
     // 获取设备详情
     static Future<ApiResponse<Map<String, dynamic>>> getDeviceDetail(String deviceId) {
-      return _request.get<Map<String, dynamic>>('/api/app/equipment/devices/$deviceId');
+      return _request.get<Map<String, dynamic>>('/api/app/devices/$deviceId/details');
     }
 
     // 绑定设备
     static Future<ApiResponse<Map<String, dynamic>>> bindDevice({
-      required String deviceId,
-      required String pin,
+      required String rockNumber,
+      required String deviceName,
     }) {
-      return _request.post<Map<String, dynamic>>('/api/app/equipment/bind', data: {
-        'device_id': deviceId,
-        'pin': pin,
+      return _request.post<Map<String, dynamic>>('/api/app/devices/bind', data: {
+        'rock_number': rockNumber,
+        'device_name': deviceName,
       });
     }
 
@@ -113,10 +105,23 @@ class ApiService {
       );
     }
 
+  // 查询设备
+  static Future<ApiResponse<Map<String, dynamic>>> searchDevice({
+    required String rockNumber,
+    required String model
+  }) {
+    return _request.post<Map<String, dynamic>>('/api/app/devices/search', data: {
+      'rock_number': rockNumber,
+      'model': model,
+    });
+  }
+
   // 通用方法
   static void setAuthToken(String token) {
     _request.setAuthToken(token);
   }
+
+
 
   static void clearAuthToken() {
     _request.clearAuthToken();
@@ -124,5 +129,20 @@ class ApiService {
 
   static Future<void> loadAuthToken() {
     return _request.loadAuthToken();
+  }
+
+  // 获取设备品牌分类（一级）
+  static Future<ApiResponse<Map<String, dynamic>>> getResourceBrands() {
+    return _request.get<Map<String, dynamic>>('/api/app/resources');
+  }
+
+  // 获取设备分类（二级）
+  static Future<ApiResponse<Map<String, dynamic>>> getResourceCategories(String brandId) {
+    return _request.get<Map<String, dynamic>>('/api/app/resources/categories/$brandId');
+  }
+
+  // 获取设备型号（三级）
+  static Future<ApiResponse<Map<String, dynamic>>> getResourceModels(String categoryId) {
+    return _request.get<Map<String, dynamic>>('/api/app/resources/models/$categoryId');
   }
 }

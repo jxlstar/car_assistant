@@ -1,16 +1,15 @@
+import 'package:car_assistant/core/utils/loading_util.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../r.dart';
-import 'equipment_provider.dart';
-
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import '../../../r.dart';
+import '../equipment_logic.dart';
 class DeviceResultPage extends StatelessWidget {
-  final String rackNumber;
-  final String modelNo;
-  
+  final Map<dynamic, dynamic> deviceInfo;
+
   const DeviceResultPage({
     super.key,
-    required this.rackNumber,
-    required this.modelNo,
+    required this.deviceInfo,
   });
 
   @override
@@ -34,34 +33,19 @@ class DeviceResultPage extends StatelessWidget {
               children: [
               const SizedBox(height: 60),
               // 设备图片容器
-              Container(
-                width: 200,
-                height: 200,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(100),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.blue.withOpacity(0.1),
-                      blurRadius: 20,
-                      spreadRadius: 5,
-                    ),
-                  ],
-                ),
-                child: Center(
-                  child: Container(
-                    width: 120,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: Colors.blue[600],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Image.asset(R.assetsImageAvatar)
-                ),
-              ),),
+              Center(
+                child: Container(
+                  width: 200,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Image.asset(R.assetsImageWaji)
+              ),
+                            ),
               const SizedBox(height: 40),
               Text(
-                rackNumber,
+                deviceInfo['device_type'] ?? '暂无',
                 style: const TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w600,
@@ -70,7 +54,7 @@ class DeviceResultPage extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                modelNo,
+                deviceInfo['name'],
                 style: const TextStyle(
                   fontSize: 16,
                   color: Colors.grey,
@@ -82,13 +66,16 @@ class DeviceResultPage extends StatelessWidget {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // 更新设备绑定状态
-                    Provider.of<EquipmentProvider>(context, listen: false)
-                        .bindDevice(rackNumber, modelNo);
-                    
-                    // 返回到主页面，MainPage会自动显示EquipmentPageWithDevice
+                  onPressed: () async {
+                  LoadingUtil.show(context, message: "绑定中...");
+                  final equipmentLogic = Get.find<EquipmentLogic>();
+                  final success = await equipmentLogic.bindDevice(deviceInfo['rock_number'], deviceInfo['name']);
+                  LoadingUtil.hide();
+                  if(success){
                     Navigator.of(context).popUntil((route) => route.isFirst);
+                  }
+                  // 返回到主页面
+                  // Navigator.of(context).popUntil((route) => route.isFirst);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:get/get.dart'; // 添加这行
 import 'module/login/auth_provider.dart';
 import 'module/login/login_page.dart';
 import 'module/home/main_page.dart';
-import 'module/equipment/equipment_provider.dart';
 import 'core/services/app_service.dart';
 import 'core/utils/logger_util.dart';
+import 'module/resources/resources_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +17,7 @@ void main() async {
     
     runApp(const MyApp());
   } catch (e) {
-    LoggerUtil.e('Failed to start app: $e');
+    // LoggerUtil.e('Failed to start app: $e');
     runApp(const ErrorApp());
   }
 }
@@ -29,7 +30,6 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => EquipmentProvider()),
       ],
       child: Consumer<AuthProvider>(
         builder: (context, authProvider, _) {
@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
             authProvider.checkAuthStatus();
           });
           
-          return MaterialApp(
+          return GetMaterialApp( // 改为 GetMaterialApp
             title: '车载助手',
             debugShowCheckedModeBanner: false,
             theme: ThemeData(
@@ -46,6 +46,11 @@ class MyApp extends StatelessWidget {
               useMaterial3: true,
             ),
             home: authProvider.isAuthenticated ? const MainPage() : const LoginPage(),
+            // 添加路由配置
+            getPages: [
+              GetPage(name: '/resource_detail', page: () => ResourcesPage()),
+              // 其他路由...
+            ],
           );
         },
       ),

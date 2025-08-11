@@ -5,6 +5,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import '../../core/network/api_service.dart';
+import '../../core/storage/storage_service.dart';
 import '../../utils/social_login_button.dart';
 import '../../utils/custom_text_field.dart';
 import 'login_model.dart';
@@ -30,9 +31,16 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
+    // 设置默认用户名和密码
+    _emailController.text = 'jiangxl1377@gmail.com';
+    _passwordController.text = '111111';
+    
     // 添加监听器，当输入变化时检查是否可以启用登录按钮
     _emailController.addListener(_checkLoginButtonState);
     _passwordController.addListener(_checkLoginButtonState);
+    
+    // 初始化时检查登录按钮状态
+    _checkLoginButtonState();
   }
 
   @override
@@ -53,9 +61,6 @@ class _LoginPageState extends State<LoginPage> {
   // 处理登录按钮点击
   Future<void> _handleLogin() async {
     if (_formKey.currentState!.validate()) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const MainPage()),
-      );
       if(_emailController.text.isEmpty || _passwordController.text.isEmpty) {
         Fluttertoast.showToast(msg: "用户名或者密码不能为空", gravity: ToastGravity.CENTER);
         return;
@@ -69,11 +74,26 @@ class _LoginPageState extends State<LoginPage> {
         LoadingUtil.hide();
         if (response.success) {
           // 登录成功，保存token
-          final token = response.data?['token'];
+          final token = response.data?['data']['token'];
+          LoggerUtil.i('保存data==: ${response.data}');
+          LoggerUtil.i('保存token信息==: $token');
           if (token != null) {
             ApiService.setAuthToken(token);
           }
+          final userInfo = response.data?['data']['user'];
+          LoggerUtil.i('保存用户信息==: $userInfo');
+          final user = UserModel(
+            id: userInfo['id'] ?? '',
+            email: userInfo['email'] ?? '',
+            fullName: userInfo['full_name'] ?? '',
+            phone: userInfo['phone'] ?? '',
+            avatar: userInfo['avatar'] ?? '',
+            createdAt: 0,
+          );
+         bool isOk = await StorageService.saveUser(user);
+          LoggerUtil.i('保存用户信息: $isOk');
           LoggerUtil.i('登录成功: ${response.message}');
+          FocusScope.of(context).unfocus();
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => const MainPage()),
           );
@@ -126,6 +146,7 @@ class _LoginPageState extends State<LoginPage> {
                     hintText: 'hello@example.com',
                     labelText: 'Email Address/Phone Number',
                     keyboardType: TextInputType.emailAddress,
+                    obscureText: false,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your email or phone number';
