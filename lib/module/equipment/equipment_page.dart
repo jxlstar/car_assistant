@@ -148,7 +148,9 @@ class _EquipmentPageState extends State<EquipmentPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => DeviceSearchPage(),
+                        builder: (context) => DeviceSearchPage(
+                          devices: logic.devices, // 传递设备列表数据
+                        ),
                       ),
                     );
                   },

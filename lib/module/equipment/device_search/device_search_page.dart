@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import '../device_detail/device_detail_page.dart';
+import '../equipment_state.dart';
 
 class DeviceSearchPage extends StatefulWidget {
+  final List<Device> devices; // 接收传递的设备列表
+  
+  const DeviceSearchPage({super.key, required this.devices});
+  
   @override
   _DeviceSearchPageState createState() => _DeviceSearchPageState();
 }
@@ -9,54 +14,30 @@ class DeviceSearchPage extends StatefulWidget {
 class _DeviceSearchPageState extends State<DeviceSearchPage> {
   final TextEditingController _searchController = TextEditingController();
   
-  final List<Map<String, dynamic>> devices = [
-    {
-      'name': 'R-10',
-      'model': 'R-10',
-      'pin': 'KBCGJ99KKHGV9965',
-      'hours': '134.9h',
-      'image': 'assets/images/excavator_blue.png',
-    },
-    {
-      'name': 'R-319',
-      'model': 'R-319',
-      'pin': 'KBCGJ99KKHGV4669',
-      'hours': '192.1h',
-      'image': 'assets/images/excavator_yellow.png',
-    },
-    {
-      'name': 'RS20',
-      'model': 'RS20',
-      'pin': 'KBCGJ99KKHGV3482',
-      'hours': '33.5h',
-      'image': 'assets/images/skid_steer.png',
-    },
-  ];
-  
-  List<Map<String, dynamic>> filteredDevices = [];
-  
+  List<Device> filteredDevices = [];
+
   @override
   void initState() {
     super.initState();
-    filteredDevices = devices;
+    filteredDevices = widget.devices; // 初始化显示所有设备
     _searchController.addListener(_filterDevices);
   }
-  
+
   void _filterDevices() {
     final query = _searchController.text.toLowerCase();
     setState(() {
       if (query.isEmpty) {
-        filteredDevices = devices;
+        filteredDevices = widget.devices;
       } else {
-        filteredDevices = devices.where((device) {
-          return device['name'].toLowerCase().contains(query) ||
-                 device['model'].toLowerCase().contains(query) ||
-                 device['pin'].toLowerCase().contains(query);
+        filteredDevices = widget.devices.where((device) {
+          return (device.deviceName?.toLowerCase().contains(query) ?? false) ||
+                 (device.model?.toLowerCase().contains(query) ?? false) ||
+                 (device.pin?.toLowerCase().contains(query) ?? false);
         }).toList();
       }
     });
   }
-  
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -84,7 +65,7 @@ class _DeviceSearchPageState extends State<DeviceSearchPage> {
           child: TextField(
             controller: _searchController,
             decoration: InputDecoration(
-              hintText: 'R',
+              hintText: 'Search devices...',
               border: InputBorder.none,
               contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               suffixIcon: Icon(Icons.search, color: Colors.grey),
@@ -116,7 +97,7 @@ class _DeviceSearchPageState extends State<DeviceSearchPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => DeviceDetailPage(deviceId: device['device_id']),
+                    builder: (context) => DeviceDetailPage(deviceId: device.deviceId ?? ''),
                   ),
                 );
               },
@@ -131,7 +112,7 @@ class _DeviceSearchPageState extends State<DeviceSearchPage> {
                     ),
                     child: Icon(
                       Icons.construction,
-                      color: index == 0 ? Colors.blue : (index == 1 ? Colors.orange : Colors.grey[600]),
+                      color: device.status == 1 ? Colors.green : Colors.grey[600],
                       size: 30,
                     ),
                   ),
@@ -141,7 +122,7 @@ class _DeviceSearchPageState extends State<DeviceSearchPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          device['name'],
+                          device.deviceName ?? 'Unknown Device',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -159,7 +140,7 @@ class _DeviceSearchPageState extends State<DeviceSearchPage> {
                             ),
                             SizedBox(width: 8),
                             Text(
-                              device['model'],
+                              device.model ?? 'N/A',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
@@ -179,7 +160,7 @@ class _DeviceSearchPageState extends State<DeviceSearchPage> {
                             ),
                             SizedBox(width: 8),
                             Text(
-                              device['pin'],
+                              device.pin ?? 'N/A',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
@@ -199,7 +180,7 @@ class _DeviceSearchPageState extends State<DeviceSearchPage> {
                             ),
                             SizedBox(width: 8),
                             Text(
-                              device['hours'],
+                              '${device.runtimeHours?.toStringAsFixed(1) ?? '0.0'}h',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
