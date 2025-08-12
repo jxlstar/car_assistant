@@ -1,3 +1,6 @@
+import 'package:car_assistant/core/utils/logger_util.dart';
+
+import '../storage/storage_service.dart' show StorageService;
 import 'app_request.dart';
 
 class ApiService {
@@ -69,21 +72,25 @@ class ApiService {
       return _request.delete<Map<String, dynamic>>('/api/app/equipment/bind/$deviceId');
     }
     // 获取经销商列表
-    static Future<ApiResponse<List<dynamic>>> getDealerList({
-      double? latitude,
-      double? longitude,
-      int radius = 50,
-    }) {
-      return _request.get<List<dynamic>>('/api/app/dealers', queryParameters: {
-        if (latitude != null) 'latitude': latitude,
-        if (longitude != null) 'longitude': longitude,
-        'radius': radius,
-      });
+    static Future<ApiResponse<Map<String, dynamic>>> getDealerList() {
+      return _request.get<Map<String, dynamic>>('/api/app/dealers?page=1&page_size=50');
     }
+    // 收藏代理商
+    static Future<ApiResponse> addDealerToFavorites(dynamic dealerId) async {
 
-    // 获取经销商详情
-    static Future<ApiResponse<Map<String, dynamic>>> getDealerDetail(String dealerId) {
-      return _request.get<Map<String, dynamic>>('/api/app/dealers/$dealerId');
+      LoggerUtil.i('收藏&&addDealerToFavorites=====$dealerId =====');
+      return await _request.post('/api/app/dealers/$dealerId/favorite',);
+    }
+  // 取消收藏代理商
+    static Future<ApiResponse> removeDealerFromFavorites(dynamic dealerId) async {
+      return await _request.delete('/api/app/dealers/$dealerId/favorite',
+    );
+  }
+    static Future<ApiResponse> getFavoriteDealers() async {
+      return await _request.get('/api/app/dealers/favorites?page=1&page_size=20',);
+    }
+    static Future<ApiResponse> getDealerDetail(dynamic dealerId) async {
+      return await _request.get('/api/app/dealers/$dealerId');
     }
 
     // 获取用户信息
@@ -120,9 +127,11 @@ class ApiService {
   static void setAuthToken(String token) {
     _request.setAuthToken(token);
   }
-
-
-
+// 获取存储的token
+ static bool isLogin() {
+   String? authToken = StorageService.getString('auth_token');
+    return authToken != null ? true : false;
+  }
   static void clearAuthToken() {
     _request.clearAuthToken();
   }
@@ -145,4 +154,5 @@ class ApiService {
   static Future<ApiResponse<Map<String, dynamic>>> getResourceModels(String categoryId) {
     return _request.get<Map<String, dynamic>>('/api/app/resources/models/$categoryId');
   }
+
 }

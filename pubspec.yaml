@@ -83,6 +83,7 @@ flutter:
     - assets/image/personal_icon.png
     - assets/image/avatar.png
     - assets/image/source_icon_select.png
+    - assets/image/logo.png
     - assets/image/personal_icon_select.png
     - assets/image/logo_icon.png
     - assets/image/source_icon.png

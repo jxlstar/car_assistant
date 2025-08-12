@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
-import '../../r.dart';
+import 'package:get/get.dart';
+import 'dealers_logic.dart';
+import 'dealers_state.dart';
 
 class DealersPage extends StatefulWidget {
   const DealersPage({super.key});
@@ -10,208 +10,433 @@ class DealersPage extends StatefulWidget {
   State<DealersPage> createState() => _DealersPageState();
 }
 
-class _DealersPageState extends State<DealersPage> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-  final TextEditingController _searchController = TextEditingController();
-  
+class _DealersPageState extends State<DealersPage> {
+
+  late final DealersLogic logic;
+  late final DealersState state;
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-  }
-  
-  @override
-  void dispose() {
-    _tabController.dispose();
-    _searchController.dispose();
-    super.dispose();
+    logic = Get.put(DealersLogic());
+    logic.loadDealers();
+    state = logic.state;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title:  Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: TextField(
-            controller: _searchController,
-            decoration: InputDecoration(
-              hintText: 'Search Equipment...',
-              prefixIcon: const Icon(Icons.search, color: Colors.grey),
-              filled: true,
-              fillColor: Colors.grey.shade100,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(30.0),
-                borderSide: BorderSide.none,
+    return GetBuilder<DealersLogic>(
+      init: DealersLogic(),
+      builder: (logic) {
+        return DefaultTabController(
+          length: 2,
+          child: Scaffold(
+            backgroundColor: Colors.grey.shade50,
+            appBar: AppBar(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              title: Container(
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: TextField(
+                  onChanged: (value) => logic.searchDealers(value),
+                  decoration: const InputDecoration(
+                    hintText: 'Search Equipment...',
+                    hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
+                    prefixIcon: Icon(Icons.search, color: Colors.grey, size: 20),
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(vertical: 10),
+                  ),
+                ),
               ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 0.0),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.filter_list, color: Colors.grey),
+                  onPressed: () => _showFilterDialog(context, logic),
+                ),
+              ],
+            ),
+            body: Column(
+              children: [
+                // 标签页
+                Container(
+                  color: Colors.white,
+                  child: TabBar(
+                    onTap: (index) => logic.switchTab(index),
+                    tabs: const [
+                      Tab(text: 'LOCATIONS'),
+                      Tab(text: 'FAVORITES'),
+                    ],
+                    labelColor: Colors.blue,
+                    unselectedLabelColor: Colors.grey,
+                    indicatorColor: Colors.blue,
+                    indicatorWeight: 2.0,
+                    labelStyle: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+
+                // 内容区域
+                Expanded(
+                  child: _buildContent(logic),
+                ),
+              ],
             ),
           ),
-        ),
-      ),
-      body: SafeArea(
+        );
+      },
+    );
+  }
+
+  Widget _buildContent(DealersLogic logic) {
+    final state = logic.state;
+
+    if (state.isLoading && state.dealers.isEmpty) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    if (state.errorMessage != null && state.dealers.isEmpty) {
+      return Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // 标签页
-            TabBar(
-              controller: _tabController,
-              tabs: const [
-                Tab(text: 'LOCATIONS'),
-                Tab(text: 'FAVOROTES'), // 注意：UI中拼写错误，应为FAVORITES
-              ],
-              labelColor: Colors.blue,
-              unselectedLabelColor: Colors.grey,
-              indicatorColor: Colors.blue,
-              indicatorWeight: 3.0,
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: Colors.grey.shade400,
             ),
-            
-            // 标签页内容
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  // 位置标签页
-                  _buildLocationsTab(),
-                  
-                  // 收藏标签页
-                  const Center(child: Text('收藏列表')),
-                ],
+            const SizedBox(height: 16),
+            Text(
+              state.errorMessage!,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey.shade600,
               ),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => logic.refreshDealers(),
+              child: const Text('重试'),
             ),
           ],
         ),
+      );
+    }
+
+    final dealers = logic.currentDealers;
+    if (dealers.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              state.currentTabIndex == 1 ? Icons.favorite_border : Icons.location_off,
+              size: 64,
+              color: Colors.grey.shade400,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              state.currentTabIndex == 1 ? '暂无收藏的代理商' : '暂无代理商数据',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey.shade600,
+              ),
+            ),
+            if (state.currentTabIndex == 0) ...[
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => logic.refreshDealers(),
+                child: const Text('刷新'),
+              ),
+            ],
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () => logic.refreshDealers(),
+      child: Column(
+        children: [
+          // 地图区域（仅在位置标签页显示）
+          if (state.currentTabIndex == 0)
+            Container(
+              height: 200,
+              margin: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Center(
+                child: Text(
+                  '地图区域\n（待集成地图组件）',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey,
+                  ),
+                ),
+              ),
+            ),
+
+          // 代理商列表
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: dealers.length,
+              itemBuilder: (context, index) {
+                final dealer = dealers[index];
+                return _buildDealerItem(
+                  dealer: dealer,
+                  onTap: () => _navigateToDetail(dealer),
+                  onFavoriteToggle: () => logic.toggleFavorite(dealer.id, dealer.isFavorited ?? false),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
-  
-  Widget _buildLocationsTab() {
-    return Column(
-      children: [
-        // 地图区域
-        Expanded(
-          flex: 2,
-          child: Container(
-            color: Colors.grey.shade200,
-            child: Stack(
-              children: [
-                // 这里应该集成实际的地图组件
-                // 例如 GoogleMap 或 MapBox
-                Center(child: Text('地图区域')),
-              ],
-            ),
+
+  Widget _buildDealerItem({
+    required DealerItem dealer,
+    required VoidCallback onTap,
+    required VoidCallback onFavoriteToggle,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
-        ),
-        
-        // 经销商列表
-        Expanded(
-          flex: 1,
-          child: ListView.builder(
-            padding: const EdgeInsets.all(0),
-            itemCount: 1, // 示例中只有一个经销商
-            itemBuilder: (context, index) {
-              return _buildDealerItem(
-                name: 'Brightline Optics of Dalls',
-                address: '1023 S. Walton Walker Blvd Irving, TX 7560',
-                phone: '86-1029348',
-                isFavorite: false,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const DealerDetailPage(
-                        name: 'Brightline Optics of Dalls',
+        ],
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                dealer.dealerName ?? '未知经销商',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            if (dealer.isVerified == true)
+                              Container(
+                                margin: const EdgeInsets.only(left: 8),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.shade100,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  '认证',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.green.shade700,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        if (dealer.brand?.isNotEmpty == true)
+                          Text(
+                            dealer.brand!,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.blue.shade600,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        if (dealer.dealerTypeName?.isNotEmpty == true) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            dealer.dealerTypeName!,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      dealer.isFavorited ?? false || logic.state.favoriteDealerIds.contains(dealer.id)
+                          ? Icons.star
+                          : Icons.star_border,
+                      color: dealer.isFavorited ?? false  || logic.state.favoriteDealerIds.contains(dealer.id)
+                          ? Colors.red
+                          : Colors.grey,
+                    ),
+                    onPressed: onFavoriteToggle,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                dealer.fullAddress ?? '',
+                style: TextStyle(
+                  color: Colors.grey.shade600,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  if (dealer.phone != null) ...[
+                    const Icon(Icons.phone, color: Colors.blue, size: 16),
+                    const SizedBox(width: 4),
+                    Text(
+                      dealer.phone ?? '',
+                      style: const TextStyle(
+                        color: Colors.blue,
+                        fontSize: 12,
                       ),
                     ),
-                  );
-                },
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-  
-  Widget _buildDealerItem({
-    required String name,
-    required String address,
-    required String phone,
-    required bool isFavorite,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border(
-            bottom: BorderSide(color: Colors.grey.shade200),
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(
-                    isFavorite ? Icons.star : Icons.star_border,
-                    color: isFavorite ? Colors.amber : Colors.grey,
-                  ),
-                  onPressed: () {
-                    // 切换收藏状态
-                  },
-                ),
-              ],
-            ),
-            Text(
-              address,
-              style: TextStyle(color: Colors.grey.shade600),
-            ),
-            const SizedBox(height: 8),
-            InkWell(
-              onTap: () {
-                // 拨打电话
-              },
-              child: Row(
-                children: [
-                  const Icon(Icons.phone, color: Colors.blue, size: 20),
-                  const SizedBox(width: 8),
+                  ],
+                  if (dealer.mobile != null) ...[
+                    if (dealer.phone != null) const SizedBox(width: 16),
+                    const Icon(Icons.phone_android, color: Colors.green, size: 16),
+                    const SizedBox(width: 4),
+                    Text(
+                      dealer.mobile ?? '',
+                      style: const TextStyle(
+                        color: Colors.green,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                  const Spacer(),
+                  const Icon(Icons.star, color: Colors.amber, size: 16),
+                  const SizedBox(width: 4),
                   Text(
-                    phone,
-                    style: const TextStyle(color: Colors.blue),
+                    '(${dealer.reviewCount})',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade600,
+                    ),
                   ),
                 ],
               ),
-            ),
-          ],
+              if (dealer.serviceDisplayNames.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 4,
+                  children: dealer.serviceDisplayNames.take(3).map((service) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade50,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        service,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.blue.shade700,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
+            ],
+          ),
         ),
       ),
     );
   }
-}
 
-// 经销商详情页面
-class DealerDetailPage extends StatelessWidget {
-  final String name;
-  
-  const DealerDetailPage({super.key, required this.name});
-  
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(name)),
-      body: Center(
-        child: Text('$name 详情页面'),
+  void _navigateToDetail(DealerItem dealer) {
+    // Get.to(() => DealerDetailPage(dealer: dealer));
+  }
+
+  void _showFilterDialog(BuildContext context, DealersLogic logic) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('筛选条件'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              decoration: const InputDecoration(
+                labelText: '品牌',
+                hintText: '输入品牌名称',
+              ),
+              onChanged: (value) => logic.setBrandFilter(value.isEmpty ? null : value),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              decoration: const InputDecoration(
+                labelText: '城市',
+                hintText: '输入城市名称',
+              ),
+              onChanged: (value) => logic.setCityFilter(value.isEmpty ? null : value),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              decoration: const InputDecoration(
+                labelText: '服务类型',
+                hintText: '输入服务类型',
+              ),
+              onChanged: (value) => logic.setServiceFilter(value.isEmpty ? null : value),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              logic.clearFilters();
+              Navigator.of(context).pop();
+            },
+            child: const Text('清除'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('确定'),
+          ),
+        ],
       ),
     );
   }

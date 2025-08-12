@@ -18,36 +18,6 @@ class AuthProvider extends ChangeNotifier {
   String? get error => _error;
   bool get isAuthenticated => _isAuthenticated;
 
-  // 初始化，检查登录状态
-  Future<void> checkAuthStatus() async {
-    final isAuth = StorageService.getBool(_authKey);
-    if (isAuth != null && isAuth) {
-      _isAuthenticated = true;
-      notifyListeners();
-    }
-  }
-
-  // 邮箱密码登录
-  Future<void> login(LoginModel loginModel) async {
-    _setLoading(true);
-    _error = null;
-    try {
-      // 这里应该调用实际的登录API
-      // 模拟网络请求延迟
-      // await Future.delayed(const Duration(seconds: 2));
-      // 模拟登录成功
-      _isAuthenticated = true;
-      // 保存登录状态
-      await StorageService.setBool(_authKey, true);
-      LoggerUtil.i('User logged in with email: ${loginModel.email}');
-    } catch (e) {
-      _error = e.toString();
-      LoggerUtil.e('Login error: $_error');
-    } finally {
-      _setLoading(false);
-    }
-  }
-
   // Google登录
   Future<void> signInWithGoogle() async {
     _setLoading(true);

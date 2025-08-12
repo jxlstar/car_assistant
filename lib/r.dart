@@ -13,6 +13,8 @@ class R {
   static final String assetsImageAvatar = 'assets/image/avatar.png';
   /// ![](http://127.0.0.1:1234/assets/image/source_icon_select.png)
   static final String assetsImageSourceIconSelect = 'assets/image/source_icon_select.png';
+  /// ![](http://127.0.0.1:1234/assets/image/logo.png)
+  static final String assetsImageLogo = 'assets/image/logo.png';
   /// ![](http://127.0.0.1:1234/assets/image/personal_icon_select.png)
   static final String assetsImagePersonalIconSelect = 'assets/image/personal_icon_select.png';
   /// ![](http://127.0.0.1:1234/assets/image/logo_icon.png)
