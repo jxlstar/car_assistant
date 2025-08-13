@@ -1,11 +1,18 @@
+import 'package:car_assistant/core/network/api_service.dart';
+import 'package:car_assistant/core/utils/loading_util.dart';
+import 'package:car_assistant/core/utils/logger_util.dart';
 import 'package:car_assistant/module/login/forgot_password_page.dart';
+import 'package:car_assistant/module/login/otp_verification_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 
 import '../../core/storage/storage_service.dart';
 import '../../notification/notification_page.dart';
 import '../../r.dart';
 import '../login/auth_provider.dart';
+import '../login/login_page.dart';
 
 class PersonalPage extends StatefulWidget {
   const PersonalPage({super.key});
@@ -35,6 +42,100 @@ class _PersonalPageState extends State<PersonalPage> {
       setState(() {
         _isLoading = false;
       });
+    }
+  }
+
+  // 显示退出确认对话框
+  Future<void> _showLogoutDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('确认退出'),
+          content: const Text('您确定要退出登录吗？'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('取消'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text(
+                '退出',
+                style: TextStyle(color: Colors.red),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _performLogout();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // 执行退出登录
+  Future<void> _performLogout() async {
+    final authProvider = context.read<AuthProvider>();
+    
+    try {
+      // 显示加载状态
+      if (mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => const Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
+      }
+      
+      // 执行登出
+      final success = await authProvider.logout();
+      
+      // 关闭加载对话框
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+      
+      if (success) {
+        // 显示成功提示
+        Fluttertoast.showToast(
+          msg: '退出登录成功',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+        );
+        
+        // 跳转到登录页面并清除所有路由栈
+        if (mounted) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const LoginPage()),
+            (Route<dynamic> route) => false,
+          );
+        }
+      } else {
+        // 显示错误提示
+        Fluttertoast.showToast(
+          msg: authProvider.error ?? '退出登录失败',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+        );
+      }
+    } catch (e) {
+      // 关闭可能存在的加载对话框
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+      
+      // 显示错误提示
+      Fluttertoast.showToast(
+        msg: '退出登录时发生错误',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+      );
     }
   }
 
@@ -111,26 +212,24 @@ class _PersonalPageState extends State<PersonalPage> {
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                            ),
+                            ),textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 16),
                           
                           // 邮箱
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(Icons.email, color: Colors.blue.shade300, size: 20),
                               const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  _user?.email ?? '',
-                                  style: const TextStyle(color: Colors.black87),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                              Text(
+                                _user?.email ?? '',
+                                style: const TextStyle(color: Colors.black87),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ],
                           ),
                           const SizedBox(height: 8),
-
                         ],
                       ),
                     ),
@@ -145,11 +244,43 @@ class _PersonalPageState extends State<PersonalPage> {
                           context,
                           icon: Icons.info_outline,
                           title: 'Change Password',
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const ForgotPasswordPage()),
-                            );
+                          onTap: () async {
+                            LoadingUtil.show(context);
+                            try {
+                              // 发送验证码
+                              final response = await ApiService.sendVerificationCode(
+                                email: _user!.email,
+                                type: 'reset_password',
+                              );
+                              LoadingUtil.hide();
+                              if (response.success) {
+                                // 发送成功，导航到OTP验证页面
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => OtpVerificationPage(
+                                      email: _user!.email,
+                                    ),
+                                  ),
+                                );
+
+                                Fluttertoast.showToast(
+                                  msg: "Verification code sent to ${_user!.email}",
+                                  gravity: ToastGravity.CENTER,
+                                );
+                              } else {
+                                Fluttertoast.showToast(
+                                  msg: "Failed to send verification code: ${response.message}",
+                                  gravity: ToastGravity.CENTER,
+                                );
+                              }
+                            } catch (e) {
+                              LoadingUtil.hide();
+                              LoggerUtil.e('Send verification code error: $e');
+                              Fluttertoast.showToast(
+                                msg: "Failed to send verification code",
+                                gravity: ToastGravity.CENTER,
+                              );
+                            }
                           },
                         ),
                         _buildSettingItem(
@@ -187,14 +318,8 @@ class _PersonalPageState extends State<PersonalPage> {
                           context,
                           icon: Icons.logout,
                           title: 'Sign Out',
-                          onTap: () {
-                            // 登出
-                            final authProvider = context.read<AuthProvider>();
-                            authProvider.logout().then((_) {
-                              // 登出成功后返回登录页面
-                              Navigator.of(context).pushReplacementNamed('/');
-                            });
-                          },
+                          titleColor: Colors.red,
+                          onTap: _showLogoutDialog, // 修改为显示确认对话框
                         ),
                       ],
                     ),
@@ -209,6 +334,7 @@ class _PersonalPageState extends State<PersonalPage> {
     required IconData icon,
     required String title,
     required VoidCallback onTap,
+    Color? titleColor,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8.0),
@@ -225,8 +351,11 @@ class _PersonalPageState extends State<PersonalPage> {
         ],
       ),
       child: ListTile(
-        leading: Icon(icon, color: Colors.black54),
-        title: Text(title),
+        leading: Icon(icon, color: titleColor ?? Colors.black54),
+        title: Text(
+          title,
+          style: TextStyle(color: titleColor),
+        ),
         trailing: const Icon(Icons.chevron_right, color: Colors.grey),
         onTap: onTap,
       ),

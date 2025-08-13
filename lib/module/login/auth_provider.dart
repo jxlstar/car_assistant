@@ -5,6 +5,7 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'login_model.dart';
 import '../../core/utils/logger_util.dart';
 import '../../core/storage/storage_service.dart';
+import '../../core/network/api_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   bool _isLoading = false;
@@ -111,23 +112,99 @@ class AuthProvider extends ChangeNotifier {
   }
 
   // 登出
-  Future<void> logout() async {
+  Future<bool> logout() async {
     _setLoading(true);
+    _error = null;
     
     try {
-      // 这里应该调用实际的登出API
-      // 模拟网络请求延迟
-      await Future.delayed(const Duration(seconds: 1));
+      // 调用登出API
+      final response = await ApiService.logout();
+      LoggerUtil.i('登出API响应: $response');
       
-      _isAuthenticated = false;
-      // 清除登录状态
-      await StorageService.setBool(_authKey, false);
-      LoggerUtil.i('User logged out');
+      if (response.success) {
+        // API调用成功，清除本地数据
+        await _clearUserData();
+        _isAuthenticated = false;
+        LoggerUtil.i('用户登出成功');
+        return true;
+      } else {
+        // API调用失败，但仍然清除本地数据
+        LoggerUtil.w('登出API调用失败，但仍清除本地数据: ${response.message}');
+        await _clearUserData();
+        _isAuthenticated = false;
+        return true;
+      }
     } catch (e) {
-      _error = e.toString();
-      LoggerUtil.e('Logout error: $_error');
+      LoggerUtil.e('登出异常: $e');
+      // 即使出现异常，也要清除本地数据
+      await _clearUserData();
+      _isAuthenticated = false;
+      _error = '登出时发生错误，但已清除本地数据';
+      return true;
     } finally {
       _setLoading(false);
+    }
+  }
+
+  // 清除用户数据
+  Future<void> _clearUserData() async {
+    try {
+      // 清除登录状态
+      await StorageService.setBool(_authKey, false);
+      
+      // 清除认证token
+      await StorageService.remove('auth_token');
+      ApiService.clearAuthToken();
+      
+      // 清除用户信息
+      await StorageService.remove('user_info');
+      
+      // 清除其他可能的用户相关数据
+      await StorageService.remove('user_profile');
+      await StorageService.remove('refresh_token');
+      
+      // 登出第三方登录
+      await _logoutThirdPartyServices();
+      
+      LoggerUtil.i('用户数据清除完成');
+    } catch (e) {
+      LoggerUtil.e('清除用户数据时出错: $e');
+    }
+  }
+
+  // 登出第三方服务
+  Future<void> _logoutThirdPartyServices() async {
+    try {
+      // Google登出
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+      if (await googleSignIn.isSignedIn()) {
+        await googleSignIn.signOut();
+        LoggerUtil.i('Google登出成功');
+      }
+    } catch (e) {
+      LoggerUtil.w('Google登出失败: $e');
+    }
+
+    try {
+      // Facebook登出
+      await FacebookAuth.instance.logOut();
+      LoggerUtil.i('Facebook登出成功');
+    } catch (e) {
+      LoggerUtil.w('Facebook登出失败: $e');
+    }
+  }
+
+  // 检查登录状态
+  Future<void> checkAuthStatus() async {
+    try {
+      final isAuth = await StorageService.getBool(_authKey) ?? false;
+      final hasToken = await StorageService.getString('auth_token') != null;
+      _isAuthenticated = isAuth && hasToken;
+      notifyListeners();
+    } catch (e) {
+      LoggerUtil.e('检查登录状态失败: $e');
+      _isAuthenticated = false;
+      notifyListeners();
     }
   }
 

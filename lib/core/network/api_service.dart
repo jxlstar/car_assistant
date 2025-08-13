@@ -15,12 +15,14 @@ class ApiService {
     static Future<ApiResponse<Map<String, dynamic>>> register({
       required String email,
       required String password,
+      required String verificationCode,
       String? fullName,
       String? phone,
     }) {
       return _request.post<Map<String, dynamic>>('/api/app/auth/register', data: {
         'email': email,
         'password': password,
+        'verification_code': verificationCode,
         if (fullName != null) 'full_name': fullName,
         if (phone != null) 'phone': phone,
       });
@@ -45,6 +47,18 @@ class ApiService {
     // 刷新token
     static Future<ApiResponse<Map<String, dynamic>>> refreshToken() {
       return _request.post<Map<String, dynamic>>('/api/app/auth/refresh');
+    }
+
+
+    // 发送验证码
+    static Future<ApiResponse<Map<String, dynamic>>> sendVerificationCode({
+      required String email,
+      required String type, // register, reset_password
+    }) {
+      return _request.post<Map<String, dynamic>>('/api/app/auth/send-verification-code', data: {
+        'email': email,
+        'type': type,
+      });
     }
     // 获取设备列表
     static Future<ApiResponse<Map<String, dynamic>>> getDeviceList() {
@@ -153,6 +167,26 @@ class ApiService {
   // 获取设备型号（三级）
   static Future<ApiResponse<Map<String, dynamic>>> getResourceModels(String categoryId) {
     return _request.get<Map<String, dynamic>>('/api/app/resources/models/$categoryId');
+  }
+
+  // 获取消息列表
+  static Future<ApiResponse<Map<String, dynamic>>> getMessageList({
+    String type = 'all',
+    String status = 'all', 
+    int page = 1,
+    int pageSize = 20,
+  }) {
+    return _request.get<Map<String, dynamic>>('/api/app/messages', queryParameters: {
+      'type': type,
+      'status': status,
+      'page': page,
+      'page_size': pageSize,
+    });
+  }
+
+  // 标记消息为已读
+  static Future<ApiResponse<Map<String, dynamic>>> markMessageAsRead(String messageId) {
+    return _request.put<Map<String, dynamic>>('/api/app/messages/$messageId/read');
   }
 
 }

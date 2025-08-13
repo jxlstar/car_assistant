@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import '../../core/network/api_service.dart';
+import '../../core/utils/logger_util.dart';
+import 'set_password_page.dart';
 import '../home/main_page.dart';
 
 class OtpVerificationPage extends StatefulWidget {
@@ -16,7 +20,9 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
   final List<FocusNode> _focusNodes = List.generate(4, (index) => FocusNode());
   int _currentIndex = 0;
   bool _isNextEnabled = false;
-
+  bool _isResending = false;
+  int _countdown = 0;
+  
   @override
   void initState() {
     super.initState();
@@ -29,6 +35,9 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     for (int i = 0; i < _controllers.length; i++) {
       _controllers[i].addListener(_checkNextButtonState);
     }
+    
+    // 开始倒计时
+    _startCountdown();
   }
 
   @override
@@ -40,6 +49,23 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
       focusNode.dispose();
     }
     super.dispose();
+  }
+
+  void _startCountdown() {
+    setState(() {
+      _countdown = 60;
+    });
+    
+    Future.doWhile(() async {
+      await Future.delayed(const Duration(seconds: 1));
+      if (mounted) {
+        setState(() {
+          _countdown--;
+        });
+        return _countdown > 0;
+      }
+      return false;
+    });
   }
 
   void _checkNextButtonState() {
@@ -76,13 +102,29 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     }
   }
 
+  Future<void> _resendCode() async {
+    if (_isResending || _countdown > 0) return;
+    
+    setState(() {
+      _isResending = true;
+    });
+    _sendCode();
+  }
+
   void _handleNext() {
     if (_isNextEnabled) {
-      // 目前跳过API调用，直接进入首页
+      // 获取输入的验证码
+      String verificationCode = _controllers.map((controller) => controller.text).join();
+      
+      // 跳转到设置密码页面
       if (mounted) {
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const MainPage()),
-          (route) => false,
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => SetPasswordPage(
+              email: widget.email,
+              verificationCode: verificationCode,
+            ),
+          ),
         );
       }
     }
@@ -118,9 +160,9 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
               
               // 标题
               const Text(
-                'OTP Verification',
+                'Enter the verification code',
                 style: TextStyle(
-                  fontSize: 32,
+                  fontSize: 28,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
                 ),
@@ -130,7 +172,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
               
               // 描述文本
               Text(
-                'Enter the verification code we just sent on your email',
+                'The verification code has been sent to\n${widget.email}',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.grey.shade600,
@@ -188,7 +230,35 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                 }),
               ),
               
-              const SizedBox(height: 60),
+              const SizedBox(height: 40),
+              
+              // 重新发送验证码
+              Center(
+                child: TextButton(
+                  onPressed: (_countdown == 0 && !_isResending) ? _resendCode : null,
+                  child: _isResending
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                          ),
+                        )
+                      : Text(
+                          _countdown > 0
+                              ? 'Re-obtain (${_countdown}s)'
+                              : 'Re-obtain (60 seconds)',
+                          style: TextStyle(
+                            color: _countdown > 0 ? Colors.grey : Colors.blue,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                ),
+              ),
+              
+              const SizedBox(height: 20),
               
               // Next按钮
               SizedBox(
@@ -223,4 +293,38 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
       ),
     );
   }
+
+  _sendCode() async {
+    try {
+      final response = await ApiService.sendVerificationCode(
+        email: widget.email,
+        type: 'email_verification',
+      );
+
+      if (response.success) {
+        Fluttertoast.showToast(
+          msg: "Verification code sent successfully",
+          gravity: ToastGravity.CENTER,
+        );
+        _startCountdown();
+      } else {
+        Fluttertoast.showToast(
+          msg: "Failed to send verification code: ${response.message}",
+          gravity: ToastGravity.CENTER,
+        );
+      }
+    } catch (e) {
+      LoggerUtil.e('Resend verification code error: $e');
+      Fluttertoast.showToast(
+        msg: "Failed to send verification code",
+        gravity: ToastGravity.CENTER,
+      );
+    } finally {
+      setState(() {
+        _isResending = false;
+      });
+    }
+  }
+
+
 }

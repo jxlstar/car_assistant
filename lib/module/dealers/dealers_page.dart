@@ -52,12 +52,6 @@ class _DealersPageState extends State<DealersPage> {
                   ),
                 ),
               ),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.filter_list, color: Colors.grey),
-                  onPressed: () => _showFilterDialog(context, logic),
-                ),
-              ],
             ),
             body: Column(
               children: [

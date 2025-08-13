@@ -40,44 +40,40 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Future<void> _handleSignUp() async {
     if (_formKey.currentState!.validate()) {
-      try{
-        final response = await ApiService.register(
-          email: 'jiangxl1377@gmail.com',
-          password: '111111',
-          fullName: '',
-          phone: ''
+      try {
+        // 发送验证码
+        final response = await ApiService.sendVerificationCode(
+          email: _emailController.text,
+          type: 'email_verification',
         );
-        LoadingUtil.hide();
+        
         if (response.success) {
-          // 登录成功，保存token
-          // final token = response.data?['token'];
-          // if (token != null) {
-          //   ApiService.setAuthToken(token);
-          // }
-          LoggerUtil.i('注册成功: ${response.message}');
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const MainPage()),
+          // 发送成功，导航到OTP验证页面
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => OtpVerificationPage(
+                email: _emailController.text,
+              ),
+            ),
+          );
+          
+          Fluttertoast.showToast(
+            msg: "Verification code sent to ${_emailController.text}",
+            gravity: ToastGravity.CENTER,
           );
         } else {
-          Fluttertoast.showToast(msg: "注册失败：${response.message}", gravity: ToastGravity.CENTER);
-          LoggerUtil.e('注册失败: ${response.message}');
+          Fluttertoast.showToast(
+            msg: "Failed to send verification code: ${response.message}",
+            gravity: ToastGravity.CENTER,
+          );
         }
-      }catch(e){
-        LoadingUtil.hide();
-        Fluttertoast.showToast(msg: "注册失败：$e", gravity: ToastGravity.CENTER);
-        LoggerUtil.e('注册异常: $e');
+      } catch (e) {
+        LoggerUtil.e('Send verification code error: $e');
+        Fluttertoast.showToast(
+          msg: "Failed to send verification code",
+          gravity: ToastGravity.CENTER,
+        );
       }
-
-
-
-      // 导航到OTP验证页面
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => OtpVerificationPage(
-            email: _emailController.text,
-          ),
-        ),
-      );
     }
   }
 
@@ -97,7 +93,20 @@ class _RegisterPageState extends State<RegisterPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 60),
+                  const SizedBox(height: 20),
+                  
+                  // 返回按钮
+                  GestureDetector(
+                    onTap: _navigateToLogin,
+                    child: const Icon(
+                      Icons.arrow_back_ios,
+                      size: 24,
+                      color: Colors.black,
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 40),
+                  
                   // 注册标题
                   const Text(
                     'Create an account',

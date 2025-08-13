@@ -101,6 +101,7 @@ class AppRequest {
             queryParameters: queryParameters,
             options: options,
           );
+          LoggerUtil.i('请求返回的response========${response.data}');
           break;
         case 'PUT':
           response = await _dio.put(
@@ -109,6 +110,7 @@ class AppRequest {
             queryParameters: queryParameters,
             options: options,
           );
+          LoggerUtil.i('请求返回的response========${response.data}');
           break;
         case 'DELETE':
           response = await _dio.delete(
@@ -117,6 +119,7 @@ class AppRequest {
             queryParameters: queryParameters,
             options: options,
           );
+          LoggerUtil.i('请求返回的response========${response.data}');
           break;
         default:
           throw Exception('Unsupported HTTP method: $method');
