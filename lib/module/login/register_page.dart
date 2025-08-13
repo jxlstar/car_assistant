@@ -44,7 +44,7 @@ class _RegisterPageState extends State<RegisterPage> {
         // 发送验证码
         final response = await ApiService.sendVerificationCode(
           email: _emailController.text,
-          type: 'email_verification',
+          type: 'register',
         );
         
         if (response.success) {
@@ -53,6 +53,7 @@ class _RegisterPageState extends State<RegisterPage> {
             MaterialPageRoute(
               builder: (context) => OtpVerificationPage(
                 email: _emailController.text,
+                type: OtpType.register,
               ),
             ),
           );

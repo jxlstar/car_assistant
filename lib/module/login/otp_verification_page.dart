@@ -4,12 +4,22 @@ import 'package:fluttertoast/fluttertoast.dart';
 import '../../core/network/api_service.dart';
 import '../../core/utils/logger_util.dart';
 import 'set_password_page.dart';
-import '../home/main_page.dart';
+
+enum OtpType {
+  register,        // 注册
+  changePassword,  // 修改密码
+  forgotPassword,  // 忘记密码
+}
 
 class OtpVerificationPage extends StatefulWidget {
   final String email;
+  final OtpType type;
   
-  const OtpVerificationPage({super.key, required this.email});
+  const OtpVerificationPage({
+    super.key,
+    required this.email,
+    required this.type,
+  });
 
   @override
   State<OtpVerificationPage> createState() => _OtpVerificationPageState();
@@ -49,6 +59,17 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
       focusNode.dispose();
     }
     super.dispose();
+  }
+
+  String get _getVerificationCodeType {
+    switch (widget.type) {
+      case OtpType.register:
+        return 'register';
+      case OtpType.changePassword:
+        return 'reset_password';
+      case OtpType.forgotPassword:
+        return 'reset_password';
+    }
   }
 
   void _startCountdown() {
@@ -108,7 +129,36 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     setState(() {
       _isResending = true;
     });
-    _sendCode();
+    
+    try {
+      final response = await ApiService.sendVerificationCode(
+        email: widget.email,
+        type: _getVerificationCodeType,
+      );
+      
+      if (response.success) {
+        Fluttertoast.showToast(
+          msg: "Verification code sent successfully",
+          gravity: ToastGravity.CENTER,
+        );
+        _startCountdown();
+      } else {
+        Fluttertoast.showToast(
+          msg: "Failed to send verification code: ${response.message}",
+          gravity: ToastGravity.CENTER,
+        );
+      }
+    } catch (e) {
+      LoggerUtil.e('Resend verification code error: $e');
+      Fluttertoast.showToast(
+        msg: "Failed to send verification code",
+        gravity: ToastGravity.CENTER,
+      );
+    } finally {
+      setState(() {
+        _isResending = false;
+      });
+    }
   }
 
   void _handleNext() {
@@ -123,6 +173,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
             builder: (context) => SetPasswordPage(
               email: widget.email,
               verificationCode: verificationCode,
+              type: widget.type,
             ),
           ),
         );
@@ -293,38 +344,4 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
       ),
     );
   }
-
-  _sendCode() async {
-    try {
-      final response = await ApiService.sendVerificationCode(
-        email: widget.email,
-        type: 'email_verification',
-      );
-
-      if (response.success) {
-        Fluttertoast.showToast(
-          msg: "Verification code sent successfully",
-          gravity: ToastGravity.CENTER,
-        );
-        _startCountdown();
-      } else {
-        Fluttertoast.showToast(
-          msg: "Failed to send verification code: ${response.message}",
-          gravity: ToastGravity.CENTER,
-        );
-      }
-    } catch (e) {
-      LoggerUtil.e('Resend verification code error: $e');
-      Fluttertoast.showToast(
-        msg: "Failed to send verification code",
-        gravity: ToastGravity.CENTER,
-      );
-    } finally {
-      setState(() {
-        _isResending = false;
-      });
-    }
-  }
-
-
 }

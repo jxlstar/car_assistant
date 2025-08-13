@@ -1,19 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:provider/provider.dart';
 import '../../core/network/api_service.dart';
 import '../../core/utils/logger_util.dart';
 import '../../core/utils/loading_util.dart';
 import '../../utils/custom_text_field.dart';
 import '../home/main_page.dart';
+import 'auth_provider.dart';
+import 'login_page.dart';
+import 'otp_verification_page.dart';
 
 class SetPasswordPage extends StatefulWidget {
   final String email;
   final String verificationCode;
+  final OtpType type;
   
   const SetPasswordPage({
     super.key,
     required this.email,
     required this.verificationCode,
+    required this.type,
   });
 
   @override
@@ -85,52 +91,109 @@ class _SetPasswordPageState extends State<SetPasswordPage> {
       return;
     }
 
-    LoadingUtil.show(context, message: "");
+    LoadingUtil.show(context, message: 'loading...');
     
     try {
-      final response = await ApiService.register(
-        email: widget.email,
-        password: _passwordController.text,
-        verificationCode: widget.verificationCode,
-      );
-      
-      LoadingUtil.hide();
-      
-      if (response.success) {
-        // 注册成功，保存token（如果有）
-        final token = response.data?['token'];
-        if (token != null) {
-          ApiService.setAuthToken(token);
-        }
-        
-        LoggerUtil.i('注册成功: ${response.message}');
-        
-        Fluttertoast.showToast(
-          msg: "Registration successful",
-          gravity: ToastGravity.CENTER,
-        );
-        
-        // 跳转到主页
-        if (mounted) {
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => const MainPage()),
-            (route) => false,
-          );
-        }
+      if (widget.type == OtpType.register) {
+        // 注册流程
+        await _handleRegister();
       } else {
-        Fluttertoast.showToast(
-          msg: "Registration failed: ${response.message}",
-          gravity: ToastGravity.CENTER,
-        );
-        LoggerUtil.e('注册失败: ${response.message}');
+        // 修改密码或忘记密码流程
+        await _handleResetPassword();
       }
     } catch (e) {
       LoadingUtil.hide();
       Fluttertoast.showToast(
-        msg: "Registration failed: $e",
+        msg: "Operation failed: $e",
         gravity: ToastGravity.CENTER,
       );
-      LoggerUtil.e('注册异常: $e');
+      LoggerUtil.e('Operation error: $e');
+    }
+  }
+
+  Future<void> _handleRegister() async {
+    final response = await ApiService.register(
+      email: widget.email,
+      password: _passwordController.text,
+      verificationCode: widget.verificationCode,
+    );
+    
+    LoadingUtil.hide();
+    
+    if (response.success) {
+      // 注册成功，保存token（如果有）
+      final token = response.data?['token'];
+      if (token != null) {
+        ApiService.setAuthToken(token);
+      }
+      
+      LoggerUtil.i('注册成功: ${response.message}');
+      
+      Fluttertoast.showToast(
+        msg: "Registration successful",
+        gravity: ToastGravity.CENTER,
+      );
+      
+      // 跳转到主页
+      if (mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const MainPage()),
+          (route) => false,
+        );
+      }
+    } else {
+      Fluttertoast.showToast(
+        msg: "Registration failed: ${response.message}",
+        gravity: ToastGravity.CENTER,
+      );
+      LoggerUtil.e('注册失败: ${response.message}');
+    }
+  }
+
+  Future<void> _handleResetPassword() async {
+    // 调用验证码重置密码API
+    final response = await ApiService.resetPasswordWithCode(
+      email: widget.email,
+      verificationCode: widget.verificationCode,
+      newPassword: _passwordController.text,
+    );
+    
+    LoadingUtil.hide();
+    
+    if (response.success) {
+      Fluttertoast.showToast(
+        msg: "Password reset successfully",
+        gravity: ToastGravity.CENTER,
+      );
+      
+      LoggerUtil.i('密码重置成功: ${response.message}');
+      
+      if (widget.type == OtpType.changePassword) {
+        // 修改密码成功后，退出登录
+        final authProvider = context.read<AuthProvider>();
+        await authProvider.logout();
+        
+        if (mounted) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const LoginPage()),
+            (route) => false,
+          );
+        }
+      } else {
+        // 忘记密码成功后，跳转到登录页
+        if (mounted) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const LoginPage()),
+            (route) => false,
+          );
+        }
+      }
+    } else {
+      Fluttertoast.showToast(
+        msg: "Password reset failed: ${response.message}",
+        gravity: ToastGravity.CENTER,
+      );
+      LoggerUtil.e('密码重置失败: ${response.message}');
     }
   }
 

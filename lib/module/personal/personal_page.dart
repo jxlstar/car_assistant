@@ -245,43 +245,51 @@ class _PersonalPageState extends State<PersonalPage> {
                           icon: Icons.info_outline,
                           title: 'Change Password',
                           onTap: () async {
-                            LoadingUtil.show(context);
-                            try {
-                              // 发送验证码
-                              final response = await ApiService.sendVerificationCode(
-                                email: _user!.email,
-                                type: 'reset_password',
-                              );
-                              LoadingUtil.hide();
-                              if (response.success) {
-                                // 发送成功，导航到OTP验证页面
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => OtpVerificationPage(
-                                      email: _user!.email,
-                                    ),
-                                  ),
-                                );
+                            // 在Change Password的点击事件中
+                                // 获取当前用户邮箱
+                                final user = await StorageService.getUser();
+                                if (user?.email != null) {
+                                  try {
+                                    // 发送验证码
+                                    final response = await ApiService.sendVerificationCode(
+                                      email: user!.email!,
+                                      type: 'reset_password',
+                                    );
 
-                                Fluttertoast.showToast(
-                                  msg: "Verification code sent to ${_user!.email}",
-                                  gravity: ToastGravity.CENTER,
-                                );
-                              } else {
-                                Fluttertoast.showToast(
-                                  msg: "Failed to send verification code: ${response.message}",
-                                  gravity: ToastGravity.CENTER,
-                                );
-                              }
-                            } catch (e) {
-                              LoadingUtil.hide();
-                              LoggerUtil.e('Send verification code error: $e');
-                              Fluttertoast.showToast(
-                                msg: "Failed to send verification code",
-                                gravity: ToastGravity.CENTER,
-                              );
-                            }
-                          },
+                                    if (response.success) {
+                                      // 跳转到验证码页面
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) => OtpVerificationPage(
+                                            email: user.email!,
+                                            type: OtpType.changePassword,
+                                          ),
+                                        ),
+                                      );
+
+                                      Fluttertoast.showToast(
+                                        msg: "Verification code sent to ${user.email}",
+                                        gravity: ToastGravity.CENTER,
+                                      );
+                                    } else {
+                                      Fluttertoast.showToast(
+                                        msg: "Failed to send verification code: ${response.message}",
+                                        gravity: ToastGravity.CENTER,
+                                      );
+                                    }
+                                  } catch (e) {
+                                    Fluttertoast.showToast(
+                                      msg: "Failed to send verification code",
+                                      gravity: ToastGravity.CENTER,
+                                    );
+                                  }
+                                } else {
+                                  Fluttertoast.showToast(
+                                    msg: "User email not found",
+                                    gravity: ToastGravity.CENTER,
+                                  );
+                                }
+                              },
                         ),
                         _buildSettingItem(
                           context,

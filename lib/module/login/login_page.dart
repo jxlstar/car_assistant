@@ -8,6 +8,7 @@ import '../../core/network/api_service.dart';
 import '../../core/storage/storage_service.dart';
 import '../../utils/social_login_button.dart';
 import '../../utils/custom_text_field.dart';
+import 'forgot_password_email_page.dart';
 import 'login_model.dart';
 import 'auth_provider.dart';
 import '../home/main_page.dart';
@@ -188,10 +189,10 @@ class _LoginPageState extends State<LoginPage> {
                       // 忘记密码链接
                       TextButton(
                         onPressed: () {
-                          // 导航到忘记密码页面
+                          // 导航到忘记密码邮箱输入页面
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) => const ForgotPasswordPage(),
+                              builder: (context) => const ForgotPasswordEmailPage(),
                             ),
                           );
                         },

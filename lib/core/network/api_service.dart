@@ -60,6 +60,19 @@ class ApiService {
         'type': type,
       });
     }
+
+    // 验证码重置密码
+    static Future<ApiResponse<Map<String, dynamic>>> resetPasswordWithCode({
+      required String email,
+      required String verificationCode,
+      required String newPassword,
+    }) {
+      return _request.post<Map<String, dynamic>>('/api/app/auth/reset-password-with-code', data: {
+        'email': email,
+        'verification_code': verificationCode,
+        'new_password': newPassword,
+      });
+    }
     // 获取设备列表
     static Future<ApiResponse<Map<String, dynamic>>> getDeviceList() {
       return _request.get<Map<String, dynamic>>('/api/app/devices/bound');
