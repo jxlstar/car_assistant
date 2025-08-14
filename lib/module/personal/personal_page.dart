@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/storage/storage_service.dart';
 import '../../notification/notification_page.dart';
@@ -317,8 +318,8 @@ class _PersonalPageState extends State<PersonalPage> {
                           context,
                           icon: Icons.language_outlined,
                           title: 'RIPPA Website',
-                          onTap: () {
-                            // 打开网站链接
+                          onTap: () async {
+                            await _openRippaWebsite();
                           },
                         ),
                         const SizedBox(height: 16),
@@ -368,6 +369,34 @@ class _PersonalPageState extends State<PersonalPage> {
         onTap: onTap,
       ),
     );
+  }
+}
+
+// 打开RIPPA官网
+Future<void> _openRippaWebsite() async {
+  const String url = 'https://www.rippa.com/';
+  try {
+    final Uri uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication, // 在外部浏览器中打开
+      );
+    } else {
+      Fluttertoast.showToast(
+        msg: "无法打开网站链接",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+      );
+      LoggerUtil.e('Could not launch $url');
+    }
+  } catch (e) {
+    Fluttertoast.showToast(
+      msg: "打开网站时发生错误",
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.CENTER,
+    );
+    LoggerUtil.e('Error launching URL: $e');
   }
 }
 
