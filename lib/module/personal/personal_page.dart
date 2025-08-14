@@ -378,8 +378,97 @@ class AboutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('About')),
-      body: const Center(child: Text('About Page')),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: const Text(
+          'About Us',
+          style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w500),
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          children: [
+            // Logo section
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 40),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  // RIPPA Logo
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF1E3A8A), // 深蓝色背景
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.terrain, // 使用山形图标代替RIPPA logo
+                      color: Colors.white,
+                      size: 40,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // RIPPA text
+                  const Text(
+                    'RIPPA',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1E3A8A),
+                      letterSpacing: 2,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  // Version
+                  const Text(
+                    'v1.0.0',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
+            // About Us section
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'About Us',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Company description
+            Text(
+              'Shandong RIPPA Machinery Co., Ltd. is a global machinery manufacturing company headquartered in Jining City, Shandong Province, China. It focuses on the research, development, production and sales of high-quality construction machinery and equipment. The company\'s products include excavators, loaders, forklifts, skid steer loaders and their accessories, which are widely used in agriculture, construction, mining and other industries. With its innovative R&D capabilities and strict quality control, the equipment provided by RIPPA Machinery enjoys a high reputation worldwide. We offer a one-year quality guarantee and are committed to meeting customers\' demands for affordable and high-quality products. RIPPA has multiple agents around the world. We offer a one-stop service from pre-sale consultation to after-sale service to ensure that customers have the best experience in product selection, delivery and maintenance.',
+              style: TextStyle(
+                fontSize: 14,
+                height: 1.6,
+                color: Colors.grey[600],
+              ),
+              textAlign: TextAlign.justify,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

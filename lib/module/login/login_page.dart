@@ -233,99 +233,99 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   
                   // 添加分隔线和"or sign in with"文本
-                  const SizedBox(height: 30),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Divider(
-                          color: Colors.grey.shade300,
-                          thickness: 1,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Text(
-                          'or sign in with',
-                          style: TextStyle(
-                            color: Colors.grey.shade500,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Divider(
-                          color: Colors.grey.shade300,
-                          thickness: 1,
-                        ),
-                      ),
-                    ],
-                  ),
-                  
-                  // 社交登录按钮
-                  const SizedBox(height: 30),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      // Google登录按钮
-                      SocialLoginButton(
-                        icon: FontAwesomeIcons.google,
-                        backgroundColor: Colors.white,
-                        onPressed: () {
-                          final authProvider = context.read<AuthProvider>();
-                          authProvider.signInWithGoogle().then((_) {
-                            if (mounted) {
-                              if (authProvider.isAuthenticated) {
-                                Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(builder: (context) => const MainPage()),
-                                );
-                              } else if (authProvider.error != null) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(authProvider.error!),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
-                              }
-                            }
-                          });
-                        },
-                      ),
-                      
-                      // Facebook登录按钮
-                      SocialLoginButton(
-                        icon: FontAwesomeIcons.facebook,
-                        backgroundColor: Colors.white,
-                        onPressed: () {
-                          final authProvider = context.read<AuthProvider>();
-                          authProvider.signInWithFacebook().then((_) {
-                            if (authProvider.isAuthenticated) {
-                              Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(builder: (context) => const MainPage()),
-                              );
-                            }
-                          });
-                        },
-                      ),
-                      
-                      // Apple登录按钮
-                      SocialLoginButton(
-                        icon: FontAwesomeIcons.apple,
-                        backgroundColor: Colors.white,
-                        onPressed: () {
-                          final authProvider = context.read<AuthProvider>();
-                          authProvider.signInWithApple().then((_) {
-                            if (authProvider.isAuthenticated) {
-                              Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(builder: (context) => const MainPage()),
-                              );
-                            }
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                  
-                  // 创建账号链接
+                  // const SizedBox(height: 30),
+                  // Row(
+                  //   children: [
+                  //     Expanded(
+                  //       child: Divider(
+                  //         color: Colors.grey.shade300,
+                  //         thickness: 1,
+                  //       ),
+                  //     ),
+                  //     Padding(
+                  //       padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  //       child: Text(
+                  //         'or sign in with',
+                  //         style: TextStyle(
+                  //           color: Colors.grey.shade500,
+                  //           fontSize: 14,
+                  //         ),
+                  //       ),
+                  //     ),
+                  //     Expanded(
+                  //       child: Divider(
+                  //         color: Colors.grey.shade300,
+                  //         thickness: 1,
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
+                  //
+                  // // 社交登录按钮
+                  // const SizedBox(height: 30),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  //   children: [
+                  //     // Google登录按钮
+                  //     SocialLoginButton(
+                  //       icon: FontAwesomeIcons.google,
+                  //       backgroundColor: Colors.white,
+                  //       onPressed: () {
+                  //         final authProvider = context.read<AuthProvider>();
+                  //         authProvider.signInWithGoogle().then((_) {
+                  //           if (mounted) {
+                  //             if (authProvider.isAuthenticated) {
+                  //               Navigator.of(context).pushReplacement(
+                  //                 MaterialPageRoute(builder: (context) => const MainPage()),
+                  //               );
+                  //             } else if (authProvider.error != null) {
+                  //               ScaffoldMessenger.of(context).showSnackBar(
+                  //                 SnackBar(
+                  //                   content: Text(authProvider.error!),
+                  //                   backgroundColor: Colors.red,
+                  //                 ),
+                  //               );
+                  //             }
+                  //           }
+                  //         });
+                  //       },
+                  //     ),
+                  //
+                  //     // Facebook登录按钮
+                  //     SocialLoginButton(
+                  //       icon: FontAwesomeIcons.facebook,
+                  //       backgroundColor: Colors.white,
+                  //       onPressed: () {
+                  //         final authProvider = context.read<AuthProvider>();
+                  //         authProvider.signInWithFacebook().then((_) {
+                  //           if (authProvider.isAuthenticated) {
+                  //             Navigator.of(context).pushReplacement(
+                  //               MaterialPageRoute(builder: (context) => const MainPage()),
+                  //             );
+                  //           }
+                  //         });
+                  //       },
+                  //     ),
+                  //
+                  //     // Apple登录按钮
+                  //     SocialLoginButton(
+                  //       icon: FontAwesomeIcons.apple,
+                  //       backgroundColor: Colors.white,
+                  //       onPressed: () {
+                  //         final authProvider = context.read<AuthProvider>();
+                  //         authProvider.signInWithApple().then((_) {
+                  //           if (authProvider.isAuthenticated) {
+                  //             Navigator.of(context).pushReplacement(
+                  //               MaterialPageRoute(builder: (context) => const MainPage()),
+                  //             );
+                  //           }
+                  //         });
+                  //       },
+                  //     ),
+                  //   ],
+                  // ),
+                  //
+                  // // 创建账号链接
                   const SizedBox(height: 30),
                   Center(
                     child: TextButton(
