@@ -194,6 +194,8 @@ class AppRequest {
     Map<String, dynamic>? queryParameters,
     Options? options,
   }) {
+
+    LoggerUtil.e('reqeust-path: $path');
    LoggerUtil.e('reqeust-params: $data');
     return _request<T>('POST', path,
         data: data, queryParameters: queryParameters, options: options);

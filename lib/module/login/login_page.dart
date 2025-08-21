@@ -34,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
     // 设置默认用户名和密码
     _emailController.text = 'jiangxl1377@gmail.com';
-    _passwordController.text = '111111';
+    _passwordController.text = 'q1234567';
     
     // 添加监听器，当输入变化时检查是否可以启用登录按钮
     _emailController.addListener(_checkLoginButtonState);

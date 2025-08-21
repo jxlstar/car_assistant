@@ -105,7 +105,7 @@ class ApiService {
     // 收藏代理商
     static Future<ApiResponse> addDealerToFavorites(dynamic dealerId) async {
 
-      LoggerUtil.i('收藏&&addDealerToFavorites=====$dealerId =====');
+      LoggerUtil.i('收藏&&addDealerToFavorites=====$dealerId');
       return await _request.post('/api/app/dealers/$dealerId/favorite',);
     }
   // 取消收藏代理商
@@ -200,6 +200,21 @@ class ApiService {
   // 标记消息为已读
   static Future<ApiResponse<Map<String, dynamic>>> markMessageAsRead(String messageId) {
     return _request.put<Map<String, dynamic>>('/api/app/messages/$messageId/read');
+  }
+
+  // 故障码查询接口
+  static Future<ApiResponse<Map<String, dynamic>>> getFaultCodeDetail(String code) {
+    return _request.get<Map<String, dynamic>>('/api/app/diagnosis/fault-codes/code/$code');
+  }
+
+  // 设备锁定接口
+  static Future<ApiResponse<Map<String, dynamic>>> lockDevice(String deviceId) {
+    return _request.post<Map<String, dynamic>>('/api/app/devices/$deviceId/lock');
+  }
+
+  // 设备解锁接口
+  static Future<ApiResponse<Map<String, dynamic>>> unlockDevice(String deviceId) {
+    return _request.post<Map<String, dynamic>>('/api/app/devices/$deviceId/unlock');
   }
 
 }

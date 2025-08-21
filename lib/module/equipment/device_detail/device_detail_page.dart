@@ -1,11 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import '../../../r.dart';
-import '../share_dialog/share_dialog.dart';
 import '../map_detail/map_detail_page.dart';
 import 'device_detail_logic.dart';
+import '../fault_code_query/fault_code_query_page.dart';
+import '../share_dialog/share_dialog.dart';
 
 class DeviceDetailPage extends StatelessWidget {
   final String? deviceId;
@@ -131,7 +133,7 @@ class DeviceDetailPage extends StatelessWidget {
                   SizedBox(height: 24),
                   
                   // Resources Section
-                  _buildResourcesSection(),
+                  _buildResourcesSection(context),
                   
                   SizedBox(height: 100), // Bottom padding for navigation
                 ],
@@ -352,6 +354,11 @@ class DeviceDetailPage extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20),
       child: GestureDetector(
         onTap: () {
+          Fluttertoast.showToast(
+            msg: "地图未配置apikey",
+            gravity: ToastGravity.CENTER,
+          );
+          return;
           final coordinates = logic.locationCoordinates;
           Navigator.push(
             context,
@@ -528,7 +535,7 @@ class DeviceDetailPage extends StatelessWidget {
     );
   }
   
-  Widget _buildResourcesSection() {
+  Widget _buildResourcesSection(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -546,22 +553,27 @@ class DeviceDetailPage extends StatelessWidget {
             icon: Icons.build,
             title: 'Machine maintenance',
             subtitle: 'Last May 31, 2025 at 159 Hours\nNext 200 Hours',
+              context: context
           ),
           _buildResourceItem(
             icon: Icons.error_outline,
             title: 'Fault code query',
+              context: context
           ),
           _buildResourceItem(
             icon: Icons.description,
             title: 'Documents and manuals',
+              context: context
           ),
           _buildResourceItem(
             icon: Icons.schedule,
             title: 'Maintenance plan',
+              context: context
           ),
           _buildResourceItem(
             icon: Icons.info_outline,
             title: 'Warranty Information',
+            context: context
           ),
         ],
       ),
@@ -572,51 +584,64 @@ class DeviceDetailPage extends StatelessWidget {
     required IconData icon,
     required String title,
     String? subtitle,
+    required BuildContext context,
   }) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 12),
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: Colors.grey[600]),
-          SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                if (subtitle != null) ...[
-                  SizedBox(height: 4),
+    return GestureDetector(
+      onTap: () {
+        if (title == 'Fault code query') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const FaultCodeQueryPage(),
+            ),
+          );
+        }
+      },
+      child: Container(
+        margin: EdgeInsets.only(bottom: 12),
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: Colors.grey[600]),
+            SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Text(
-                    subtitle,
+                    title,
                     style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 12,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
+                  if (subtitle != null) ...[
+                    SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
-          Icon(Icons.arrow_forward_ios, color: Colors.grey[400], size: 16),
-        ],
+            Icon(Icons.arrow_forward_ios, color: Colors.grey[400], size: 16),
+          ],
+        ),
       ),
     );
   }

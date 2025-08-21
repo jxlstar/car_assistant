@@ -1,5 +1,8 @@
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import '../../../core/network/api_service.dart';
+import '../../../core/network/app_request.dart';
 import '../../../core/utils/logger_util.dart';
 import 'device_detail_state.dart';
 
@@ -45,10 +48,45 @@ class DeviceDetailLogic extends GetxController {
   }
   
   // 切换禁止重启开关
-  void toggleInhibitRestart(bool value) {
-    state.inhibitRestart = value;
-    update();
-    // TODO: 调用API更新设备设置
+  Future<void> toggleInhibitRestart(bool value) async {
+    if (state.deviceId == null) {
+      LoggerUtil.e('设备ID为空，无法执行锁定/解锁操作');
+      return;
+    }
+
+    try {
+      // 显示加载状态
+      // state.isLoading = true;
+      update();
+
+      ApiResponse<Map<String, dynamic>> response;
+      
+      if (value) {
+        // 锁定设备
+        response = await ApiService.lockDevice(state.deviceId!);
+      } else {
+        // 解锁设备
+        response = await ApiService.unlockDevice(state.deviceId!);
+      }
+      LoggerUtil.i('设备锁定or解锁返回的数据===: $response');
+      if (response.success) {
+        // API调用成功，更新本地状态
+        state.inhibitRestart = value;
+        LoggerUtil.i('设备${value ? "锁定" : "解锁"}成功: ${response.message}');
+        
+        // 显示成功提示
+        Fluttertoast.showToast(msg: response.message, gravity: ToastGravity.CENTER);
+      } else {
+        // API调用失败，显示错误信息
+        Fluttertoast.showToast(msg: response.message, gravity: ToastGravity.CENTER);
+      }
+    } catch (e) {
+      LoggerUtil.e('设备${value ? "锁定" : "解锁"}异常: $e');
+      Fluttertoast.showToast(msg: '$e', gravity: ToastGravity.CENTER);
+    } finally {
+      // state.isLoading = false;
+      update();
+    }
   }
   
   // 刷新设备详情
