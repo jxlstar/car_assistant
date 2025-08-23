@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'dart:io' show Platform;
+// 条件导入Apple登录
+import 'package:sign_in_with_apple/sign_in_with_apple.dart' if (dart.library.io) 'package:sign_in_with_apple/sign_in_with_apple.dart' if (dart.library.html) 'sign_in_with_apple_stub.dart';
 import 'login_model.dart';
 import '../../core/utils/logger_util.dart';
 import '../../core/storage/storage_service.dart';
@@ -84,12 +87,26 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  // Apple登录
+  // Apple登录 - 仅iOS平台支持
   Future<void> signInWithApple() async {
+    // 检查是否为iOS平台
+    if (!Platform.isIOS) {
+      _error = 'Apple Sign In is only available on iOS platform';
+      LoggerUtil.w('Apple Sign In attempted on non-iOS platform');
+      notifyListeners();
+      return;
+    }
+    
     _setLoading(true);
     _error = null;
     
     try {
+      // 检查Apple登录是否可用
+      final isAvailable = await SignInWithApple.isAvailable();
+      if (!isAvailable) {
+        throw Exception('Apple Sign In is not available on this device');
+      }
+      
       final credential = await SignInWithApple.getAppleIDCredential(
         scopes: [
           AppleIDAuthorizationScopes.email,
@@ -109,6 +126,11 @@ class AuthProvider extends ChangeNotifier {
     } finally {
       _setLoading(false);
     }
+  }
+  
+  // 检查Apple登录是否可用
+  bool get isAppleSignInAvailable {
+    return Platform.isIOS;
   }
 
   // 登出

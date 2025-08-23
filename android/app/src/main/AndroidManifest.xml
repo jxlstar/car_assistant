@@ -5,14 +5,14 @@
     <uses-permission android:name="android.permission.INTERNET" />
     
     <application
-        android:label="car_assistant"
+        android:label="RIPPA+"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         
         <!-- 添加Google Maps API密钥 -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="YOUR_GOOGLE_MAPS_API_KEY_HERE" />
+            android:value="AIzaSyDR5RKKBld0Yf_7oJsuiIs0zybWTzUuM9o" />
             
         <activity
             android:name=".MainActivity"

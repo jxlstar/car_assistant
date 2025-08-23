@@ -43,8 +43,8 @@ dependencies:
   
   # 第三方登录
   google_sign_in: ^6.2.1
-  flutter_facebook_auth: ^6.0.4  # 取消注释这一行
-  sign_in_with_apple: ^5.0.0
+  flutter_facebook_auth: ^6.0.4
+  sign_in_with_apple: ^6.0.0 # 升级到最新稳定版
   font_awesome_flutter: ^10.7.0  # 提供社交媒体图标
   
   # 表单验证
@@ -60,7 +60,7 @@ dependencies:
   location: ^5.0.3
   fluttertoast: ^8.2.12
   get: ^4.6.6
-  
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -74,8 +74,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-# assets-generator-begin
-  # assets/image/*
+    # assets/image/*
     - assets/image/home_icon.png
     - assets/image/share_icon.png
     - assets/image/home_icon_select.png
@@ -89,4 +88,3 @@ flutter:
     - assets/image/source_icon.png
     - assets/image/waji.png
     - assets/image/dealers_icon.png
-  # assets-generator-end

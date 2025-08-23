@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../utils/colors_util.dart';
 import 'dealers_logic.dart';
 import 'dealers_state.dart';
 
@@ -316,11 +318,15 @@ class _DealersPageState extends State<DealersPage> {
                   if (dealer.phone != null) ...[
                     const Icon(Icons.phone, color: Colors.blue, size: 16),
                     const SizedBox(width: 4),
-                    Text(
-                      dealer.phone ?? '',
-                      style: const TextStyle(
-                        color: Colors.blue,
-                        fontSize: 12,
+                    GestureDetector(
+                      onTap: () => _makePhoneCall(dealer.phone!),
+                      child: Text(
+                        dealer.phone ?? '',
+                        style: const TextStyle(
+                          color: Colors.blue,
+                          fontSize: 12,
+                          decoration: TextDecoration.underline,
+                        ),
                       ),
                     ),
                   ],
@@ -328,11 +334,15 @@ class _DealersPageState extends State<DealersPage> {
                     if (dealer.phone != null) const SizedBox(width: 16),
                     const Icon(Icons.phone_android, color: Colors.green, size: 16),
                     const SizedBox(width: 4),
-                    Text(
-                      dealer.mobile ?? '',
-                      style: const TextStyle(
-                        color: Colors.green,
-                        fontSize: 12,
+                    GestureDetector(
+                      onTap: () => _makePhoneCall(dealer.mobile!),
+                      child: Text(
+                        dealer.mobile ?? '',
+                        style: const TextStyle(
+                          color: Colors.green,
+                          fontSize: 12,
+                          decoration: TextDecoration.underline,
+                        ),
                       ),
                     ),
                   ],
@@ -379,6 +389,34 @@ class _DealersPageState extends State<DealersPage> {
         ),
       ),
     );
+  }
+
+  // 拨打电话
+  Future<void> _makePhoneCall(String phoneNumber) async {
+    final Uri phoneUri = Uri(scheme: 'tel', path: phoneNumber);
+    try {
+      if (await canLaunchUrl(phoneUri)) {
+        await launchUrl(phoneUri);
+      } else {
+        // 显示错误提示
+        Get.snackbar(
+          '错误',
+          '无法拨打电话：$phoneNumber',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red.shade100,
+          colorText: Colors.red.shade800,
+        );
+      }
+    } catch (e) {
+      // 显示错误提示
+      Get.snackbar(
+        '错误',
+        '拨打电话失败：$e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.shade100,
+        colorText: Colors.red.shade800,
+      );
+    }
   }
 
   void _navigateToDetail(DealerItem dealer) {

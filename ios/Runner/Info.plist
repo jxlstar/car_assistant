@@ -29,7 +29,7 @@
 			<string>REVERSED_CLIENT_ID</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>YOUR_REVERSED_CLIENT_ID_HERE</string>
+				<string>AIzaSyDR5RKKBld0Yf_7oJsuiIs0zybWTzUuM9o</string>
 			</array>
 		</dict>
 	</array>
@@ -61,6 +61,11 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+	</array>
+	<!-- Apple登录配置 -->
+	<key>com.apple.developer.applesignin</key>
+	<array>
+		<string>Default</string>
 	</array>
 </dict>
 </plist>
