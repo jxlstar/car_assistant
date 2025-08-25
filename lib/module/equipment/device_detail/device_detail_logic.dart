@@ -102,9 +102,9 @@ class DeviceDetailLogic extends GetxController {
   }
   // 获取当前位置
   String get headerImage {
-    final imageUrl = state.deviceDetail?['device_images'][0];
+    final imageUrl = state.deviceDetail?['device_images'];
     if (imageUrl != null) {
-      return imageUrl['image_url'] ?? '';
+      return imageUrl[0]['image_url'] ?? '';
     }
     return '';
   }

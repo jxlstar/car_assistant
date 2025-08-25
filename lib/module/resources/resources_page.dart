@@ -63,24 +63,24 @@ class _ResourcesPageState extends State<ResourcesPage> {
   }
 
   Widget _buildContent() {
-    // 加载状态
+    // Loading state
     if (state.isLoading && state.allBrands.isEmpty) {
       return const Center(
         child: CircularProgressIndicator(),
       );
     }
 
-    // 错误状态
+    // Error state
     if (state.errorMessage != null) {
       return _buildErrorState();
     }
 
-    // 空数据状态
+    // Empty data state
     if (state.allBrands.isEmpty) {
       return _buildEmptyState();
     }
 
-    // 正常数据列表
+    // Normal data list
     return RefreshIndicator(
       onRefresh: () => logic.refreshCurrentData(),
       child: ListView.builder(
@@ -104,7 +104,7 @@ class _ResourcesPageState extends State<ResourcesPage> {
           ),
           const SizedBox(height: 16),
           Text(
-            '暂无资源数据',
+            'No Resource Data',
             style: TextStyle(
               fontSize: 18,
               color: Colors.grey[600],
@@ -113,7 +113,7 @@ class _ResourcesPageState extends State<ResourcesPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            '当前没有可用的品牌资源\n请稍后再试或联系管理员',
+            'No brand resources available\nPlease try again later or contact administrator',
             style: TextStyle(
               fontSize: 14,
               color: Colors.grey[500],
@@ -124,7 +124,7 @@ class _ResourcesPageState extends State<ResourcesPage> {
           ElevatedButton.icon(
             onPressed: () => logic.refreshCurrentData(),
             icon: const Icon(Icons.refresh),
-            label: const Text('重新加载'),
+            label: const Text('Reload'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue,
               foregroundColor: Colors.white,
@@ -148,7 +148,7 @@ class _ResourcesPageState extends State<ResourcesPage> {
           ),
           const SizedBox(height: 16),
           Text(
-            '加载失败',
+            'Loading Failed',
             style: TextStyle(
               fontSize: 18,
               color: Colors.grey[600],
@@ -157,7 +157,7 @@ class _ResourcesPageState extends State<ResourcesPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            state.errorMessage ?? '网络错误，请稍后重试',
+            state.errorMessage ?? 'Network error, please try again later',
             style: TextStyle(
               fontSize: 14,
               color: Colors.grey[500],
@@ -168,7 +168,7 @@ class _ResourcesPageState extends State<ResourcesPage> {
           ElevatedButton.icon(
             onPressed: () => logic.refreshCurrentData(),
             icon: const Icon(Icons.refresh),
-            label: const Text('重试'),
+            label: const Text('Retry'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue,
               foregroundColor: Colors.white,
@@ -324,7 +324,7 @@ class _ResourceSecondLevelPageState extends State<ResourceSecondLevelPage> {
           ),
           const SizedBox(height: 16),
           Text(
-            '暂无设备类型',
+            'No Device Types',
             style: TextStyle(
               fontSize: 18,
               color: Colors.grey[600],
@@ -333,7 +333,7 @@ class _ResourceSecondLevelPageState extends State<ResourceSecondLevelPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            '该品牌下暂无可用的设备类型\n请返回选择其他品牌',
+            'No device types available for this brand\nPlease go back and select another brand',
             style: TextStyle(
               fontSize: 14,
               color: Colors.grey[500],
@@ -344,7 +344,7 @@ class _ResourceSecondLevelPageState extends State<ResourceSecondLevelPage> {
           ElevatedButton.icon(
             onPressed: () => Navigator.pop(context),
             icon: const Icon(Icons.arrow_back),
-            label: const Text('返回品牌列表'),
+            label: const Text('Back to Brand List'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue,
               foregroundColor: Colors.white,
@@ -508,7 +508,7 @@ class _ResourceThirdLevelPageState extends State<ResourceThirdLevelPage> {
           ),
           const SizedBox(height: 16),
           Text(
-            '暂无设备型号',
+            'No Device Models',
             style: TextStyle(
               fontSize: 18,
               color: Colors.grey[600],
@@ -517,7 +517,7 @@ class _ResourceThirdLevelPageState extends State<ResourceThirdLevelPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            '该设备类型下暂无可用的型号\n请返回选择其他设备类型',
+            'No models available for this device type\nPlease go back and select another device type',
             style: TextStyle(
               fontSize: 14,
               color: Colors.grey[500],
@@ -528,7 +528,7 @@ class _ResourceThirdLevelPageState extends State<ResourceThirdLevelPage> {
           ElevatedButton.icon(
             onPressed: () => Navigator.pop(context),
             icon: const Icon(Icons.arrow_back),
-            label: const Text('返回设备类型'),
+            label: const Text('Back to Device Types'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue,
               foregroundColor: Colors.white,

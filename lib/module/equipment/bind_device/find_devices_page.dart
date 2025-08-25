@@ -52,7 +52,7 @@ class _FindDevicesPageState extends State<FindDevicesPage> {
           children: [
             const SizedBox(height: 20),
             const Text(
-              'Rack number',
+              'Rock number',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,

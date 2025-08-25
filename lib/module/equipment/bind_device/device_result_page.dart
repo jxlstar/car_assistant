@@ -45,7 +45,7 @@ class DeviceResultPage extends StatelessWidget {
                             ),
               const SizedBox(height: 40),
               Text(
-                deviceInfo['device_type'] ?? '暂无',
+                deviceInfo['device_type'] ?? '',
                 style: const TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w600,
