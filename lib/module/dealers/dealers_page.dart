@@ -399,23 +399,23 @@ class _DealersPageState extends State<DealersPage> {
         await launchUrl(phoneUri);
       } else {
         // 显示错误提示
-        Get.snackbar(
-          '错误',
-          '无法拨打电话：$phoneNumber',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.shade100,
-          colorText: Colors.red.shade800,
-        );
+        // Get.snackbar(
+        //   '错误',
+        //   '无法拨打电话：$phoneNumber',
+        //   snackPosition: SnackPosition.BOTTOM,
+        //   backgroundColor: Colors.red.shade100,
+        //   colorText: Colors.red.shade800,
+        // );
       }
     } catch (e) {
       // 显示错误提示
-      Get.snackbar(
-        '错误',
-        '拨打电话失败：$e',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.shade100,
-        colorText: Colors.red.shade800,
-      );
+      // Get.snackbar(
+      //   '错误',
+      //   '拨打电话失败：$e',
+      //   snackPosition: SnackPosition.BOTTOM,
+      //   backgroundColor: Colors.red.shade100,
+      //   colorText: Colors.red.shade800,
+      // );
     }
   }
 
@@ -423,53 +423,4 @@ class _DealersPageState extends State<DealersPage> {
     // Get.to(() => DealerDetailPage(dealer: dealer));
   }
 
-  void _showFilterDialog(BuildContext context, DealersLogic logic) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('筛选条件'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              decoration: const InputDecoration(
-                labelText: '品牌',
-                hintText: '输入品牌名称',
-              ),
-              onChanged: (value) => logic.setBrandFilter(value.isEmpty ? null : value),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              decoration: const InputDecoration(
-                labelText: '城市',
-                hintText: '输入城市名称',
-              ),
-              onChanged: (value) => logic.setCityFilter(value.isEmpty ? null : value),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              decoration: const InputDecoration(
-                labelText: '服务类型',
-                hintText: '输入服务类型',
-              ),
-              onChanged: (value) => logic.setServiceFilter(value.isEmpty ? null : value),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              logic.clearFilters();
-              Navigator.of(context).pop();
-            },
-            child: const Text('清除'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('确定'),
-          ),
-        ],
-      ),
-    );
-  }
 }
