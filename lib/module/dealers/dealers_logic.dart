@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../core/network/api_service.dart';
 import '../../core/utils/logger_util.dart';
 import 'dealers_state.dart';
@@ -29,17 +30,19 @@ class DealersLogic extends GetxController {
       
       if (response.success && response.data != null) {
         final responseData = response.data!;
-        
+
         // 检查响应状态码
         if (responseData['code'] == 200) {
           final data = responseData['data'];
-          
+
           // 解析代理商列表
           final dealersData = data['dealers'] as List<dynamic>? ?? [];
           final newDealers = dealersData.map((json) => DealerItem.fromJson(json)).toList();
-          
+
           state.dealers = newDealers;
-          
+          _printDealersInfo();
+          _updateMarkers();
+
           LoggerUtil.d('代理商数据加载成功: ${state.dealers.length}个代理商');
         } else {
           state.errorMessage = responseData['message'] ?? '加载代理商数据失败';
@@ -57,10 +60,83 @@ class DealersLogic extends GetxController {
       update();
     }
   }
-  
+
+  void _printDealersInfo() {
+    LoggerUtil.d('--- All Dealers Info ---');
+    for (final dealer in state.dealers) {
+      LoggerUtil.d(
+          'Name: ${dealer.dealerName}, Lat: ${dealer.latitude}, Lng: ${dealer.longitude}');
+    }
+    LoggerUtil.d('------------------------');
+  }
+
+  // 更新地图标记
+  void _updateMarkers() {
+    final markers = <Marker>{};
+    for (final dealer in state.dealers) {
+      if (dealer.latitude != null && dealer.longitude != null) {
+        markers.add(
+          Marker(
+            markerId: MarkerId(dealer.id.toString()),
+            position: LatLng(dealer.latitude!, dealer.longitude!),
+            infoWindow: InfoWindow(
+              title: dealer.dealerName,
+              snippet: dealer.fullAddress,
+            ),
+          ),
+        );
+      }
+    }
+    state.markers = markers;
+
+    // 更新地图相机以显示所有标记
+    updateMapCamera();
+  }
+
+  void updateMapCamera() {
+    if (state.markers.isEmpty || state.mapController == null) {
+      return;
+    }
+
+    if (state.markers.length == 1) {
+      // 如果只有一个标记，则将相机居中到该标记
+      state.mapController!.animateCamera(
+        CameraUpdate.newLatLngZoom(state.markers.first.position, 14),
+      );
+    } else {
+      // 如果有多个标记，则调整相机以适应所有标记
+      final LatLngBounds bounds = _boundsFromMarkers(state.markers);
+      state.mapController!.animateCamera(
+        CameraUpdate.newLatLngBounds(bounds, 50), // 50是内边距
+      );
+    }
+  }
+
+  LatLngBounds _boundsFromMarkers(Set<Marker> markers) {
+    double? minLat, maxLat, minLng, maxLng;
+
+    for (final marker in markers) {
+      final lat = marker.position.latitude;
+      final lng = marker.position.longitude;
+
+      if (minLat == null || lat < minLat) minLat = lat;
+      if (maxLat == null || lat > maxLat) maxLat = lat;
+      if (minLng == null || lng < minLng) minLng = lng;
+      if (maxLng == null || lng > maxLng) maxLng = lng;
+    }
+
+    return LatLngBounds(
+      southwest: LatLng(minLat!, minLng!),
+      northeast: LatLng(maxLat!, maxLng!),
+    );
+  }
+
   // 加载收藏的代理商列表
   Future<void> loadFavoriteDealers() async {
     try {
+      state.isLoading = true;
+      update();
+
       final response = await ApiService.getFavoriteDealers();
       LoggerUtil.d('收藏代理商数据加载: $response');
       
@@ -71,26 +147,32 @@ class DealersLogic extends GetxController {
           final data = responseData['data'];
           final favoritesData = data['favorites'] as List<dynamic>? ?? [];
           
-          // 更新收藏ID列表
-          state.favoriteDealerIds = favoritesData
-              .map((item) => item['id'])
+          state.favoriteDealers = favoritesData.map((json) => DealerItem.fromJson(json['dealer'])).toList();
+          
+          // 更新收藏ID列表以用于UI（例如星标图标）
+          state.favoriteDealerIds = state.favoriteDealers
+              .map((dealer) => dealer.id)
               .where((id) => id != null)
               .cast<int>()
               .toList();
           
-          LoggerUtil.d('收藏代理商加载成功: ${state.favoriteDealerIds.length}个');
+          LoggerUtil.d('收藏代理商加载成功: ${state.favoriteDealers.length}个');
         }
       }
     } catch (e) {
       LoggerUtil.e('加载收藏代理商异常: $e');
+    } finally {
+      state.isLoading = false;
+      update();
     }
   }
   
   // 刷新数据
   Future<void> refreshDealers() async {
-    await loadDealers(isRefresh: true);
     if (state.currentTabIndex == 1) {
       await loadFavoriteDealers();
+    } else {
+      await loadDealers(isRefresh: true);
     }
   }
   
@@ -133,6 +215,7 @@ class DealersLogic extends GetxController {
         if (responseData['code'] == 200) {
           // 更新本地数据
           loadDealers(isRefresh: true);
+          loadFavoriteDealers();
           Get.snackbar(
             '成功',
             !favorite ? '已添加到收藏' : '已取消收藏',
@@ -173,26 +256,26 @@ class DealersLogic extends GetxController {
   
   // 切换标签页
   void switchTab(int index) {
+    if (state.currentTabIndex == index) return;
     state.currentTabIndex = index;
-    update();
     
     // 如果切换到收藏标签页，重新加载收藏列表
     if (index == 1) {
       loadFavoriteDealers();
     }
+    update();
   }
   
   // 获取收藏的代理商列表
   List<DealerItem> get favoriteDealers {
-    return state.dealers.where((dealer) => 
-        state.favoriteDealerIds.contains(dealer.id)).toList();
+    return state.favoriteDealers;
   }
   
   // 获取当前显示的代理商列表
   List<DealerItem> get currentDealers {
     if (state.currentTabIndex == 1) {
       // 收藏标签页
-      return favoriteDealers;
+      return state.favoriteDealers;
     } else {
       // 位置标签页
       return state.dealers;

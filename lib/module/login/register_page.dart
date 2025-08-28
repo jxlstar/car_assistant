@@ -44,7 +44,7 @@ class _RegisterPageState extends State<RegisterPage> {
         // 发送验证码
         final response = await ApiService.sendVerificationCode(
           email: _emailController.text,
-          type: 'register',
+          type: 'email_verification',
         );
         
         if (response.success) {
@@ -63,6 +63,7 @@ class _RegisterPageState extends State<RegisterPage> {
             gravity: ToastGravity.CENTER,
           );
         } else {
+          LoggerUtil.e('Send verification code error: $response');
           Fluttertoast.showToast(
             msg: "Failed to send verification code: ${response.message}",
             gravity: ToastGravity.CENTER,
@@ -123,16 +124,16 @@ class _RegisterPageState extends State<RegisterPage> {
                   CustomTextField(
                     controller: _emailController,
                     hintText: 'hello@example.com',
-                    labelText: 'Email Address/Phone Number',
+                    labelText: 'Email Address',
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your email or phone number';
+                        return 'Please enter your email';
                       }
                       // 简单的邮箱验证
                       if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value) &&
                           !RegExp(r'^[0-9]{10,}$').hasMatch(value)) {
-                        return 'Please enter a valid email or phone number';
+                        return 'Please enter a valid email';
                       }
                       return null;
                     },

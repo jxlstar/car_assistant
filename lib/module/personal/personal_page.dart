@@ -53,18 +53,18 @@ class _PersonalPageState extends State<PersonalPage> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('确认退出'),
-          content: const Text('您确定要退出登录吗？'),
+          title: const Text('Confirm Sign Out'),
+          content: const Text('Are you sure you want to sign out?'),
           actions: <Widget>[
             TextButton(
-              child: const Text('取消'),
+              child: const Text('Cancel'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
               child: const Text(
-                '退出',
+                'Sign Out',
                 style: TextStyle(color: Colors.red),
               ),
               onPressed: () {
@@ -105,7 +105,7 @@ class _PersonalPageState extends State<PersonalPage> {
       if (success) {
         // 显示成功提示
         Fluttertoast.showToast(
-          msg: '退出登录成功',
+          msg: 'Signed out successfully',
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.CENTER,
         );
@@ -120,7 +120,7 @@ class _PersonalPageState extends State<PersonalPage> {
       } else {
         // 显示错误提示
         Fluttertoast.showToast(
-          msg: authProvider.error ?? '退出登录失败',
+          msg: authProvider.error ?? 'Sign out failed',
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.CENTER,
         );
@@ -133,7 +133,7 @@ class _PersonalPageState extends State<PersonalPage> {
       
       // 显示错误提示
       Fluttertoast.showToast(
-        msg: '退出登录时发生错误',
+        msg: 'An error occurred while signing out',
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.CENTER,
       );
@@ -384,7 +384,7 @@ Future<void> _openRippaWebsite() async {
       );
     } else {
       Fluttertoast.showToast(
-        msg: "无法打开网站链接",
+        msg: "Could not open website link",
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.CENTER,
       );
@@ -392,7 +392,7 @@ Future<void> _openRippaWebsite() async {
     }
   } catch (e) {
     Fluttertoast.showToast(
-      msg: "打开网站时发生错误",
+      msg: "An error occurred while opening the website",
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.CENTER,
     );

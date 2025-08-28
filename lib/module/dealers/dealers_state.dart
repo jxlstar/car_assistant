@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class DealersState {
   // 加载状态
@@ -9,6 +10,7 @@ class DealersState {
   
   // 代理商列表数据
   List<DealerItem> dealers = [];
+  List<DealerItem> favoriteDealers = [];
   
   // 筛选条件
   String? selectedBrand;
@@ -24,6 +26,10 @@ class DealersState {
   // 当前选中的标签页 (0: 位置, 1: 收藏)
   int currentTabIndex = 0;
   
+  // Google Map
+  GoogleMapController? mapController;
+  Set<Marker> markers = {};
+
   DealersState();
 }
 

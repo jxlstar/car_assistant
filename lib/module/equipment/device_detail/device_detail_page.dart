@@ -354,11 +354,6 @@ class DeviceDetailPage extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20),
       child: GestureDetector(
         onTap: () {
-          Fluttertoast.showToast(
-            msg: "地图未配置apikey",
-            gravity: ToastGravity.CENTER,
-          );
-          return;
           final coordinates = logic.locationCoordinates;
           Navigator.push(
             context,
