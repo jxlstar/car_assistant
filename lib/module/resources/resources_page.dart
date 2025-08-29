@@ -669,17 +669,10 @@ class _ResourceFourthLevelPageState extends State<ResourceFourthLevelPage> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    widget.item.code ?? '',
+                    widget.item.name ?? '',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    widget.item.description ?? '',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey,
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -721,6 +714,7 @@ class _ResourceFourthLevelPageState extends State<ResourceFourthLevelPage> {
           const SizedBox(width: 12),
           Text(
             title,
+            overflow: TextOverflow.clip,
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
@@ -736,31 +730,35 @@ class _ResourceFourthLevelPageState extends State<ResourceFourthLevelPage> {
   Widget _buildBreadcrumb(List<BreadcrumbItem> items) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      child: Row(
-        children: [
-          for (int i = 0; i < items.length; i++) ...[
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
-              decoration: BoxDecoration(
-                color: items[i].isSelected ? Colors.blue : Colors.grey[200],
-                borderRadius: BorderRadius.circular(16.0),
-              ),
-              child: Text(
-                items[i].title,
-                style: TextStyle(
-                  color: items[i].isSelected ? Colors.white : Colors.black87,
-                  fontSize: 14,
-                  fontWeight: items[i].isSelected ? FontWeight.w600 : FontWeight.normal,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            for (int i = 0; i < items.length; i++) ...[
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+                decoration: BoxDecoration(
+                  color: items[i].isSelected ? Colors.blue : Colors.grey[200],
+                  borderRadius: BorderRadius.circular(16.0),
+                ),
+                child: Text(
+                  items[i].title,
+                  overflow: TextOverflow.clip,
+                  style: TextStyle(
+                    color: items[i].isSelected ? Colors.white : Colors.black87,
+                    fontSize: 14,
+                    fontWeight: items[i].isSelected ? FontWeight.w600 : FontWeight.normal,
+                  ),
                 ),
               ),
-            ),
-            if (i < items.length - 1)
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8.0),
-                child: Icon(Icons.chevron_right, size: 16, color: Colors.grey),
-              ),
-          ]
-        ],
+              if (i < items.length - 1)
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Icon(Icons.chevron_right, size: 16, color: Colors.grey),
+                ),
+            ]
+          ],
+        ),
       ),
     );
   }

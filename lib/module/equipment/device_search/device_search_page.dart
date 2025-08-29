@@ -3,43 +3,39 @@ import '../device_detail/device_detail_page.dart';
 import '../equipment_state.dart';
 
 class DeviceSearchPage extends StatefulWidget {
-  final List<Device> devices; // 接收传递的设备列表
-  
+  final List<Device> devices;
+
   const DeviceSearchPage({super.key, required this.devices});
-  
+
   @override
-  _DeviceSearchPageState createState() => _DeviceSearchPageState();
+  State<DeviceSearchPage> createState() => _DeviceSearchPageState();
 }
 
 class _DeviceSearchPageState extends State<DeviceSearchPage> {
+  List<Device> _filteredDevices = [];
   final TextEditingController _searchController = TextEditingController();
-  
-  List<Device> filteredDevices = [];
 
   @override
   void initState() {
     super.initState();
-    filteredDevices = widget.devices; // 初始化显示所有设备
-    _searchController.addListener(_filterDevices);
+    _filteredDevices = widget.devices;
+    _searchController.addListener(_onSearchChanged);
   }
 
-  void _filterDevices() {
+  void _onSearchChanged() {
     final query = _searchController.text.toLowerCase();
     setState(() {
-      if (query.isEmpty) {
-        filteredDevices = widget.devices;
-      } else {
-        filteredDevices = widget.devices.where((device) {
-          return (device.deviceName?.toLowerCase().contains(query) ?? false) ||
-                 (device.model?.toLowerCase().contains(query) ?? false) ||
-                 (device.pin?.toLowerCase().contains(query) ?? false);
-        }).toList();
-      }
+      _filteredDevices = widget.devices.where((device) {
+        final deviceName = device.name?.toLowerCase() ?? '';
+        final model = device.model?.toLowerCase() ?? '';
+        return deviceName.contains(query) || model.contains(query);
+      }).toList();
     });
   }
 
   @override
   void dispose() {
+    _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     super.dispose();
   }
@@ -52,7 +48,7 @@ class _DeviceSearchPageState extends State<DeviceSearchPage> {
         backgroundColor: Colors.grey[100],
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: Colors.black),
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
         title: Container(
@@ -60,138 +56,138 @@ class _DeviceSearchPageState extends State<DeviceSearchPage> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.grey[300]!),
           ),
           child: TextField(
             controller: _searchController,
-            decoration: InputDecoration(
-              hintText: 'Search devices...',
+            decoration: const InputDecoration(
+              hintText: 'Search',
               border: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               suffixIcon: Icon(Icons.search, color: Colors.grey),
             ),
           ),
         ),
       ),
       body: ListView.builder(
-        padding: EdgeInsets.all(16),
-        itemCount: filteredDevices.length,
+        padding: const EdgeInsets.all(16),
+        itemCount: _filteredDevices.length,
         itemBuilder: (context, index) {
-          final device = filteredDevices[index];
-          return Container(
-            margin: EdgeInsets.only(bottom: 16),
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: Offset(0, 2),
-                ),
-              ],
+          final device = _filteredDevices[index];
+          return Card(
+            margin: const EdgeInsets.only(bottom: 16.0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.0),
             ),
+            elevation: 1,
             child: InkWell(
+              borderRadius: BorderRadius.circular(12.0),
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => DeviceDetailPage(deviceId: device.deviceId ?? ''),
+                    builder: (context) => DeviceDetailPage(
+                      deviceId: device.deviceId ?? '',
+                    ),
                   ),
                 );
               },
-              child: Row(
-                children: [
-                  Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(8),
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8.0),
+                      child: (device.deviceImages?[0].imageUrl != null && device.deviceImages![0].imageUrl!.isNotEmpty)
+                          ? Image.network(
+                             device.deviceImages![0].imageUrl ?? '',
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Image.asset(
+                                'assets/image/waji.png',
+                                width: 100,
+                                height: 100,
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                          : Image.asset(
+                              'assets/image/waji.png',
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.cover,
+                            ),
                     ),
-                    child: Icon(
-                      Icons.construction,
-                      color: device.status == 1 ? Colors.green : Colors.grey[600],
-                      size: 30,
-                    ),
-                  ),
-                  SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          device.deviceName ?? 'Unknown Device',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            device.name ?? 'Unknown Device',
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Text(
-                              'Model',
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 14,
+                          const SizedBox(height: 12),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Model',
+                                      style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 14)),
+                                  const SizedBox(height: 4),
+                                  Text('PIN',
+                                      style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 14)),
+                                  const SizedBox(height: 4),
+                                  Text('Hours',
+                                      style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 14)),
+                                ],
                               ),
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              device.model ?? 'N/A',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(device.model ?? 'N/A',
+                                        style: const TextStyle(
+                                            color: Colors.black87,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500)),
+                                    const SizedBox(height: 4),
+                                    Text(device.pin ?? 'N/A',
+                                        style: const TextStyle(
+                                            color: Colors.black87,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500),
+                                        overflow: TextOverflow.ellipsis),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                        '${device.runtimeHours?.toStringAsFixed(1) ?? 'N/A'}h',
+                                        style: const TextStyle(
+                                            color: Colors.black87,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500)),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 2),
-                        Row(
-                          children: [
-                            Text(
-                              'PIN',
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 14,
-                              ),
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              device.pin ?? 'N/A',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 2),
-                        Row(
-                          children: [
-                            Text(
-                              'Hours',
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 14,
-                              ),
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              '${device.runtimeHours?.toStringAsFixed(1) ?? '0.0'}h',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                            ],
+                          )
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           );

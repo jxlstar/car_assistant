@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'dart:io' show Platform;
@@ -9,6 +11,7 @@ import 'login_model.dart';
 import '../../core/utils/logger_util.dart';
 import '../../core/storage/storage_service.dart';
 import '../../core/network/api_service.dart';
+import '../equipment/equipment_logic.dart';
 
 class AuthProvider extends ChangeNotifier {
   bool _isLoading = false;
@@ -184,6 +187,12 @@ class AuthProvider extends ChangeNotifier {
       // 清除其他可能的用户相关数据
       await StorageService.remove('user_profile');
       await StorageService.remove('refresh_token');
+
+      // Clear device data
+      if (Get.isRegistered<EquipmentLogic>()) {
+        final equipmentLogic = Get.find<EquipmentLogic>();
+        equipmentLogic.clearDeviceData();
+      }
       
       // 登出第三方登录
       await _logoutThirdPartyServices();

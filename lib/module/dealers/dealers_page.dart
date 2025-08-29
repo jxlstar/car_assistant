@@ -281,7 +281,7 @@ class _DealersPageState extends State<DealersPage> with SingleTickerProviderStat
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
-                                  '认证',
+                                  'Verified',
                                   style: TextStyle(
                                     fontSize: 10,
                                     color: Colors.green.shade700,
@@ -344,7 +344,7 @@ class _DealersPageState extends State<DealersPage> with SingleTickerProviderStat
                     GestureDetector(
                       onTap: () => _makePhoneCall(dealer.phone!),
                       child: Text(
-                        dealer.phone ?? '',
+                        dealer.phone!,
                         style: const TextStyle(
                           color: Colors.blue,
                           fontSize: 12,
@@ -353,20 +353,11 @@ class _DealersPageState extends State<DealersPage> with SingleTickerProviderStat
                       ),
                     ),
                   ],
-                  if (dealer.mobile != null) ...[
-                    if (dealer.phone != null) const SizedBox(width: 16),
-                    const Icon(Icons.phone_android, color: Colors.green, size: 16),
-                    const SizedBox(width: 4),
+                  if (dealer.website != null && dealer.website!.isNotEmpty) ...[
+                    const SizedBox(width: 16),
                     GestureDetector(
-                      onTap: () => _makePhoneCall(dealer.mobile!),
-                      child: Text(
-                        dealer.mobile ?? '',
-                        style: const TextStyle(
-                          color: Colors.green,
-                          fontSize: 12,
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
+                      onTap: () => _launchURL(dealer.website!),
+                      child: const Icon(Icons.language, color: Colors.blue, size: 16),
                     ),
                   ],
                   const Spacer(),
@@ -420,16 +411,20 @@ class _DealersPageState extends State<DealersPage> with SingleTickerProviderStat
     try {
       if (await canLaunchUrl(phoneUri)) {
         await launchUrl(phoneUri);
-      } else {
+      } else {}
+    } catch (e) {}
+  }
 
-      }
-    } catch (e) {
-
-    }
+  Future<void> _launchURL(String url) async {
+    final Uri uri = Uri.parse(url);
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {}
+    } catch (e) {}
   }
 
   void _navigateToDetail(DealerItem dealer) {
     // Get.to(() => DealerDetailPage(dealer: dealer));
   }
-
 }

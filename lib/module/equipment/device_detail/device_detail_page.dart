@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import '../../../r.dart';
+import '../equipment_state.dart';
 import '../map_detail/map_detail_page.dart';
 import 'device_detail_logic.dart';
 import '../fault_code_query/fault_code_query_page.dart';
@@ -49,12 +50,12 @@ class DeviceDetailPage extends StatelessWidget {
                 icon: Image.asset(R.assetsImageShareIcon, height: 20),
                 onPressed: () {
                   if (logic.state.deviceDetail != null) {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return ShareDialog(device: logic.state.deviceDetail!);
-                      },
-                    );
+                    // showDialog(
+                    //   context: context,
+                    //   builder: (BuildContext context) {
+                    //     return null;
+                    //   },
+                    // );
                   }
                 },
               );
@@ -84,7 +85,7 @@ class DeviceDetailPage extends StatelessWidget {
                   SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () => logic.refreshDeviceDetail(),
-                    child: Text('重试'),
+                    child: Text('Retry'),
                   ),
                 ],
               ),
@@ -93,7 +94,7 @@ class DeviceDetailPage extends StatelessWidget {
           
           if (logic.state.deviceDetail == null) {
             return Center(
-              child: Text('暂无设备详情数据'),
+              child: Text('No device detail data available'),
             );
           }
           
@@ -133,7 +134,7 @@ class DeviceDetailPage extends StatelessWidget {
                   SizedBox(height: 24),
                   
                   // Resources Section
-                  _buildResourcesSection(context),
+                  _buildResourcesSection(context, logic.state.deviceDetail),
                   
                   SizedBox(height: 100), // Bottom padding for navigation
                 ],
@@ -157,8 +158,9 @@ class DeviceDetailPage extends StatelessWidget {
               color: Colors.grey[200],
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Image.file(File(logic.headerImage), height: 30,),
-
+            child: logic.headerImage.isNotEmpty
+                ? Image.network(logic.headerImage, height: 30)
+                : Image.asset(R.assetsImageWaji, height: 30),
           ),
           SizedBox(width: 16),
           Expanded(
@@ -244,6 +246,7 @@ class DeviceDetailPage extends StatelessWidget {
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
@@ -354,18 +357,30 @@ class DeviceDetailPage extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20),
       child: GestureDetector(
         onTap: () {
-          final coordinates = logic.locationCoordinates;
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MapDetailPage(
-                latitude: coordinates['latitude']!,
-                longitude: coordinates['longitude']!,
-                locationName: logic.currentLocation,
-                deviceName: logic.deviceName,
+          if (logic.hasValidLocation) {
+            final coordinates = logic.locationCoordinates;
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MapDetailPage(
+                  latitude: coordinates['latitude']!,
+                  longitude: coordinates['longitude']!,
+                  locationName: logic.currentLocation,
+                  deviceName: logic.deviceName,
+                ),
               ),
-            ),
-          );
+            );
+          } else {
+            Fluttertoast.showToast(
+                msg: "No location available",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.CENTER,
+                timeInSecForIosWeb: 1,
+                backgroundColor: Colors.black,
+                textColor: Colors.white,
+                fontSize: 16.0
+            );
+          }
         },
         child: Container(
           height: 200,
@@ -436,7 +451,7 @@ class DeviceDetailPage extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    '点击查看地图',
+                    'Click to view map',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 10,
@@ -466,7 +481,7 @@ class DeviceDetailPage extends StatelessWidget {
           ),
           SizedBox(height: 4),
           Text(
-            'Today ${DateTime.now().toString().substring(0, 16)}',
+            'Today ${logic.state.deviceDetail?.location?.timestamp != null ? DateTime.fromMillisecondsSinceEpoch(logic.state.deviceDetail!.location!.timestamp! * 1000).toString().substring(0, 16) : ''}',
             style: TextStyle(
               color: Colors.grey[600],
               fontSize: 14,
@@ -530,7 +545,7 @@ class DeviceDetailPage extends StatelessWidget {
     );
   }
   
-  Widget _buildResourcesSection(BuildContext context) {
+  Widget _buildResourcesSection(BuildContext context, Device? device) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -547,7 +562,7 @@ class DeviceDetailPage extends StatelessWidget {
           _buildResourceItem(
             icon: Icons.build,
             title: 'Machine maintenance',
-            subtitle: 'Last May 31, 2025 at 159 Hours\nNext 200 Hours',
+            subtitle: 'Last ${device?.lastMaintenanceTime != null ? DateTime.fromMillisecondsSinceEpoch(device!.lastMaintenanceTime! * 1000).toString().substring(0, 10) : 'N/A'}\nNext ${device?.nextMaintenanceTime != null ? DateTime.fromMillisecondsSinceEpoch(device!.nextMaintenanceTime! * 1000).toString().substring(0, 10) : 'N/A'}',
               context: context
           ),
           _buildResourceItem(

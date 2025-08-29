@@ -1,11 +1,12 @@
 import 'package:get/get.dart';
+import '../equipment_state.dart';
 
 class DeviceDetailState {
   // 加载状态
   bool isLoading = false;
   
   // 设备详情数据
-  Map<String, dynamic>? deviceDetail;
+  Device? deviceDetail;
   
   // 设备ID
   String? deviceId;

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../core/network/api_service.dart';
 import '../../../core/network/app_request.dart';
 import '../../../core/utils/logger_util.dart';
+import '../equipment_state.dart';
 import 'device_detail_state.dart';
 
 class DeviceDetailLogic extends GetxController {
@@ -29,18 +30,18 @@ class DeviceDetailLogic extends GetxController {
       update();
       
       final response = await ApiService.getDeviceDetail(state.deviceId!);
-      LoggerUtil.i('设备device_id详情====${state.deviceId}');
-      LoggerUtil.i('设备详情====$response  ');
+      LoggerUtil.i('Device device_id detail====${state.deviceId}');
+      LoggerUtil.i('Device detail====$response  ');
       if (response.success && response.data != null) {
-        state.deviceDetail = response.data?['data'];
-        LoggerUtil.d('设备详情加载成功: ${response.data}');
+        state.deviceDetail = Device.fromJson(response.data?['data']);
+        LoggerUtil.d('Device detail loaded successfully: ${response.data}');
       } else {
-        state.errorMessage = response.message ?? '加载设备详情失败';
-        LoggerUtil.e('设备详情加载失败: ${response.message}');
+        state.errorMessage = response.message ?? 'Failed to load device details';
+        LoggerUtil.e('Failed to load device details: ${response.message}');
       }
     } catch (e) {
-      state.errorMessage = '网络错误，请稍后重试';
-      LoggerUtil.e('设备详情加载异常: $e');
+      state.errorMessage = 'Network error, please try again later';
+      LoggerUtil.e('Exception loading device details: $e');
     } finally {
       state.isLoading = false;
       update();
@@ -50,7 +51,7 @@ class DeviceDetailLogic extends GetxController {
   // 切换禁止重启开关
   Future<void> toggleInhibitRestart(bool value) async {
     if (state.deviceId == null) {
-      LoggerUtil.e('设备ID为空，无法执行锁定/解锁操作');
+      LoggerUtil.e('Device ID is null, cannot perform lock/unlock operation');
       return;
     }
 
@@ -68,11 +69,11 @@ class DeviceDetailLogic extends GetxController {
         // 解锁设备
         response = await ApiService.unlockDevice(state.deviceId!);
       }
-      LoggerUtil.i('设备锁定or解锁返回的数据===: $response');
+      LoggerUtil.i('Device lock/unlock response data===: $response');
       if (response.success) {
         // API调用成功，更新本地状态
         state.inhibitRestart = value;
-        LoggerUtil.i('设备${value ? "锁定" : "解锁"}成功: ${response.message}');
+        LoggerUtil.i('Device ${value ? "lock" : "unlock"} successful: ${response.message}');
         
         // 显示成功提示
         Fluttertoast.showToast(msg: response.message, gravity: ToastGravity.CENTER);
@@ -81,7 +82,7 @@ class DeviceDetailLogic extends GetxController {
         Fluttertoast.showToast(msg: response.message, gravity: ToastGravity.CENTER);
       }
     } catch (e) {
-      LoggerUtil.e('设备${value ? "锁定" : "解锁"}异常: $e');
+      LoggerUtil.e('Device ${value ? "lock" : "unlock"} exception: $e');
       Fluttertoast.showToast(msg: '$e', gravity: ToastGravity.CENTER);
     } finally {
       // state.isLoading = false;
@@ -96,74 +97,75 @@ class DeviceDetailLogic extends GetxController {
   
   // 获取设备名称
   String get deviceName {
-    return state.deviceDetail?['device_name'] ??
-           state.deviceDetail?['name'] ??
-           '未知设备';
+    return state.deviceDetail?.name ?? 'Unknown Device';
   }
   // 获取当前位置
   String get headerImage {
-    final imageUrl = state.deviceDetail?['device_images'];
-    if (imageUrl != null) {
-      return imageUrl[0]['image_url'] ?? '';
-    }
-    return '';
+    return state.deviceDetail?.mainImageUrl ?? '';
   }
   // 获取设备型号
   String get deviceModel {
-    return state.deviceDetail?['model'] ?? '未知型号';
+    return state.deviceDetail?.model ?? 'Unknown Model';
   }
   
   // 获取设备PIN
   String get devicePin {
-    return state.deviceDetail?['pin'] ?? '未知PIN';
+    return state.deviceDetail?.pin ?? 'Unknown PIN';
   }
   
   // 获取运行时长
   String get runtimeHours {
-    final hours = state.deviceDetail?['runtime_hours'] ?? 
-                  state.deviceDetail?['runtimeHours'] ?? '0';
-    return hours.toString();
+    return state.deviceDetail?.runtimeHours.toString() ?? '0';
   }
   
   // 获取电量
   String get batteryLevel {
-    final battery = state.deviceDetail?['battery_level'] ?? 
-                   state.deviceDetail?['batteryLevel'] ?? '0';
-    return '${battery}%';
+    String? formatted = state.deviceDetail?.battery?.toStringAsFixed(2);
+    return ' ${formatted ?? 0}%';
   }
   
   // 获取油量
   String get fuelLevel {
-    final fuel = state.deviceDetail?['fuel_level'] ?? 
-                state.deviceDetail?['fuelLevel'] ?? '0';
-    return '${fuel}%';
+    return '${state.deviceDetail?.fuel ?? 0}%';
   }
   
   // 获取水温
   String get waterTemperature {
-    final temp = state.deviceDetail?['water_temperature'] ?? 
-                state.deviceDetail?['waterTemperature'] ?? '0';
-    return '${temp}°F';
+    return '${state.deviceDetail?.waterTemperature ?? 0}°F';
   }
   
   // 获取当前位置
   String get currentLocation {
-    final location = state.deviceDetail?['current_location'];
-    if (location != null) {
-      return location['address'] ?? '未知位置';
+    return state.deviceDetail?.location?.address ?? 'No location available';
+  }
+  
+  // 检查是否有有效的位置信息
+  bool get hasValidLocation {
+    final location = state.deviceDetail?.location;
+    if (location == null) {
+      return false;
     }
-    return '未知位置';
+    final latitude = location.latitude;
+    final longitude = location.longitude;
+    if (latitude == null || longitude == null) {
+      return false;
+    }
+    // Consider 0,0 as an invalid location
+    if (latitude == 0.0 && longitude == 0.0) {
+      return false;
+    }
+    return true;
   }
   
   // 获取位置坐标
   Map<String, double> get locationCoordinates {
-    final location = state.deviceDetail?['current_location'];
+    final location = state.deviceDetail?.location;
     if (location != null) {
       return {
-        'latitude': double.tryParse(location['latitude']?.toString() ?? '0') ?? 0.0,
-        'longitude': double.tryParse(location['longitude']?.toString() ?? '0') ?? 0.0,
+        'latitude': location.latitude ?? 0.0,
+        'longitude': location.longitude ?? 0.0,
       };
     }
-    return {'latitude': 28.5383, 'longitude': -81.3792}; // 默认奥兰多坐标
+    return {'latitude': 28.5383, 'longitude': -81.3792}; // Default Orlando coordinates
   }
 }

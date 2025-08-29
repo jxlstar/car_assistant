@@ -10,6 +10,7 @@ import 'equipment_logic.dart';
 import 'bind_device/find_devices_page.dart';
 import '../../notification/notification_page.dart';
 import 'equipment_state.dart';
+import 'package:intl/intl.dart';
 
 class EquipmentPage extends StatefulWidget {
   const EquipmentPage({super.key});
@@ -121,7 +122,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
             color: Colors.transparent,
             child: Row(
               children: [
-                Spacer(),
+                const Spacer(),
                 GestureDetector(
                   onTap: () {
                     Navigator.push(
@@ -142,14 +143,14 @@ class _EquipmentPageState extends State<EquipmentPage> {
                   ),
                 ),
                 // Search button
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 GestureDetector(
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => DeviceSearchPage(
-                          devices: logic.devices, // 传递设备列表数据
+                          devices: logic.devices,
                         ),
                       ),
                     );
@@ -160,298 +161,29 @@ class _EquipmentPageState extends State<EquipmentPage> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.2),
+                          spreadRadius: 1,
+                          blurRadius: 5,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
                     ),
-                    child: Icon(Icons.search, color: Colors.grey[600], size: 24),
+                    child: const Icon(Icons.search, color: Colors.blue, size: 24),
                   ),
                 ),
               ],
             ),
           ),
-          // Scrollable device list
+          // Device list
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.all(16.0),
               itemCount: logic.devices.length,
               itemBuilder: (context, index) {
                 final device = logic.devices[index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DeviceDetailPage(deviceId: device.deviceId),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
-                          spreadRadius: 1,
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        // Top section with device image, name and arrow
-                        Row(
-                          children: [
-                            // Device image
-                            Container(
-                              width: 80,
-                              height: 80,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[100],
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: Image.asset(
-                                  R.assetsImageAvatar,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return const Icon(
-                                      Icons.construction,
-                                      color: Colors.grey,
-                                      size: 40,
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            // Device info
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    device.rackNumber ?? '',
-                                    style: const TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        'Model',
-                                        style: TextStyle(
-                                          color: Colors.grey[600],
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 40),
-                                      Text(
-                                        device.modelNo ?? '',
-                                        style: const TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        'Hours',
-                                        style: TextStyle(
-                                          color: Colors.grey[600],
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 40),
-                                      Text(
-                                        device.hours.toString(),
-                                        style: const TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            // Arrow icon
-                            Icon(
-                              Icons.chevron_right,
-                              color: Colors.blue,
-                              size: 24,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        // Status cards section
-                        Row(
-                          children: [
-                            // Battery status card
-                            Expanded(
-                              child: Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[50],
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 32,
-                                      height: 24,
-                                      decoration: BoxDecoration(
-                                        color: Colors.blue,
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: const Icon(
-                                        Icons.battery_full,
-                                        color: Colors.white,
-                                        size: 16,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Battery',
-                                          style: TextStyle(
-                                            color: Colors.grey[600],
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                        const Text(
-                                          '23.23v',
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            // Fuel status card
-                            Expanded(
-                              child: Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[50],
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 16,
-                                      height: 16,
-                                      decoration: const BoxDecoration(
-                                        color: Colors.red,
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Fuel',
-                                          style: TextStyle(
-                                            color: Colors.grey[600],
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                        const Text(
-                                          '12%',
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        // Location section
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[50],
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.lock_outline,
-                                color: Colors.grey[600],
-                                size: 20,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'P',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Icon(
-                                Icons.location_on_outlined,
-                                color: Colors.grey[600],
-                                size: 20,
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      '2838 Grape Uger, St Cloud, hs ...',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    Text(
-                                      'Today June 08,2025 10:00',
-                                      style: TextStyle(
-                                        color: Colors.grey[600],
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
+                return _buildDeviceCard(device, context);
               },
             ),
           ),
@@ -462,165 +194,248 @@ class _EquipmentPageState extends State<EquipmentPage> {
 }
 
 Widget _buildDeviceCard(Device device, BuildContext context) {
-  return GestureDetector(
-    onTap: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => DeviceDetailPage(
-            deviceId: device.deviceId,
-          ),
+  return Card(
+    margin: const EdgeInsets.symmetric(vertical: 8.0),
+    elevation: 2,
+    color: Colors.white,
+    child: InkWell(
+      borderRadius: BorderRadius.circular(12.0),
+      onTap: () {
+        Get.to(() => DeviceDetailPage(deviceId: device.deviceId ?? ''));
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          children: [
+            _buildDeviceHeader(device),
+            const SizedBox(height: 12),
+            _buildStatusCards(device),
+            const SizedBox(height: 12),
+            _buildFooter(device),
+          ],
         ),
-      );
-    },
-    child: Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // 设备基本信息
-          Row(
-            children: [
-              // 设备图片
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.asset(
-                    R.assetsImageWaji, // 使用新的挖掘机图片
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Icon(
-                        Icons.construction,
-                        color: Colors.grey,
-                        size: 40,
-                      );
-                    },
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              // 设备信息
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          device.deviceName ?? '',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: device.status == 'online' ? Colors.green : Colors.red,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            device.status == 'online' ? '在线' : '离线',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '型号: ${device.model}',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '运行时长: ${device.runtimeHours}h',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // 状态指示器和箭头
-              Column(
-                children: [
-                  Icon(
-                    device.lockStatus!.isLocked ? Icons.lock : Icons.lock_open,
-                    color: device.lockStatus!.isLocked ? Colors.red : Colors.green,
-                    size: 20,
-                  ),
-                  const SizedBox(height: 8),
-                  const Icon(
-                    Icons.chevron_right,
-                    color: Colors.blue,
-                    size: 24,
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          // 设备状态信息
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildStatusItem('电量', '${device.batteryLevel}%', Icons.battery_full),
-              _buildStatusItem('油量', '${device.fuelLevel}%', Icons.local_gas_station),
-              _buildStatusItem('水温', '${device.waterTemperature}°C', Icons.thermostat),
-            ],
-          ),
-        ],
       ),
     ),
   );
 }
 
-Widget _buildStatusItem(String label, String value, IconData icon) {
-  return Column(
+Widget _buildDeviceHeader(Device device) {
+  return Row(
     children: [
-      Icon(icon, size: 20, color: Colors.blue),
-      const SizedBox(height: 4),
-      Text(
-        label,
-        style: TextStyle(
-          fontSize: 12,
-          color: Colors.grey[600],
+      ClipRRect(
+        borderRadius: BorderRadius.circular(8.0),
+        child: (device.deviceImages != null && device.deviceImages!.isNotEmpty)
+            ? Image.network(
+                device.deviceImages![0].imageUrl!,
+                width: 80,
+                height: 80,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Image.asset(
+                  'assets/image/waji.png',
+                  width: 80,
+                  height: 80,
+                  fit: BoxFit.cover,
+                ),
+              )
+            : Image.asset(
+                'assets/image/waji.png',
+                width: 80,
+                height: 80,
+                fit: BoxFit.cover,
+              ),
+      ),
+      const SizedBox(width: 16),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              device.name ?? 'Unknown Device',
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Model', style: TextStyle(color: Colors.grey[600])),
+                    const SizedBox(height: 4),
+                    Text('PIN', style: TextStyle(color: Colors.grey[600])),
+                    const SizedBox(height: 4),
+                    Text('Hours', style: TextStyle(color: Colors.grey[600])),
+                  ],
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(device.model ?? 'N/A',
+                          style: const TextStyle(fontWeight: FontWeight.w500)),
+                      const SizedBox(height: 4),
+                      Text(device.pin ?? 'N/A',
+                          style: const TextStyle(fontWeight: FontWeight.w500)),
+                      const SizedBox(height: 4),
+                      Text('${device.runtimeHours?.toStringAsFixed(1) ?? 'N/A'}h',
+                          style: const TextStyle(fontWeight: FontWeight.w500)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
-      Text(
-        value,
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
+      const Icon(Icons.chevron_right, color: Colors.blue),
+    ],
+  );
+}
+
+Widget _buildStatusCards(Device device) {
+  return Row(
+    children: [
+      Expanded(
+        child: Card(
+          color: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+            side: BorderSide(color: Colors.grey[200]!),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              children: [
+                const Icon(Icons.battery_full, color: Colors.blue, size: 30),
+                const SizedBox(width: 8),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Battery', style: TextStyle(color: Colors.grey)),
+                    Text(
+                      '${device.battery?.toStringAsFixed(2) ?? 'N/A'}V',
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      const SizedBox(width: 12),
+      Expanded(
+        child: Card(
+          color: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+            side: BorderSide(color: Colors.grey[200]!),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 30,
+                  height: 30,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      CircularProgressIndicator(
+                        value: (device.fuel ?? 0) / 100.0,
+                        strokeWidth: 4,
+                        backgroundColor: Colors.grey[300],
+                        valueColor:
+                            const AlwaysStoppedAnimation<Color>(Colors.red),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Fuel', style: TextStyle(color: Colors.grey)),
+                    Text(
+                      '${device.fuel?.toStringAsFixed(0) ?? 'N/A'}%',
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     ],
+  );
+}
+
+Widget _buildFooter(Device device) {
+  final location = device.location;
+  final address = location?.address ?? 'Unknown Location';
+  DateTime date = DateTime.fromMillisecondsSinceEpoch(location?.timestamp ?? 0);
+
+  final timestamp = location?.timestamp != null
+      ? DateFormat('MMM dd, yyyy HH:mm').format(date)
+      : '';
+
+  return Container(
+    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(8.0),
+      border: Border.all(color: Colors.grey[200]!),
+    ),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            Icon(
+              device.lockStatus == true ? Icons.lock_outline : Icons.lock_open,
+              color: Colors.grey[600],
+            ),
+            const SizedBox(width: 16),
+            Text(
+              'P',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: device.status == 'Parking' ? Colors.black : Colors.grey,
+              ),
+            ),
+          ],
+        ),
+        Row(
+          children: [
+            Icon(Icons.location_on, color: Colors.grey[600]),
+            const SizedBox(width: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  address.length > 25
+                      ? '${address.substring(0, 25)}...'
+                      : address,
+                  style: const TextStyle(fontSize: 12),
+                ),
+                Text(
+                  timestamp,
+                  style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
+    ),
   );
 }

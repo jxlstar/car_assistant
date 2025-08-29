@@ -15,28 +15,36 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
-  
-  List<Widget> _getPages() {
-    return [
-      const EquipmentPage(),
-      const ResourcesPage(),
-      const DealersPage(),
-      const PersonalPage(),
-    ];
+
+  // Corrected the order of pages to match the BottomNavigationBar
+  final List<Widget> _pages = [
+    const EquipmentPage(),
+    const ResourcesPage(),
+    const DealersPage(),
+    const PersonalPage(),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Always default to the first tab (Equipment) upon initialization
+    _currentIndex = 0;
+  }
+
+  void _onTabTapped(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final pages = _getPages();
     return Scaffold(
-          body: pages[_currentIndex],
+          // Correctly reference the _pages list
+          body: _pages[_currentIndex],
           bottomNavigationBar: BottomNavigationBar(
             currentIndex: _currentIndex,
-            onTap: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
-            },
+            onTap: _onTabTapped, // Use the handler method
             type: BottomNavigationBarType.fixed,
             selectedItemColor: Colors.blue,
             unselectedItemColor: Colors.grey,

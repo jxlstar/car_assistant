@@ -85,82 +85,218 @@ class CurrentLocation {
   }
 }
 
+class DeviceLocation {
+  final double? latitude;
+  final double? longitude;
+  final String? address;
+  final double? accuracy;
+  final double? speed;
+  final double? heading;
+  final double? altitude;
+  final int? timestamp;
+
+  DeviceLocation({
+    this.latitude,
+    this.longitude,
+    this.address,
+    this.accuracy,
+    this.speed,
+    this.heading,
+    this.altitude,
+    this.timestamp,
+  });
+
+  factory DeviceLocation.fromJson(Map<String, dynamic> json) {
+    return DeviceLocation(
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
+      address: json['address'],
+      accuracy: (json['accuracy'] as num?)?.toDouble(),
+      speed: (json['speed'] as num?)?.toDouble(),
+      heading: (json['heading'] as num?)?.toDouble(),
+      altitude: (json['altitude'] as num?)?.toDouble(),
+      timestamp: json['timestamp'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'latitude': latitude,
+      'longitude': longitude,
+      'address': address,
+      'accuracy': accuracy,
+      'speed': speed,
+      'heading': heading,
+      'altitude': altitude,
+      'timestamp': timestamp,
+    };
+  }
+}
+
+class DeviceImage {
+  final int? id;
+  final String? imageUrl;
+  final String? imageType;
+  final String? description;
+  final int? status;
+  final int? createdAt;
+
+  DeviceImage({
+    this.id,
+    this.imageUrl,
+    this.imageType,
+    this.description,
+    this.status,
+    this.createdAt,
+  });
+
+  factory DeviceImage.fromJson(Map<String, dynamic> json) {
+    return DeviceImage(
+      id: json['id'],
+      imageUrl: json['image_url'],
+      imageType: json['image_type'],
+      description: json['description'],
+      status: json['status'],
+      createdAt: json['created_at'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'image_url': imageUrl,
+      'image_type': imageType,
+      'description': description,
+      'status': status,
+      'created_at': createdAt,
+    };
+  }
+}
+
 class Device {
-  final String? deviceId;        // 设备ID
-  final String? deviceName;      // 设备名称
-  final String? model;           // 设备型号
-  final String? pin;             // 设备PIN码
-  final double? runtimeHours;    // 运行时长（小时）
-  final int? batteryLevel;       // 电量百分比
-  final int? fuelLevel;          // 油量百分比
-  final int? oilPressure;        // 机油压力（psi）
-  final int? waterTemperature;   // 水温（摄氏度）
-  final LockStatus? lockStatus;  // 锁机状态
-  final LocationStatus? locationStatus; // 位置状态
-  final CurrentLocation? currentLocation; // 当前位置
-  final int? status;          // 设备状态：online(在线)、offline(离线)
+  final String? deviceId;
+  final String? name;
+  final String? model;
+  final String? pin;
+  final String? brand;
+  final int? year;
+  final double? runtimeHours;
+  final int? status;
   final String? statusName;
-  final int? bindTime;           // 绑定时间戳
+  final int? ctrlStatus;
+  final int? engStatus;
+  final int? lastOnlineAt;
+  final double? battery;
+  final String? batteryStatus;
+  final double? fuel;
+  final String? fuelStatus;
+  final double? oilPressure;
+  final double? waterTemperature;
+  final bool? locationStatus;
+  final String? locationStatusName;
+  final DeviceLocation? location;
+  final bool? lockStatus;
+  final String? lockStatusName;
+  final int? lastMaintenanceTime;
+  final int? nextMaintenanceTime;
+  final List<DeviceImage>? deviceImages;
+  final String? mainImageUrl;
 
   Device({
     this.deviceId,
-    this.deviceName,
+    this.name,
     this.model,
     this.pin,
+    this.brand,
+    this.year,
     this.runtimeHours,
-     this.batteryLevel,
-     this.fuelLevel,
-     this.oilPressure,
-     this.waterTemperature,
-     this.lockStatus,
-     this.locationStatus,
-     this.currentLocation,
-     this.status,
-     this.statusName,
-     this.bindTime,
+    this.status,
+    this.statusName,
+    this.ctrlStatus,
+    this.engStatus,
+    this.lastOnlineAt,
+    this.battery,
+    this.batteryStatus,
+    this.fuel,
+    this.fuelStatus,
+    this.oilPressure,
+    this.waterTemperature,
+    this.locationStatus,
+    this.locationStatusName,
+    this.location,
+    this.lockStatus,
+    this.lockStatusName,
+    this.lastMaintenanceTime,
+    this.nextMaintenanceTime,
+    this.deviceImages,
+    this.mainImageUrl,
   });
 
   factory Device.fromJson(Map<String, dynamic> json) {
     return Device(
-      deviceId: json['device_id'] ?? '',
-      deviceName: json['name'] ?? '',
-      model: json['model'] ?? '',
-      pin: json['pin'] ?? '',
-      runtimeHours: (json['runtime_hours'] ?? 0.0).toDouble(),
-      batteryLevel: json['battery_level'] ?? 0,
-      fuelLevel: json['fuel_level'] ?? 0,
-      oilPressure: json['oil_pressure'] ?? 0,
-      waterTemperature: json['water_temperature'] ?? 0,
-      lockStatus: LockStatus.fromJson(json['lock_status'] ?? {}),
-      locationStatus: LocationStatus.fromJson(json['location_status'] ?? {}),
-      currentLocation: CurrentLocation.fromJson(json['current_location'] ?? {}),
-      status: json['status'] ?? 0,
-      statusName: json['status_name'] ?? '离线',
-      bindTime: json['bind_time'] ?? 0,
+      deviceId: json['device_id'],
+      name: json['name'],
+      model: json['model'],
+      pin: json['pin'],
+      brand: json['brand'],
+      year: json['year'],
+      runtimeHours: (json['runtime_hours'] as num?)?.toDouble(),
+      status: json['status'],
+      statusName: json['status_name'],
+      ctrlStatus: json['ctrl_status'],
+      engStatus: json['eng_status'],
+      lastOnlineAt: json['last_online_at'],
+      battery: (json['battery'] as num?)?.toDouble(),
+      batteryStatus: json['battery_status'],
+      fuel: (json['fuel'] as num?)?.toDouble(),
+      fuelStatus: json['fuel_status'],
+      oilPressure: (json['oil_pressure'] as num?)?.toDouble(),
+      waterTemperature: (json['water_temperature'] as num?)?.toDouble(),
+      locationStatus: json['location_status'],
+      locationStatusName: json['location_status_name'],
+      location: json['location'] != null
+          ? DeviceLocation.fromJson(json['location'])
+          : null,
+      lockStatus: json['lock_status'],
+      lockStatusName: json['lock_status_name'],
+      lastMaintenanceTime: json['last_maintenance_time'],
+      nextMaintenanceTime: json['next_maintenance_time'],
+      deviceImages: (json['device_images'] as List<dynamic>?)
+          ?.map((e) => DeviceImage.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      mainImageUrl: json['main_image_url'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'device_id': deviceId,
-      'name': deviceName,
+      'name': name,
       'model': model,
       'pin': pin,
+      'brand': brand,
+      'year': year,
       'runtime_hours': runtimeHours,
-      'battery_level': batteryLevel,
-      'fuel_level': fuelLevel,
+      'status': status,
+      'status_name': statusName,
+      'ctrl_status': ctrlStatus,
+      'eng_status': engStatus,
+      'last_online_at': lastOnlineAt,
+      'battery': battery,
+      'battery_status': batteryStatus,
+      'fuel': fuel,
+      'fuel_status': fuelStatus,
       'oil_pressure': oilPressure,
       'water_temperature': waterTemperature,
-      'lock_status': lockStatus?.toJson(),
-      'location_status': locationStatus?.toJson(),
-      'current_location': currentLocation?.toJson(),
-      'status': status,
-      'bind_time': bindTime,
+      'location_status': locationStatus,
+      'location_status_name': locationStatusName,
+      'location': location?.toJson(),
+      'lock_status': lockStatus,
+      'lock_status_name': lockStatusName,
+      'last_maintenance_time': lastMaintenanceTime,
+      'next_maintenance_time': nextMaintenanceTime,
+      'device_images': deviceImages?.map((e) => e.toJson()).toList(),
+      'main_image_url': mainImageUrl,
     };
   }
-
-  // 兼容旧版本的getter方法
-  String? get rackNumber => deviceName;
-  String? get modelNo => model;
-  String get hours => runtimeHours.toString();
 }

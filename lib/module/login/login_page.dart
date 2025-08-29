@@ -10,6 +10,7 @@ import '../../utils/social_login_button.dart';
 import '../../utils/custom_text_field.dart';
 import 'forgot_password_email_page.dart';
 import 'login_model.dart';
+import 'package:get/get.dart';
 import 'auth_provider.dart';
 import '../home/main_page.dart';
 import 'register_page.dart';
@@ -95,9 +96,7 @@ class _LoginPageState extends State<LoginPage> {
           LoggerUtil.i('保存用户信息: $isOk');
           LoggerUtil.i('登录成功: ${response.message}');
           FocusScope.of(context).unfocus();
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const MainPage()),
-          );
+          Get.offAll(() => const MainPage());
         } else {
           Fluttertoast.showToast(msg: "登录失败：${response.message}", gravity: ToastGravity.CENTER);
           LoggerUtil.e('登录失败: ${response.message}');
