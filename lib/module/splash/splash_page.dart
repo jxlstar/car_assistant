@@ -59,7 +59,7 @@ class _SplashPageState extends State<SplashPage> {
             const SizedBox(height: 40),
             // Welcome 文字
             Text(
-              'Welcome to RAPPA',
+              'Welcome to RIPPA',
               style: TextStyle(
                 fontSize: 18,
                 color: Colors.grey.shade600,
