@@ -3,6 +3,8 @@ import 'package:car_assistant/core/utils/loading_util.dart';
 import 'package:car_assistant/core/utils/logger_util.dart';
 import 'package:car_assistant/module/login/forgot_password_page.dart';
 import 'package:car_assistant/module/login/otp_verification_page.dart';
+import 'package:car_assistant/module/login/auth_provider.dart';
+import 'package:car_assistant/module/login/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -46,15 +48,13 @@ class _PersonalPageState extends State<PersonalPage> {
     }
   }
 
-  // 显示退出确认对话框
-  Future<void> _showLogoutDialog() async {
-    return showDialog<void>(
+  void _showLogoutDialog() {
+    showDialog(
       context: context,
-      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Confirm Sign Out'),
-          content: const Text('Are you sure you want to sign out?'),
+          title: const Text('Confirm Logout'),
+          content: const Text('Are you sure you want to log out?'),
           actions: <Widget>[
             TextButton(
               child: const Text('Cancel'),
@@ -63,12 +63,9 @@ class _PersonalPageState extends State<PersonalPage> {
               },
             ),
             TextButton(
-              child: const Text(
-                'Sign Out',
-                style: TextStyle(color: Colors.red),
-              ),
+              child: const Text('Logout'),
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(); // Close the dialog
                 _performLogout();
               },
             ),
@@ -78,64 +75,18 @@ class _PersonalPageState extends State<PersonalPage> {
     );
   }
 
-  // 执行退出登录
-  Future<void> _performLogout() async {
-    final authProvider = context.read<AuthProvider>();
-    
+  void _performLogout() async {
     try {
-      // 显示加载状态
-      if (mounted) {
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => const Center(
-            child: CircularProgressIndicator(),
-          ),
-        );
-      }
-      
-      // 执行登出
-      final success = await authProvider.logout();
-      
-      // 关闭加载对话框
-      if (mounted) {
-        Navigator.of(context).pop();
-      }
-      
-      if (success) {
-        // 显示成功提示
-        Fluttertoast.showToast(
-          msg: 'Signed out successfully',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-        );
-        
-        // 跳转到登录页面并清除所有路由栈
-        if (mounted) {
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => const LoginPage()),
-            (Route<dynamic> route) => false,
-          );
-        }
-      } else {
-        // 显示错误提示
-        Fluttertoast.showToast(
-          msg: authProvider.error ?? 'Sign out failed',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-        );
-      }
+      await Provider.of<AuthProvider>(context, listen: false).logout();
+      // Navigate to login page and remove all previous routes
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+        (route) => false,
+      );
     } catch (e) {
-      // 关闭可能存在的加载对话框
-      if (mounted) {
-        Navigator.of(context).pop();
-      }
-      
-      // 显示错误提示
-      Fluttertoast.showToast(
-        msg: 'An error occurred while signing out',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
+      // Handle logout error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Logout failed: $e')),
       );
     }
   }

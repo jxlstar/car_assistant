@@ -2,6 +2,9 @@ import 'package:dio/dio.dart';
 import '../config/app_config.dart';
 import '../utils/logger_util.dart';
 import '../storage/storage_service.dart';
+import 'package:car_assistant/main.dart';
+import 'package:car_assistant/module/login/login_page.dart';
+import 'package:flutter/material.dart';
 
 class AppRequest {
   // 单例模式
@@ -144,6 +147,23 @@ class AppRequest {
   ApiResponse<T> _handleDioError<T>(DioException error) {
     String message;
     int statusCode = error.response?.statusCode ?? -1;
+
+    if (statusCode == 401) {
+      // Token过期或无效，跳转到登录页
+      clearAuthToken();
+      final context = navigatorKey.currentContext;
+      if (context != null) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+          (route) => false,
+        );
+      }
+      return ApiResponse<T>.error(
+        message: 'Token expired, please login again.',
+        statusCode: statusCode,
+        data: error.response?.data,
+      );
+    }
 
     switch (error.type) {
       case DioExceptionType.connectionTimeout:
