@@ -3,9 +3,11 @@ import 'package:car_assistant/core/services/app_service.dart';
 import 'package:car_assistant/core/utils/logger_util.dart';
 import 'package:car_assistant/r.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import '../home/main_page.dart';
 import '../login/login_page.dart';
+import 'splash_logic.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});

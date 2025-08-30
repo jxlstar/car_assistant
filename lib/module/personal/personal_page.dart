@@ -1,22 +1,15 @@
 import 'package:car_assistant/core/network/api_service.dart';
-import 'package:car_assistant/core/utils/loading_util.dart';
 import 'package:car_assistant/core/utils/logger_util.dart';
-import 'package:car_assistant/module/login/forgot_password_page.dart';
 import 'package:car_assistant/module/login/otp_verification_page.dart';
-import 'package:car_assistant/module/login/auth_provider.dart';
 import 'package:car_assistant/module/login/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/storage/storage_service.dart';
 import '../../notification/notification_page.dart';
 import '../../r.dart';
-import '../login/auth_provider.dart';
-import '../login/login_page.dart';
-
 class PersonalPage extends StatefulWidget {
   const PersonalPage({super.key});
 
@@ -77,7 +70,7 @@ class _PersonalPageState extends State<PersonalPage> {
 
   void _performLogout() async {
     try {
-      await Provider.of<AuthProvider>(context, listen: false).logout();
+      await ApiService.logout();
       // Navigate to login page and remove all previous routes
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => const LoginPage()),

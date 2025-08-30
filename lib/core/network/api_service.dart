@@ -167,7 +167,6 @@ class ApiService {
     return _request.loadAuthToken();
   }
 
-  // 获取设备品牌分类（一级）
   static Future<ApiResponse<Map<String, dynamic>>> getResourceBrands() {
     return _request.get<Map<String, dynamic>>('/api/app/resources');
   }

@@ -196,8 +196,8 @@ class _ResourcesPageState extends State<ResourcesPage> {
         ],
       ),
       child: ListTile(
-        // leading: Image.network(item.imageUrl ?? '', height: 40,),
-        leading: Image.asset(R.assetsImageWaji, height: 40,),
+        leading: Image.network(item.imageUrl ?? '', height: 40,),
+        // leading: Image.asset(R.assetsImageWaji, height: 40,),
         title: Text(
           item.name ?? '',
           style: const TextStyle(
@@ -372,8 +372,8 @@ class _ResourceSecondLevelPageState extends State<ResourceSecondLevelPage> {
         ],
       ),
       child: ListTile(
-        // leading: Image.network(item.imageUrl ?? '', height: 40,),
-        leading: Image.asset(R.assetsImageWaji, height: 40,),
+        leading: Image.network(item.imageUrl ?? '', height: 40,),
+        // leading: Image.asset(R.assetsImageWaji, height: 40,),
         title: Text(
           item.name ?? '',
           style: const TextStyle(
@@ -556,8 +556,8 @@ class _ResourceThirdLevelPageState extends State<ResourceThirdLevelPage> {
         ],
       ),
       child: ListTile(
-        // leading: Image.network(item.imageUrl ?? '', height: 40,),
-        leading: Image.asset(R.assetsImageWaji),
+        leading: Image.network(item.imageUrl ?? '', height: 40,),
+        // leading: Image.asset(R.assetsImageWaji),
         title: Text(
           item.name ?? '',
           style: const TextStyle(
@@ -661,11 +661,11 @@ class _ResourceFourthLevelPageState extends State<ResourceFourthLevelPage> {
                     width: double.infinity,
                     height: 200,
                     decoration: BoxDecoration(
-                      color: Colors.grey[200],
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(12.0),
                     ),
-                    // child: Image.network(item.imageUrl ?? '', height: 80,),
-                    child: Image.asset(R.assetsImageWaji, height: 80,),
+                    child: Image.network(widget.item.imageUrl ?? '', height: 80,),
+                    // child: Image.asset(R.assetsImageWaji, height: 80,),
                   ),
                   const SizedBox(height: 16),
                   Text(

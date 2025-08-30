@@ -6,7 +6,6 @@ import '../../core/utils/logger_util.dart';
 import '../../core/utils/loading_util.dart';
 import '../../utils/custom_text_field.dart';
 import '../home/main_page.dart';
-import 'auth_provider.dart';
 import 'login_page.dart';
 import 'otp_verification_page.dart';
 
@@ -170,8 +169,7 @@ class _SetPasswordPageState extends State<SetPasswordPage> {
       
       if (widget.type == OtpType.changePassword) {
         // 修改密码成功后，退出登录
-        final authProvider = context.read<AuthProvider>();
-        await authProvider.logout();
+        await ApiService.logout();
         
         if (mounted) {
           Navigator.of(context).pushAndRemoveUntil(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../r.dart';
 import '../equipment/equipment_page.dart';
+import '../feedback/feedback_page.dart';
 import '../resources/resources_page.dart';
 import '../dealers/dealers_page.dart';
 import '../personal/personal_page.dart';
@@ -42,6 +43,14 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
           // Correctly reference the _pages list
           body: _pages[_currentIndex],
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => const FeedbackPage()),
+          );
+        },
+        child: const Icon(Icons.feedback),
+      ),
           bottomNavigationBar: BottomNavigationBar(
             currentIndex: _currentIndex,
             onTap: _onTabTapped, // Use the handler method

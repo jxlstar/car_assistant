@@ -26,7 +26,7 @@ class AppRequest {
         'Accept': 'application/json',
       },
     ));
-
+     loadAuthToken();
     // 添加拦截器
     _dio.interceptors.addAll([
       // 请求拦截器
@@ -36,7 +36,8 @@ class AppRequest {
           if (_authToken != null) {
             options.headers['Authorization'] = 'Bearer $_authToken';
           }
-          // LoggerUtil.d('Request: ${options.method} ${options.path}');
+
+          LoggerUtil.e('Request: Tokens $_authToken');
           // LoggerUtil.d('Headers: ${options.headers}');
           // LoggerUtil.d('Data: ${options.data}');
           handler.next(options);
