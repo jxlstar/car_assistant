@@ -416,26 +416,31 @@ Widget _buildFooter(Device device) {
             ),
           ],
         ),
-        Row(
-          children: [
-            Icon(Icons.location_on, color: Colors.grey[600]),
-            const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  address.length > 25
-                      ? '${address.substring(0, 25)}...'
-                      : address,
-                  style: const TextStyle(fontSize: 12),
+        Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Icon(Icons.location_on, color: Colors.grey[600]),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      address,
+                      style: const TextStyle(fontSize: 12),
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.end,
+                    ),
+                    Text(
+                      timestamp,
+                      style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                    ),
+                  ],
                 ),
-                Text(
-                  timestamp,
-                  style: TextStyle(fontSize: 10, color: Colors.grey[600]),
-                ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ],
     ),

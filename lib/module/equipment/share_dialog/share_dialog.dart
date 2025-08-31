@@ -6,7 +6,6 @@ import 'dart:ui' as ui;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class ShareDialog extends StatelessWidget {
@@ -326,19 +325,6 @@ class ShareDialog extends StatelessWidget {
       
       // 生成分享图片
       final imageBytes = await _generateShareImage();
-      
-      // 保存到相册
-      final result = await ImageGallerySaver.saveImage(
-        imageBytes,
-        name: 'RIPPA_Share_${DateTime.now().millisecondsSinceEpoch}',
-        quality: 100,
-      );
-      
-      if (result['isSuccess'] == true) {
-        _showMessage(context, '图片已保存到相册');
-      } else {
-        _showMessage(context, '保存失败，请重试');
-      }
     } catch (e) {
       print('保存图片失败: $e');
       _showMessage(context, '保存失败: ${e.toString()}');

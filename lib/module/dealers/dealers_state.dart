@@ -231,11 +231,11 @@ class DealerItem {
   List<String> get serviceDisplayNames {
     if (services == null) return [];
     const serviceMap = {
-      'sales': '销售',
-      'maintenance': '维修保养',
-      'parts': '配件',
-      'rental': '租赁',
-      'training': '培训',
+      'sales': 'sales',
+      'maintenance': 'maintenance',
+      'parts': 'parts',
+      'rental': 'rental',
+      'training': 'training',
     };
     return services!.map((service) => serviceMap[service] ?? service).toList();
   }
@@ -244,10 +244,10 @@ class DealerItem {
   List<String> get specialtyDisplayNames {
     if (specialties == null) return [];
     const specialtyMap = {
-      'excavators': '挖掘机',
-      'wheel_loaders': '轮式装载机',
-      'motor_graders': '平地机',
-      'compactors': '压路机',
+      'excavators': 'excavators',
+      'wheel_loaders': 'wheel Loaders',
+      'motor_graders': 'motor Graders',
+      'compactors': 'compactors',
     };
     return specialties!.map((specialty) => specialtyMap[specialty] ?? specialty).toList();
   }

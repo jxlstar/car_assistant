@@ -67,7 +67,7 @@ class DeviceResultPage extends StatelessWidget {
                 height: 50,
                 child: ElevatedButton(
                   onPressed: () async {
-                  LoadingUtil.show(context, message: "绑定中...");
+                  LoadingUtil.show(context, message: "binding...");
                   final equipmentLogic = Get.find<EquipmentLogic>();
                   final success = await equipmentLogic.bindDevice(deviceInfo['rock_number'], deviceInfo['name']);
                   LoadingUtil.hide();

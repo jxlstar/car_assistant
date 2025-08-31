@@ -14,28 +14,31 @@ class _FeedbackPageState extends State<FeedbackPage> {
   final _subject = 'App Feedback';
 
   void _sendFeedback() async {
-    final body = _feedbackController.text;
-    final Uri emailLaunchUri = Uri(
-      scheme: 'mailto',
-      path: _email,
-      query: 'subject=$_subject&body=$body',
-    );
-
-    if (await canLaunchUrl(emailLaunchUri)) {
-      await launchUrl(emailLaunchUri);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Could not launch email client.'),
-        ),
-      );
-    }
+    Navigator.of(context).pop();
+    // final body = _feedbackController.text;
+    // final Uri emailLaunchUri = Uri(
+    //   scheme: 'mailto',
+    //   path: _email,
+    //   query: 'subject=$_subject&body=$body',
+    // );
+    //
+    // if (await canLaunchUrl(emailLaunchUri)) {
+    //   await launchUrl(emailLaunchUri);
+    // } else {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     const SnackBar(
+    //       content: Text('Could not launch email client.'),
+    //     ),
+    //   );
+    // }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: const Text('Feedback'),
       ),
       body: Padding(

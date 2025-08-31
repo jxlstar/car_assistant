@@ -262,7 +262,7 @@ class _DealersPageState extends State<DealersPage> with SingleTickerProviderStat
                           children: [
                             Expanded(
                               child: Text(
-                                dealer.dealerName ?? '未知经销商',
+                                dealer.dealerName ?? '',
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -353,23 +353,36 @@ class _DealersPageState extends State<DealersPage> with SingleTickerProviderStat
                       ),
                     ),
                   ],
-                  if (dealer.website != null && dealer.website!.isNotEmpty) ...[
+                  if (dealer.email != null) ...[
                     const SizedBox(width: 16),
-                    GestureDetector(
-                      onTap: () => _launchURL(dealer.website!),
-                      child: const Icon(Icons.language, color: Colors.blue, size: 16),
+                    const Icon(Icons.email, color: Colors.blue, size: 16),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: GestureDetector(
+                        onTap: (){
+                          _jumpToEmail(dealer.email!);
+                        },
+                        child: Text(
+                          dealer.email!,
+                          style: const TextStyle(
+                            color: Colors.blue,
+                            fontSize: 12,
+                            decoration: TextDecoration.underline,
+                          ),
+                            overflow: TextOverflow.ellipsis
+                        ),
+                      ),
                     ),
                   ],
-                  const Spacer(),
-                  const Icon(Icons.star, color: Colors.amber, size: 16),
-                  const SizedBox(width: 4),
-                  Text(
-                    '(${dealer.reviewCount})',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade600,
+                  if (dealer.website != null && dealer.website!.isNotEmpty) ...[
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: GestureDetector(
+                        onTap: () => _launchURL(dealer.website!),
+                        child: const Icon(Icons.language, color: Colors.blue, size: 16),
+                      ),
                     ),
-                  ),
+                  ],
                 ],
               ),
               if (dealer.serviceDisplayNames.isNotEmpty) ...[
@@ -423,6 +436,41 @@ class _DealersPageState extends State<DealersPage> with SingleTickerProviderStat
       } else {}
     } catch (e) {}
   }
+  Future<void> _jumpToEmail(String email) async {
+    final Uri emailLaunchUri = Uri(
+      scheme: 'mailto',
+      path: email,
+    );
+
+    if (await canLaunchUrl(emailLaunchUri)) {
+      await launchUrl(emailLaunchUri);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not launch email client.'),
+        ),
+      );
+    }
+  }
+/*
+ Navigator.of(context).pop();
+    // final body = _feedbackController.text;
+    // final Uri emailLaunchUri = Uri(
+    //   scheme: 'mailto',
+    //   path: _email,
+    //   query: 'subject=$_subject&body=$body',
+    // );
+    //
+    // if (await canLaunchUrl(emailLaunchUri)) {
+    //   await launchUrl(emailLaunchUri);
+    // } else {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     const SnackBar(
+    //       content: Text('Could not launch email client.'),
+    //     ),
+    //   );
+    // }
+ */
 
   void _navigateToDetail(DealerItem dealer) {
     // Get.to(() => DealerDetailPage(dealer: dealer));

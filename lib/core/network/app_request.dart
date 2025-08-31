@@ -36,7 +36,6 @@ class AppRequest {
           if (_authToken != null) {
             options.headers['Authorization'] = 'Bearer $_authToken';
           }
-
           LoggerUtil.e('Request: Tokens $_authToken');
           // LoggerUtil.d('Headers: ${options.headers}');
           // LoggerUtil.d('Data: ${options.data}');
@@ -138,7 +137,7 @@ class AppRequest {
       return _handleDioError<T>(e);
     } catch (e) {
       return ApiResponse<T>.error(
-        message: '未知错误: $e',
+        message: 'unknown error: $e',
         statusCode: -1,
       );
     }
@@ -168,25 +167,25 @@ class AppRequest {
 
     switch (error.type) {
       case DioExceptionType.connectionTimeout:
-        message = '连接超时';
+        message = 'Connection timeout';
         break;
       case DioExceptionType.sendTimeout:
-        message = '发送超时';
+        message = 'Send timeout';
         break;
       case DioExceptionType.receiveTimeout:
-        message = '接收超时';
+        message = 'Receive timeout';
         break;
       case DioExceptionType.badResponse:
-        message = error.response?.data['message'] ?? '服务器错误';
+        message = error.response?.data['message'] ?? 'Server error';
         break;
       case DioExceptionType.cancel:
-        message = '请求已取消';
+        message = 'Request cancelled';
         break;
       case DioExceptionType.connectionError:
-        message = '网络连接错误';
+        message = 'Network connection error';
         break;
       default:
-        message = '网络请求失败';
+        message = 'Network request failed';
     }
 
     return ApiResponse<T>.error(
