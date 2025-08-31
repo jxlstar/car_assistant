@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../utils/colors_util.dart';
 import '../device_detail/device_detail_page.dart';
 import '../equipment_state.dart';
 
@@ -43,9 +44,9 @@ class _DeviceSearchPageState extends State<DeviceSearchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: ColorsUtil.hexColor('F1F5F8'),
       appBar: AppBar(
-        backgroundColor: Colors.grey[100],
+        backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
@@ -79,6 +80,7 @@ class _DeviceSearchPageState extends State<DeviceSearchPage> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12.0),
             ),
+            color: Colors.white,
             elevation: 1,
             child: InkWell(
               borderRadius: BorderRadius.circular(12.0),

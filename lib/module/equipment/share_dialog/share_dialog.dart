@@ -6,6 +6,8 @@ import 'dart:ui' as ui;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ShareDialog extends StatelessWidget {
   final Map<String, dynamic> device;
@@ -217,12 +219,12 @@ class ShareDialog extends StatelessWidget {
                       ),
                       
                       // Download
-                      _buildShareButton(
-                        icon: Icons.download,
-                        color: Colors.grey[600]!,
-                        label: 'Downloading',
-                        onTap: () => _downloadImage(context),
-                      ),
+                      // _buildShareButton(
+                      //   icon: Icons.download,
+                      //   color: Colors.grey[600]!,
+                      //   label: 'Downloading',
+                      //   onTap: () => _downloadImage(context),
+                      // ),
                     ],
                   ),
                 ],
@@ -304,17 +306,42 @@ class ShareDialog extends StatelessWidget {
   
   void _downloadImage(BuildContext context) async {
     try {
-      final imageBytes = await _generateShareImage();
-      final tempDir = await getTemporaryDirectory();
-      final file = File('${tempDir.path}/rippa_share_${DateTime.now().millisecondsSinceEpoch}.png');
-      await file.writeAsBytes(imageBytes);
+      // 请求存储权限
+      PermissionStatus permission;
+      if (Platform.isAndroid) {
+        if (await Permission.storage.isDenied) {
+          permission = await Permission.storage.request();
+        } else {
+          permission = PermissionStatus.granted;
+        }
+      } else {
+        // iOS 不需要特殊权限
+        permission = PermissionStatus.granted;
+      }
       
-      await Share.shareXFiles(
-        [XFile(file.path)],
-        text: 'Image generated, please save to album',
+      if (permission != PermissionStatus.granted) {
+        _showMessage(context, '需要存储权限才能保存图片');
+        return;
+      }
+      
+      // 生成分享图片
+      final imageBytes = await _generateShareImage();
+      
+      // 保存到相册
+      final result = await ImageGallerySaver.saveImage(
+        imageBytes,
+        name: 'RIPPA_Share_${DateTime.now().millisecondsSinceEpoch}',
+        quality: 100,
       );
+      
+      if (result['isSuccess'] == true) {
+        _showMessage(context, '图片已保存到相册');
+      } else {
+        _showMessage(context, '保存失败，请重试');
+      }
     } catch (e) {
-      _showMessage(context, 'Failed to download image');
+      print('保存图片失败: $e');
+      _showMessage(context, '保存失败: ${e.toString()}');
     }
   }
 

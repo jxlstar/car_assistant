@@ -27,6 +27,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       navigatorKey: navigatorKey,
+      color: Colors.white,
       title: 'Car Assistant',
       theme: ThemeData(
         primarySwatch: Colors.blue,

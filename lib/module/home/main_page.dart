@@ -41,7 +41,7 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-          // Correctly reference the _pages list
+      backgroundColor: Colors.white,
           body: _pages[_currentIndex],
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -52,6 +52,7 @@ class _MainPageState extends State<MainPage> {
         child: const Icon(Icons.feedback),
       ),
           bottomNavigationBar: BottomNavigationBar(
+            backgroundColor: Colors.white,
             currentIndex: _currentIndex,
             onTap: _onTabTapped, // Use the handler method
             type: BottomNavigationBarType.fixed,

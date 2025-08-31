@@ -1,10 +1,14 @@
 import 'package:car_assistant/module/resources/resources_logic.dart';
 import 'package:car_assistant/module/resources/resources_state.dart';
 import 'package:car_assistant/r.dart';
+import 'package:car_assistant/utils/colors_util.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_state_manager/src/simple/get_state.dart';
+
+import '../equipment/fault_code_query/fault_code_query_page.dart';
+import '../pdf/pdf_viewer_page.dart';
 
 class BreadcrumbItem {
   final String title;
@@ -39,6 +43,7 @@ class _ResourcesPageState extends State<ResourcesPage> {
         init: logic,
         builder: (controller) {
         return Scaffold(
+          backgroundColor: ColorsUtil.hexColor('F1F5F8'),
           appBar: AppBar(
             title: const Text('Resources'),
             backgroundColor: Colors.white,
@@ -278,6 +283,7 @@ class _ResourceSecondLevelPageState extends State<ResourceSecondLevelPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: ColorsUtil.hexColor('F1F5F8'),
       appBar: AppBar(
         title: const Text('Resources'),
         backgroundColor: Colors.white,
@@ -465,7 +471,6 @@ class _ResourceThirdLevelPageState extends State<ResourceThirdLevelPage> {
       appBar: AppBar(
         title: const Text('Resources'),
         backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
         elevation: 0,
       ),
       body: Column(
@@ -488,11 +493,14 @@ class _ResourceThirdLevelPageState extends State<ResourceThirdLevelPage> {
       return _buildEmptyState();
     }
     // 正常数据列表
-    return ListView.builder(
-      itemCount: state.threeData.length,
-      itemBuilder: (context, index) {
-        return _buildResourceItem(context, state.threeData[index]);
-      },
+    return Container(
+      color: ColorsUtil.hexColor('F1F5F8'),
+      child: ListView.builder(
+        itemCount: state.threeData.length,
+        itemBuilder: (context, index) {
+          return _buildResourceItem(context, state.threeData[index]);
+        },
+      ),
     );
   }
 
@@ -546,39 +554,34 @@ class _ResourceThirdLevelPageState extends State<ResourceThirdLevelPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
-      child: ListTile(
-        leading: Image.network(item.imageUrl ?? '', height: 40,),
-        // leading: Image.asset(R.assetsImageWaji),
-        title: Text(
-          item.name ?? '',
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ResourceFourthLevelPage(
-                firstLevelTitle: widget.firstLevelTitle,
-                secondLevelTitle: widget.secondLevelTitle,
-                thirdLevelTitle: item.name ?? '',
-                item: item,
-              ),
+      child: Container(
+        color: Colors.white,
+        child: ListTile(
+          leading: Image.network(item.imageUrl ?? '', height: 40,),
+          // leading: Image.asset(R.assetsImageWaji),
+          title: Text(
+            item.name ?? '',
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
             ),
-          );
-        },
+          ),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ResourceFourthLevelPage(
+                  firstLevelTitle: widget.firstLevelTitle,
+                  secondLevelTitle: widget.secondLevelTitle,
+                  thirdLevelTitle: item.name ?? '',
+                  item: item,
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -586,6 +589,7 @@ class _ResourceThirdLevelPageState extends State<ResourceThirdLevelPage> {
   Widget _buildBreadcrumb(List<BreadcrumbItem> items) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      color: Colors.white,
       child: Row(
         children: [
           for (int i = 0; i < items.length; i++) ...[
@@ -638,6 +642,7 @@ class _ResourceFourthLevelPageState extends State<ResourceFourthLevelPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Resources'),
         backgroundColor: Colors.white,
@@ -693,36 +698,96 @@ class _ResourceFourthLevelPageState extends State<ResourceFourthLevelPage> {
   }
 
   Widget _buildInfoCard(String title) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.info_outline, color: Colors.grey),
-          const SizedBox(width: 12),
-          Text(
-            title,
-            overflow: TextOverflow.clip,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
+    return GestureDetector(
+      onTap: (){
+        if (title == 'Fault code query') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const FaultCodeQueryPage(),
             ),
-          ),
-          const Spacer(),
-          const Icon(Icons.chevron_right, color: Colors.grey),
-        ],
+          );
+        }
+        if (title == 'Machine maintenance') {
+
+
+          if (widget.item.maintenanceManuals != null && widget.item.maintenanceManuals!.isNotEmpty) {
+            // 取第一个PDF文件
+            final pdfUrl = widget.item.maintenanceManuals!.first;
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PdfViewerPage(
+                  pdfUrl: pdfUrl,
+                  title: 'Machine Maintenance Manual',
+                ),
+              ),
+            );
+          } else {
+            // 显示没有可用文档的提示
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('No maintenance manual available'),
+                backgroundColor: Colors.orange,
+              ),
+            );
+          }
+        }
+        if (title == 'Documents and manuals') {
+          if (widget.item.operationManuals != null && widget.item.operationManuals!.isNotEmpty) {
+            // 取第一个PDF文件
+            final pdfUrl = widget.item.operationManuals!.first;
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PdfViewerPage(
+                  pdfUrl: pdfUrl,
+                  title: 'Operation Manual',
+                ),
+              ),
+            );
+          } else {
+            // 显示没有可用文档的提示
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('No operation manual available'),
+                backgroundColor: Colors.orange,
+              ),
+            );
+          }
+        }
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12.0),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              spreadRadius: 1,
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.info_outline, color: Colors.grey),
+            const SizedBox(width: 12),
+            Text(
+              title,
+              overflow: TextOverflow.clip,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const Spacer(),
+            const Icon(Icons.chevron_right, color: Colors.grey),
+          ],
+        ),
       ),
     );
   }
@@ -730,6 +795,7 @@ class _ResourceFourthLevelPageState extends State<ResourceFourthLevelPage> {
   Widget _buildBreadcrumb(List<BreadcrumbItem> items) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      color: Colors.white,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(

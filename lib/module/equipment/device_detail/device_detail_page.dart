@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import '../../../r.dart';
+import '../../../utils/colors_util.dart';
 import '../equipment_state.dart';
 import '../map_detail/map_detail_page.dart';
 import 'device_detail_logic.dart';
 import '../fault_code_query/fault_code_query_page.dart';
 import '../share_dialog/share_dialog.dart';
+import '../../../module/pdf/pdf_viewer_page.dart';
 
 class DeviceDetailPage extends StatelessWidget {
   final String? deviceId;
@@ -27,9 +29,9 @@ class DeviceDetailPage extends StatelessWidget {
     }
     
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: ColorsUtil.hexColor('F1F5F8'),
       appBar: AppBar(
-        backgroundColor: Colors.grey[100],
+        backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios, color: Colors.black),
@@ -50,12 +52,12 @@ class DeviceDetailPage extends StatelessWidget {
                 icon: Image.asset(R.assetsImageShareIcon, height: 20),
                 onPressed: () {
                   if (logic.state.deviceDetail != null) {
-                    // showDialog(
-                    //   context: context,
-                    //   builder: (BuildContext context) {
-                    //     return null;
-                    //   },
-                    // );
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return ShareDialog(device: {},);
+                      },
+                    );
                   }
                 },
               );
@@ -481,7 +483,7 @@ class DeviceDetailPage extends StatelessWidget {
           ),
           SizedBox(height: 4),
           Text(
-            'Today ${logic.state.deviceDetail?.location?.timestamp != null ? DateTime.fromMillisecondsSinceEpoch(logic.state.deviceDetail!.location!.timestamp! * 1000).toString().substring(0, 16) : ''}',
+            logic.state.deviceDetail?.location?.timestamp != null ? DateTime.fromMillisecondsSinceEpoch(logic.state.deviceDetail!.location!.timestamp! * 1000).toString().substring(0, 16) : '',
             style: TextStyle(
               color: Colors.grey[600],
               fontSize: 14,
@@ -605,6 +607,61 @@ class DeviceDetailPage extends StatelessWidget {
               builder: (context) => const FaultCodeQueryPage(),
             ),
           );
+        }
+        if (title == 'Machine maintenance') {
+          final logic = Get.find<DeviceDetailLogic>();
+          final device = logic.state.deviceDetail;
+          
+          if (device?.maintenanceManuals != null && device!.maintenanceManuals!.isNotEmpty) {
+            // 取第一个PDF文件
+            final pdfUrl = device.maintenanceManuals!.first;
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PdfViewerPage(
+                  pdfUrl: pdfUrl,
+                  title: 'Machine Maintenance Manual',
+                ),
+              ),
+            );
+          } else {
+            // 显示没有可用文档的提示
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('No maintenance manual available'),
+                backgroundColor: Colors.orange,
+              ),
+            );
+          }
+        }
+        if (title == 'Documents and manuals') {
+          final logic = Get.find<DeviceDetailLogic>();
+          final device = logic.state.deviceDetail;
+          
+          if (device?.operationManuals != null && device!.operationManuals!.isNotEmpty) {
+            // 取第一个PDF文件
+            final pdfUrl = device.operationManuals!.first;
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PdfViewerPage(
+                  pdfUrl: pdfUrl,
+                  title: 'Operation Manual',
+                ),
+              ),
+            );
+          } else {
+            // 显示没有可用文档的提示
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('No operation manual available'),
+                backgroundColor: Colors.orange,
+              ),
+            );
+          }
+        }
+        if (title == '') {
+          //  maintenance_manuals
         }
       },
       child: Container(

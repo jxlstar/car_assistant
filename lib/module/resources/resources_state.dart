@@ -63,6 +63,8 @@ class ResourceItem {
   final int? createdAt;
   final int? updatedAt;
   final int? deviceCount;
+  final List<dynamic>? maintenanceManuals;
+  final List<dynamic>? operationManuals;
 
   ResourceItem({
     this.id,
@@ -78,6 +80,8 @@ class ResourceItem {
     this.createdAt,
     this.updatedAt,
     this.deviceCount,
+    this.maintenanceManuals,
+    this.operationManuals,
   });
 
   factory ResourceItem.fromJson(Map<String, dynamic> json) {
@@ -95,6 +99,8 @@ class ResourceItem {
       createdAt: json['created_at'],
       updatedAt: json['updated_at'],
       deviceCount: json['device_count'],
+      maintenanceManuals: json['maintenance_manuals'],
+      operationManuals: json['operation_manuals']
     );
   }
 }

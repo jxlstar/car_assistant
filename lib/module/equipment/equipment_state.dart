@@ -201,6 +201,8 @@ class Device {
   final int? nextMaintenanceTime;
   final List<DeviceImage>? deviceImages;
   final String? mainImageUrl;
+  final List<dynamic>? maintenanceManuals;
+  final List<dynamic>? operationManuals;
 
   Device({
     this.deviceId,
@@ -230,6 +232,8 @@ class Device {
     this.nextMaintenanceTime,
     this.deviceImages,
     this.mainImageUrl,
+    this.maintenanceManuals,
+    this.operationManuals
   });
 
   factory Device.fromJson(Map<String, dynamic> json) {
@@ -265,6 +269,8 @@ class Device {
           ?.map((e) => DeviceImage.fromJson(e as Map<String, dynamic>))
           .toList(),
       mainImageUrl: json['main_image_url'],
+      maintenanceManuals: json['maintenance_manuals'],
+      operationManuals: json['operation_manuals']
     );
   }
 
@@ -297,6 +303,8 @@ class Device {
       'next_maintenance_time': nextMaintenanceTime,
       'device_images': deviceImages?.map((e) => e.toJson()).toList(),
       'main_image_url': mainImageUrl,
+      'operation_manuals': operationManuals,
+      'maintenance_manuals': maintenanceManuals
     };
   }
 }

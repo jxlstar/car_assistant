@@ -10,7 +10,7 @@ class FeedbackPage extends StatefulWidget {
 
 class _FeedbackPageState extends State<FeedbackPage> {
   final _feedbackController = TextEditingController();
-  final _email = 'jiangxl1377@gmail.com';
+  final _email = ' weiping737@gmail.com';
   final _subject = 'App Feedback';
 
   void _sendFeedback() async {

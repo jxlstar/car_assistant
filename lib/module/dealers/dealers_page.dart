@@ -45,7 +45,7 @@ class _DealersPageState extends State<DealersPage> with SingleTickerProviderStat
       builder: (logic) {
         _tabController.index = logic.state.currentTabIndex;
         return Scaffold(
-          backgroundColor: Colors.grey.shade50,
+          backgroundColor: ColorsUtil.hexColor('F1F5F8'),
           appBar: AppBar(
             backgroundColor: Colors.white,
             elevation: 0,
