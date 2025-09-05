@@ -44,6 +44,7 @@ class _MainPageState extends State<MainPage> {
       backgroundColor: Colors.white,
           body: _pages[_currentIndex],
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.white,
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => const FeedbackPage()),

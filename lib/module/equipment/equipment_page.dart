@@ -180,13 +180,18 @@ class _EquipmentPageState extends State<EquipmentPage> {
           ),
           // Device list
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: logic.devices.length,
-              itemBuilder: (context, index) {
-                final device = logic.devices[index];
-                return _buildDeviceCard(device, context);
-              },
+            child: RefreshIndicator(
+              color: Colors.white,
+              backgroundColor: Colors.blue,
+              onRefresh: logic.fetchDeviceList,
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16.0),
+                itemCount: logic.devices.length,
+                itemBuilder: (context, index) {
+                  final device = logic.devices[index];
+                  return _buildDeviceCard(device, context);
+                },
+              ),
             ),
           ),
         ],
@@ -319,7 +324,7 @@ Widget _buildStatusCards(Device device) {
                   children: [
                     const Text('Battery', style: TextStyle(color: Colors.grey)),
                     Text(
-                      '${device.battery?.toStringAsFixed(2) ?? 'N/A'}V',
+                      '${device.battery?.toStringAsFixed(2) ?? 'N/A'}%',
                       style: const TextStyle(
                           fontSize: 18, fontWeight: FontWeight.bold),
                     ),
@@ -353,8 +358,8 @@ Widget _buildStatusCards(Device device) {
                         value: (device.fuel ?? 0) / 100.0,
                         strokeWidth: 4,
                         backgroundColor: Colors.grey[300],
-                        valueColor:
-                            const AlwaysStoppedAnimation<Color>(Colors.red),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                            (device.fuel ?? 0) > 20 ? Colors.green : Colors.red),
                       ),
                     ],
                   ),

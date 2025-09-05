@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../r.dart';
 import '../../../utils/colors_util.dart';
 import '../equipment_state.dart';
@@ -27,7 +28,6 @@ class DeviceDetailPage extends StatelessWidget {
       logic.state.deviceId = deviceId;
       logic.loadDeviceDetail();
     }
-    
     return Scaffold(
       backgroundColor: ColorsUtil.hexColor('F1F5F8'),
       appBar: AppBar(
@@ -101,6 +101,8 @@ class DeviceDetailPage extends StatelessWidget {
           }
           
           return RefreshIndicator(
+            color: Colors.white,
+            backgroundColor: Colors.blue,
             onRefresh: () => logic.refreshDeviceDetail(),
             child: SingleChildScrollView(
               physics: AlwaysScrollableScrollPhysics(),
@@ -278,7 +280,9 @@ class DeviceDetailPage extends StatelessWidget {
                         width: 8,
                         height: 8,
                         decoration: BoxDecoration(
-                          color: Colors.red,
+                          color: (logic.state.deviceDetail?.fuel ?? 0) > 20
+                              ? Colors.green
+                              : Colors.red,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -355,119 +359,162 @@ class DeviceDetailPage extends StatelessWidget {
   }
   
   Widget _buildMapSection(DeviceDetailLogic logic, BuildContext context) {
+    final navigateAction = () {
+      if (logic.hasValidLocation) {
+        final coordinates = logic.locationCoordinates;
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MapDetailPage(
+              latitude: coordinates['latitude']!,
+              longitude: coordinates['longitude']!,
+              locationName: logic.currentLocation,
+              deviceName: logic.deviceName,
+            ),
+          ),
+        );
+      } else {
+        Fluttertoast.showToast(
+            msg: "No location available",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.black,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      }
+    };
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20),
-      child: GestureDetector(
-        onTap: () {
-          if (logic.hasValidLocation) {
-            final coordinates = logic.locationCoordinates;
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => MapDetailPage(
-                  latitude: coordinates['latitude']!,
-                  longitude: coordinates['longitude']!,
-                  locationName: logic.currentLocation,
-                  deviceName: logic.deviceName,
-                ),
-              ),
-            );
-          } else {
-            Fluttertoast.showToast(
-                msg: "No location available",
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.CENTER,
-                timeInSecForIosWeb: 1,
-                backgroundColor: Colors.black,
-                textColor: Colors.white,
-                fontSize: 16.0
-            );
-          }
-        },
-        child: Container(
-          height: 200,
-          decoration: BoxDecoration(
-            color: Colors.lightBlue[100],
-            borderRadius: BorderRadius.circular(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ElevatedButton(
+            onPressed: navigateAction,
+            child: Text('View Map Details'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.black,
+            ),
           ),
-          child: Stack(
-            children: [
-              Container(
-                width: double.infinity,
-                height: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.lightBlue[200]!,
-                      Colors.lightBlue[100]!,
-                    ],
-                  ),
-                ),
+          SizedBox(height: 8),
+          GestureDetector(
+            onTap: navigateAction,
+            child: Container(
+              height: 200,
+              decoration: BoxDecoration(
+                color: Colors.lightBlue[100],
+                borderRadius: BorderRadius.circular(12),
               ),
-              Positioned(
-                top: 80,
-                left: 120,
-                child: Container(
-                  padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.location_on, color: Colors.white, size: 16),
-                      SizedBox(width: 4),
-                      Text(
-                        logic.deviceName,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
+              child: logic.hasValidLocation
+                  ? GoogleMap(
+                      initialCameraPosition: CameraPosition(
+                        target: LatLng(
+                          logic.locationCoordinates['latitude']!,
+                          logic.locationCoordinates['longitude']!,
                         ),
+                        zoom: 15,
                       ),
-                    ],
-                  ),
-                ),
-              ),
-              Positioned(
-                bottom: 16,
-                left: 16,
-                child: Text(
-                  'Google',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-              Positioned(
-                top: 16,
-                right: 16,
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.black54,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    'Click to view map',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
+                      markers: {
+                        Marker(
+                          markerId: MarkerId(logic.deviceName),
+                          position: LatLng(
+                            logic.locationCoordinates['latitude']!,
+                            logic.locationCoordinates['longitude']!,
+                          ),
+                          infoWindow: InfoWindow(
+                            title: logic.deviceName,
+                            snippet: logic.currentLocation,
+                          ),
+                        ),
+                      },
+                      scrollGesturesEnabled: false,
+                      zoomGesturesEnabled: false,
+                      myLocationButtonEnabled: false,
+                    )
+                  : Stack(
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          height: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                Colors.lightBlue[200]!,
+                                Colors.lightBlue[100]!,
+                              ],
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          top: 80,
+                          left: 120,
+                          child: Container(
+                            padding: EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.black,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.location_on,
+                                    color: Colors.white, size: 16),
+                                SizedBox(width: 4),
+                                Text(
+                                  logic.deviceName,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 16,
+                          left: 16,
+                          child: Text(
+                            'Google',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          top: 16,
+                          right: 16,
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.black54,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              'Click to view map',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
-  
+
   Widget _buildLocationInfo(DeviceDetailLogic logic) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20),
