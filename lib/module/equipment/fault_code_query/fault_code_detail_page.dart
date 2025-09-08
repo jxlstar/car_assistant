@@ -42,7 +42,7 @@ class FaultCodeDetailPage extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          '故障代码-查询',
+          'Fault Code - Query',
           style: TextStyle(
             color: Colors.black,
             fontSize: 18,
@@ -99,7 +99,7 @@ class FaultCodeDetailPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                problemText.isNotEmpty ? problemText : '暂无问题描述',
+                problemText.isNotEmpty ? problemText : 'No problem description available',
                 style: const TextStyle(
                   fontSize: 16,
                   color: Colors.black87,
@@ -126,7 +126,7 @@ class FaultCodeDetailPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                causesText.isNotEmpty ? causesText : '暂无原因说明',
+                causesText.isNotEmpty ? causesText : 'No cause description available',
                 style: const TextStyle(
                   fontSize: 16,
                   color: Colors.black87,

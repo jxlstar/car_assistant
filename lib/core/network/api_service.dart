@@ -96,7 +96,9 @@ class ApiService {
 
     // 解绑设备
     static Future<ApiResponse<Map<String, dynamic>>> unbindDevice(String deviceId) {
-      return _request.delete<Map<String, dynamic>>('/api/app/equipment/bind/$deviceId');
+      return _request.post<Map<String, dynamic>>('/api/app/devices/unbind', data: {
+        'device_id': deviceId,
+      });
     }
     // 获取经销商列表
     static Future<ApiResponse<Map<String, dynamic>>> getDealerList() {

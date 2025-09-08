@@ -57,12 +57,12 @@ class _SetPasswordPageState extends State<SetPasswordPage> {
   }
 
   bool _isValidPassword(String password) {
-    // 密码格式：8到16位，包含字母或符号
+    // Password format: 8 to 16 digits, including letters or symbols
     if (password.length < 8 || password.length > 16) {
       return false;
     }
     
-    // 检查是否包含字母或符号
+    // Check if it contains letters or symbols
     bool hasLetter = RegExp(r'[a-zA-Z]').hasMatch(password);
     bool hasSymbol = RegExp(r'[!@#\$%^&*(),.?":{}|<>]').hasMatch(password);
     

@@ -198,256 +198,326 @@ class _EquipmentPageState extends State<EquipmentPage> {
       ),
     );
   }
-}
 
-Widget _buildDeviceCard(Device device, BuildContext context) {
-  return Card(
-    margin: const EdgeInsets.symmetric(vertical: 8.0),
-    elevation: 2,
-    color: Colors.white,
-    child: InkWell(
-      borderRadius: BorderRadius.circular(12.0),
-      onTap: () {
-        Get.to(() => DeviceDetailPage(deviceId: device.deviceId ?? ''));
-      },
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          children: [
-            _buildDeviceHeader(device),
-            const SizedBox(height: 12),
-            _buildStatusCards(device),
-            const SizedBox(height: 12),
-            _buildFooter(device),
-          ],
+  Widget _buildDeviceCard(Device device, BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      elevation: 2,
+      color: Colors.white,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12.0),
+        onTap: () {
+          Get.to(() => DeviceDetailPage(deviceId: device.deviceId ?? ''));
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            children: [
+              _buildDeviceHeader(device),
+              const SizedBox(height: 12),
+              _buildStatusCards(device),
+              const SizedBox(height: 12),
+              _buildFooter(device),
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
-Widget _buildDeviceHeader(Device device) {
-  return Row(
-    children: [
-      ClipRRect(
-        borderRadius: BorderRadius.circular(8.0),
-        child: (device.deviceImages != null && device.deviceImages!.isNotEmpty)
-            ? Image.network(
-                device.deviceImages![0].imageUrl!,
-                width: 80,
-                height: 80,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Image.asset(
-                  'assets/image/waji.png',
-                  width: 80,
-                  height: 80,
-                  fit: BoxFit.cover,
-                ),
-              )
-            : Image.asset(
-                'assets/image/waji.png',
-                width: 80,
-                height: 80,
-                fit: BoxFit.cover,
-              ),
-      ),
-      const SizedBox(width: 16),
-      Expanded(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              device.name ?? 'Unknown Device',
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+  Widget _buildDeviceHeader(Device device) {
+    return Row(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8.0),
+          child: (device.deviceImages != null && device.deviceImages!.isNotEmpty)
+              ? Image.network(
+            device.deviceImages![0].imageUrl!,
+            width: 80,
+            height: 80,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) => Image.asset(
+              'assets/image/waji.png',
+              width: 80,
+              height: 80,
+              fit: BoxFit.cover,
             ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Model', style: TextStyle(color: Colors.grey[600])),
-                    const SizedBox(height: 4),
-                    Text('PIN', style: TextStyle(color: Colors.grey[600])),
-                    const SizedBox(height: 4),
-                    Text('Hours', style: TextStyle(color: Colors.grey[600])),
-                  ],
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
+          )
+              : Image.asset(
+            'assets/image/waji.png',
+            width: 80,
+            height: 80,
+            fit: BoxFit.cover,
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    device.name ?? 'Unknown Device',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      _showUnbindConfirmDialog(context, device, logic);
+                    },
+                    child: Container(
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        color: ColorsUtil.hexColor('#E4F2FF'),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: const Icon(Icons.remove, color: Colors.blue, size: 24),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(device.model ?? 'N/A',
-                          style: const TextStyle(fontWeight: FontWeight.w500)),
+                      Text('Model', style: TextStyle(color: Colors.grey[600])),
                       const SizedBox(height: 4),
-                      Text(device.pin ?? 'N/A',
-                          style: const TextStyle(fontWeight: FontWeight.w500)),
+                      Text('PIN', style: TextStyle(color: Colors.grey[600])),
                       const SizedBox(height: 4),
-                      Text('${device.runtimeHours?.toStringAsFixed(1) ?? 'N/A'}h',
-                          style: const TextStyle(fontWeight: FontWeight.w500)),
+                      Text('Hours', style: TextStyle(color: Colors.grey[600])),
                     ],
                   ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-      const Icon(Icons.chevron_right, color: Colors.blue),
-    ],
-  );
-}
-
-Widget _buildStatusCards(Device device) {
-  return Row(
-    children: [
-      Expanded(
-        child: Card(
-          color: Colors.white,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.0),
-            side: BorderSide(color: Colors.grey[200]!),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Row(
-              children: [
-                const Icon(Icons.battery_full, color: Colors.blue, size: 30),
-                const SizedBox(width: 8),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Battery', style: TextStyle(color: Colors.grey)),
-                    Text(
-                      '${device.battery?.toStringAsFixed(2) ?? 'N/A'}%',
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(device.model ?? 'N/A',
+                            style: const TextStyle(fontWeight: FontWeight.w500)),
+                        const SizedBox(height: 4),
+                        Text(device.pin ?? 'N/A',
+                            style: const TextStyle(fontWeight: FontWeight.w500)),
+                        const SizedBox(height: 4),
+                        Text('${device.runtimeHours?.toStringAsFixed(1) ?? 'N/A'}h',
+                            style: const TextStyle(fontWeight: FontWeight.w500)),
+                      ],
                     ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-      const SizedBox(width: 12),
-      Expanded(
-        child: Card(
-          color: Colors.white,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.0),
-            side: BorderSide(color: Colors.grey[200]!),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 30,
-                  height: 30,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      CircularProgressIndicator(
-                        value: (device.fuel ?? 0) / 100.0,
-                        strokeWidth: 4,
-                        backgroundColor: Colors.grey[300],
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                            (device.fuel ?? 0) > 20 ? Colors.green : Colors.red),
-                      ),
-                    ],
                   ),
-                ),
-                const SizedBox(width: 8),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Fuel', style: TextStyle(color: Colors.grey)),
-                    Text(
-                      '${device.fuel?.toStringAsFixed(0) ?? 'N/A'}%',
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    ],
-  );
-}
-
-Widget _buildFooter(Device device) {
-  final location = device.location;
-  final address = location?.address ?? 'Unknown Location';
-  DateTime date = DateTime.fromMillisecondsSinceEpoch(location?.timestamp ?? 0);
-
-  final timestamp = location?.timestamp != null
-      ? DateFormat('MMM dd, yyyy HH:mm').format(date)
-      : '';
-
-  return Container(
-    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(8.0),
-      border: Border.all(color: Colors.grey[200]!),
-    ),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            Icon(
-              device.lockStatus == true ? Icons.lock_outline : Icons.lock_open,
-              color: Colors.grey[600],
-            ),
-            const SizedBox(width: 16),
-            Text(
-              'P',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-                color: device.status == 'Parking' ? Colors.black : Colors.grey,
-              ),
-            ),
-          ],
-        ),
-        Expanded(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Icon(Icons.location_on, color: Colors.grey[600]),
-              const SizedBox(width: 8),
-              Flexible(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      address,
-                      style: const TextStyle(fontSize: 12),
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.end,
-                    ),
-                    Text(
-                      timestamp,
-                      style: TextStyle(fontSize: 10, color: Colors.grey[600]),
-                    ),
-                  ],
-                ),
+                ],
               ),
             ],
           ),
         ),
       ],
-    ),
-  );
+    );
+  }
+
+  Widget _buildStatusCards(Device device) {
+    return Row(
+      children: [
+        Expanded(
+          child: Card(
+            color: Colors.white,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              side: BorderSide(color: Colors.grey[200]!),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Row(
+                children: [
+                  const Icon(Icons.battery_full, color: Colors.blue, size: 30),
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Battery', style: TextStyle(color: Colors.grey)),
+                      Text(
+                        '${device.battery?.toStringAsFixed(2) ?? 'N/A'}%',
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Card(
+            color: Colors.white,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              side: BorderSide(color: Colors.grey[200]!),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 30,
+                    height: 30,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        CircularProgressIndicator(
+                          value: (device.fuel ?? 0) / 100.0,
+                          strokeWidth: 4,
+                          backgroundColor: Colors.grey[300],
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              (device.fuel ?? 0) > 20 ? Colors.green : Colors.red),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Fuel', style: TextStyle(color: Colors.grey)),
+                      Text(
+                        '${device.fuel?.toStringAsFixed(0) ?? 'N/A'}%',
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFooter(Device device) {
+    final location = device.location;
+    final address = location?.address ?? 'Unknown Location';
+    DateTime date = DateTime.fromMillisecondsSinceEpoch(location?.timestamp ?? 0);
+
+    final timestamp = location?.timestamp != null
+        ? DateFormat('MMM dd, yyyy HH:mm').format(date)
+        : '';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8.0),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Icon(
+                device.lockStatus == true ? Icons.lock_outline : Icons.lock_open,
+                color: Colors.grey[600],
+              ),
+              const SizedBox(width: 16),
+              Text(
+                'P',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: device.status == 'Parking' ? Colors.black : Colors.grey,
+                ),
+              ),
+            ],
+          ),
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Icon(Icons.location_on, color: Colors.grey[600]),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        address,
+                        style: const TextStyle(fontSize: 12),
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.end,
+                      ),
+                      Text(
+                        timestamp,
+                        style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
+
+  // Add this method to the _EquipmentPageState class
+  void _showUnbindConfirmDialog(BuildContext context, Device device, EquipmentLogic logic) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            'Unbind Device',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Text(
+            'Are you sure you want to unbind "${device.name ?? 'Unknown Device'}"? This action cannot be undone.',
+            style: const TextStyle(fontSize: 16),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+              },
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+                logic.unbindDevice(device.deviceId ?? ''); // Perform unbind
+              },
+              child: const Text(
+                'Unbind',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+

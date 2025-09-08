@@ -64,10 +64,10 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _handleLogin() async {
     if (_formKey.currentState!.validate()) {
       if(_emailController.text.isEmpty || _passwordController.text.isEmpty) {
-        Fluttertoast.showToast(msg: "用户名或者密码不能为空", gravity: ToastGravity.CENTER);
+        Fluttertoast.showToast(msg: "Username or password cannot be empty", gravity: ToastGravity.CENTER);
         return;
       }
-      LoadingUtil.show(context, message: "登录中...");
+      LoadingUtil.show(context, message: "Logging in...");
       try{
         final response = await ApiService.login(
           email: _emailController.text,
@@ -77,13 +77,13 @@ class _LoginPageState extends State<LoginPage> {
         if (response.success) {
           // 登录成功，保存token
           final token = response.data?['data']['token'];
-          LoggerUtil.i('保存data==: ${response.data}');
-          LoggerUtil.i('保存token信息==: $token');
+          LoggerUtil.i('Save data: ${response.data}');
+          LoggerUtil.i('Save token info: $token');
           if (token != null) {
             ApiService.setAuthToken(token);
           }
           final userInfo = response.data?['data']['user'];
-          LoggerUtil.i('保存用户信息==: $userInfo');
+          LoggerUtil.i('Save user info: $userInfo');
           final user = UserModel(
             id: userInfo['id'] ?? '',
             email: userInfo['email'] ?? '',
@@ -93,18 +93,18 @@ class _LoginPageState extends State<LoginPage> {
             createdAt: 0,
           );
          bool isOk = await StorageService.saveUser(user);
-          LoggerUtil.i('保存用户信息: $isOk');
-          LoggerUtil.i('登录成功: ${response.message}');
+          LoggerUtil.i('Save user info result: $isOk');
+          LoggerUtil.i('Login successful: ${response.message}');
           FocusScope.of(context).unfocus();
           Get.offAll(() => const MainPage());
         } else {
-          Fluttertoast.showToast(msg: "登录失败：${response.message}", gravity: ToastGravity.CENTER);
-          LoggerUtil.e('登录失败: ${response.message}');
+          Fluttertoast.showToast(msg: "Login failed: ${response.message}", gravity: ToastGravity.CENTER);
+          LoggerUtil.e('Login failed: ${response.message}');
         }
       }catch(e){
         LoadingUtil.hide();
-        Fluttertoast.showToast(msg: "登录失败：$e", gravity: ToastGravity.CENTER);
-        LoggerUtil.e('登录异常: $e');
+        Fluttertoast.showToast(msg: "Login failed: $e", gravity: ToastGravity.CENTER);
+        LoggerUtil.e('Login exception: $e');
       }
     }
   }

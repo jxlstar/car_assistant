@@ -57,7 +57,7 @@ class _MapDetailPageState extends State<MapDetailPage> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          '设备位置',
+          'Device Location',
           style: TextStyle(
             color: Colors.black,
             fontSize: 18,

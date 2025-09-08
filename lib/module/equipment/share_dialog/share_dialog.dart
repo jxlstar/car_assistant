@@ -305,7 +305,7 @@ class ShareDialog extends StatelessWidget {
   
   void _downloadImage(BuildContext context) async {
     try {
-      // 请求存储权限
+      // Request storage permission
       PermissionStatus permission;
       if (Platform.isAndroid) {
         if (await Permission.storage.isDenied) {
@@ -314,20 +314,20 @@ class ShareDialog extends StatelessWidget {
           permission = PermissionStatus.granted;
         }
       } else {
-        // iOS 不需要特殊权限
+        // iOS does not need special permission
         permission = PermissionStatus.granted;
       }
       
       if (permission != PermissionStatus.granted) {
-        _showMessage(context, '需要存储权限才能保存图片');
+        _showMessage(context, 'Storage permission is required to save images');
         return;
       }
       
-      // 生成分享图片
+      // Generate share image
       final imageBytes = await _generateShareImage();
     } catch (e) {
-      print('保存图片失败: $e');
-      _showMessage(context, '保存失败: ${e.toString()}');
+      print('Failed to save image: $e');
+      _showMessage(context, 'Save failed: ${e.toString()}');
     }
   }
 

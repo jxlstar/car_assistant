@@ -25,14 +25,14 @@ class _FaultCodeQueryPageState extends State<FaultCodeQueryPage> {
     final code = _codeController.text.trim();
     if (code.isEmpty) {
       Fluttertoast.showToast(
-        msg: '请输入故障码',
+        msg: 'Please enter fault code',
         gravity: ToastGravity.CENTER,
       );
       return;
     }
 
     try {
-      LoadingUtil.show(context, message: '查询中...');
+      LoadingUtil.show(context, message: 'Searching...');
       final response = await ApiService.getFaultCodeDetail(code);
       LoadingUtil.hide();
       
@@ -47,15 +47,15 @@ class _FaultCodeQueryPageState extends State<FaultCodeQueryPage> {
         );
       } else {
         Fluttertoast.showToast(
-          msg: response.message ?? '查询失败',
+          msg: response.message ?? 'Search failed',
           gravity: ToastGravity.CENTER,
         );
       }
     } catch (e) {
       LoadingUtil.hide();
-      LoggerUtil.e('故障码查询失败: $e');
+      LoggerUtil.e('Fault code search failed: $e');
       Fluttertoast.showToast(
-        msg: '查询失败，请重试',
+        msg: 'Search failed, please try again',
         gravity: ToastGravity.CENTER,
       );
     }
