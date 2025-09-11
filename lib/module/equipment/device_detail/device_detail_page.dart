@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:fl_chart/fl_chart.dart';
 import '../../../r.dart';
 import '../../../utils/colors_util.dart';
 import '../equipment_state.dart';
@@ -16,7 +17,7 @@ import '../../../module/pdf/pdf_viewer_page.dart';
 class DeviceDetailPage extends StatelessWidget {
   final String? deviceId;
   
-  const DeviceDetailPage({Key? key, this.deviceId}) : super(key: key);
+  const DeviceDetailPage({super.key, this.deviceId});
 
   @override
   Widget build(BuildContext context) {
@@ -38,14 +39,14 @@ class DeviceDetailPage extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.lock_outline, color: Colors.grey[600]),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: Icon(Icons.more_horiz, color: Colors.black),
-            onPressed: () {},
-          ),
+          // IconButton(
+          //   icon: Icon(Icons.lock_outline, color: Colors.grey[600]),
+          //   onPressed: () {},
+          // ),
+          // IconButton(
+          //   icon: Icon(Icons.more_horiz, color: Colors.black),
+          //   onPressed: () {},
+          // ),
           GetBuilder<DeviceDetailLogic>(
             builder: (logic) {
               return IconButton(
@@ -127,13 +128,18 @@ class DeviceDetailPage extends StatelessWidget {
                   
                   SizedBox(height: 16),
                   
+                  // Engine Speed Chart
+                  _buildEngineSpeedChart(logic),
+                  
+                  SizedBox(height: 16),
+                  
                   // Location Info
-                  _buildLocationInfo(logic),
+                  // _buildLocationInfo(logic),
                   
                   SizedBox(height: 24),
                   
                   // Machine Controls
-                  _buildMachineControls(logic),
+                  _buildMachineControls(logic, context),
                   
                   SizedBox(height: 24),
                   
@@ -194,7 +200,7 @@ class DeviceDetailPage extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'Hours   ${logic.runtimeHours}',
+                  'Minutes   ${logic.runtimeHours}',
                   style: TextStyle(
                     color: Colors.grey[600],
                     fontSize: 14,
@@ -316,50 +322,153 @@ class DeviceDetailPage extends StatelessWidget {
   Widget _buildCoolantTemperature(DeviceDetailLogic logic) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Icon(Icons.thermostat, color: Colors.green, size: 20),
-            SizedBox(width: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Coolant Temp',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 14,
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.thermostat, color: Colors.blue, size: 20),
+                          SizedBox(width: 8),
+                          Text(
+                            'Water Temp',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        ' ${logic.waterTemperature}',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
                 ),
-                Text(
-                  logic.waterTemperature,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+              ),
+              SizedBox(width: 12),
+              Expanded(
+                child: Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.autorenew, color: Colors.blue, size: 20),
+                          SizedBox(width: 8),
+                          Text(
+                            'Engine Speed',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        logic.enginSpeed,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+          Padding(padding: EdgeInsets.symmetric(vertical: 8)),
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.speed, color: Colors.blue, size: 20),
+                          SizedBox(width: 8),
+                          Text(
+                            'Pilot',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        logic.pilot,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
   
   Widget _buildMapSection(DeviceDetailLogic logic, BuildContext context) {
-    final navigateAction = () {
+    navigateAction() {
       if (logic.hasValidLocation) {
         final coordinates = logic.locationCoordinates;
         Navigator.push(
@@ -383,7 +492,7 @@ class DeviceDetailPage extends StatelessWidget {
             textColor: Colors.white,
             fontSize: 16.0);
       }
-    };
+    }
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20),
@@ -392,11 +501,11 @@ class DeviceDetailPage extends StatelessWidget {
         children: [
           ElevatedButton(
             onPressed: navigateAction,
-            child: Text('View Map Details'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               foregroundColor: Colors.black,
             ),
+            child: Text('View Map Details'),
           ),
           SizedBox(height: 8),
           GestureDetector(
@@ -541,7 +650,7 @@ class DeviceDetailPage extends StatelessWidget {
     );
   }
   
-  Widget _buildMachineControls(DeviceDetailLogic logic) {
+  Widget _buildMachineControls(DeviceDetailLogic logic, BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -582,8 +691,8 @@ class DeviceDetailPage extends StatelessWidget {
                   ),
                 ),
                 Switch(
-                  value: logic.state.inhibitRestart,
-                  onChanged: (value) => logic.toggleInhibitRestart(value),
+                  value: logic.inhibitRestartStatus,
+                  onChanged: (value) => _showInhibitRestartConfirmDialog(context, logic, value),
                   activeColor: Colors.blue,
                 ),
               ],
@@ -591,6 +700,58 @@ class DeviceDetailPage extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  // 显示禁止重启确认对话框
+  void _showInhibitRestartConfirmDialog(BuildContext context, DeviceDetailLogic logic, bool value) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            value ? 'Lock Device' : 'Unlock Device',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Text(
+            value 
+                ? 'Are you sure you want to lock this device? This will prevent the device from restarting.'
+                : 'Are you sure you want to unlock this device? This will allow the device to restart normally.',
+            style: TextStyle(fontSize: 16),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontSize: 16,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                logic.toggleInhibitRestart(value);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: value ? Colors.red : Colors.blue,
+                foregroundColor: Colors.white,
+              ),
+              child: Text(
+                'Confirm',
+                style: TextStyle(fontSize: 16),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
   
@@ -759,4 +920,189 @@ class DeviceDetailPage extends StatelessWidget {
       ),
     );
   }
+  // 构建转速折线图
+  Widget _buildEngineSpeedChart(DeviceDetailLogic logic) {
+    final latestReports = logic.state.deviceDetail?.latestReports;
+
+    // 如果没有数据或数组为空，不显示图表
+    if (latestReports == null || latestReports.isEmpty) {
+      return SizedBox.shrink();
+    }
+
+    // 过滤出有engine_speed数据的报告
+    final validReports = latestReports
+        .where((report) => report.engineSpeed != null)
+        .toList();
+
+    if (validReports.isEmpty) {
+      return SizedBox.shrink();
+    }
+
+    // 创建折线图数据点
+    List<FlSpot> spots = [];
+    for (int i = 0; i < validReports.length; i++) {
+      spots.add(FlSpot(i.toDouble(), validReports[i].engineSpeed!.toDouble()));
+    }
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Engine Speed Trend',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 16),
+          Container(
+            height: 250,
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+            child: LineChart(
+              LineChartData(
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: true,
+                  horizontalInterval: 500,
+                  verticalInterval: 1,
+                  getDrawingHorizontalLine: (value) {
+                    return FlLine(
+                      color: Colors.grey[300]!,
+                      strokeWidth: 1,
+                    );
+                  },
+                  getDrawingVerticalLine: (value) {
+                    return FlLine(
+                      color: Colors.grey[300]!,
+                      strokeWidth: 1,
+                    );
+                  },
+                ),
+                titlesData: FlTitlesData(
+                  show: true,
+                  rightTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  topTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 30,
+                      interval: 1,
+                      getTitlesWidget: (double value, TitleMeta meta) {
+                        return SideTitleWidget(
+                          axisSide: meta.axisSide,
+                          child: Text(
+                            '${value.toInt()}',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      interval: 500,
+                      reservedSize: 42,
+                      getTitlesWidget: (double value, TitleMeta meta) {
+                        return Text(
+                          '${value.toInt()}',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                borderData: FlBorderData(
+                  show: true,
+                  border: Border.all(
+                    color: Colors.grey[300]!,
+                    width: 1,
+                  ),
+                ),
+                minX: 0,
+                maxX: (validReports.length - 1).toDouble(),
+                minY: 0,
+                maxY: spots.map((spot) => spot.y).reduce((a, b) => a > b ? a : b) * 1.1,
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: spots,
+                    isCurved: true,
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.blue,
+                        Colors.lightBlue,
+                      ],
+                    ),
+                    barWidth: 3,
+                    isStrokeCapRound: true,
+                    dotData: FlDotData(
+                      show: true,
+                      getDotPainter: (spot, percent, barData, index) {
+                        return FlDotCirclePainter(
+                          radius: 4,
+                          color: Colors.blue,
+                          strokeWidth: 2,
+                          strokeColor: Colors.white,
+                        );
+                      },
+                    ),
+                    belowBarData: BarAreaData(
+                      show: true,
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.blue.withOpacity(0.3),
+                          Colors.blue.withOpacity(0.1),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Time (min)',
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
+

@@ -173,6 +173,122 @@ class DeviceImage {
   }
 }
 
+class LatestReport {
+  final int? batteryVoltage;
+  final int? beidouSatellites;
+  final String? deviceId;
+  final int? engineSpeed;
+  final int? failureStatus;
+  final int? galileoSatellites;
+  final int? glonassSatellites;
+  final int? gpsSatellites;
+  final int? id;
+  final int? ioControl;
+  final int? ioStatus;
+  final int? oilLevel;
+  final int? oilPressure1;
+  final int? oilPressure2;
+  final int? packetLoss;
+  final int? pilotStatus;
+  final int? rawLatitude;
+  final int? rawLongitude;
+  final int? reportTimestamp;
+  final int? reportType;
+  final int? runningTime;
+  final int? sequenceNumber;
+  final int? signalStrength;
+  final int? systemStatus;
+  final int? temperature;
+
+  LatestReport({
+    this.batteryVoltage,
+    this.beidouSatellites,
+    this.deviceId,
+    this.engineSpeed,
+    this.failureStatus,
+    this.galileoSatellites,
+    this.glonassSatellites,
+    this.gpsSatellites,
+    this.id,
+    this.ioControl,
+    this.ioStatus,
+    this.oilLevel,
+    this.oilPressure1,
+    this.oilPressure2,
+    this.packetLoss,
+    this.pilotStatus,
+    this.rawLatitude,
+    this.rawLongitude,
+    this.reportTimestamp,
+    this.reportType,
+    this.runningTime,
+    this.sequenceNumber,
+    this.signalStrength,
+    this.systemStatus,
+    this.temperature,
+  });
+
+  factory LatestReport.fromJson(Map<String, dynamic> json) {
+    return LatestReport(
+      batteryVoltage: json['battery_voltage'],
+      beidouSatellites: json['beidou_satellites'],
+      deviceId: json['device_id'],
+      engineSpeed: json['engine_speed'],
+      failureStatus: json['failure_status'],
+      galileoSatellites: json['galileo_satellites'],
+      glonassSatellites: json['glonass_satellites'],
+      gpsSatellites: json['gps_satellites'],
+      id: json['id'],
+      ioControl: json['io_control'],
+      ioStatus: json['io_status'],
+      oilLevel: json['oil_level'],
+      oilPressure1: json['oil_pressure_1'],
+      oilPressure2: json['oil_pressure_2'],
+      packetLoss: json['packet_loss'],
+      pilotStatus: json['pilot_status'],
+      rawLatitude: json['raw_latitude'],
+      rawLongitude: json['raw_longitude'],
+      reportTimestamp: json['report_timestamp'],
+      reportType: json['report_type'],
+      runningTime: json['running_time'],
+      sequenceNumber: json['sequence_number'],
+      signalStrength: json['signal_strength'],
+      systemStatus: json['system_status'],
+      temperature: json['temperature'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'battery_voltage': batteryVoltage,
+      'beidou_satellites': beidouSatellites,
+      'device_id': deviceId,
+      'engine_speed': engineSpeed,
+      'failure_status': failureStatus,
+      'galileo_satellites': galileoSatellites,
+      'glonass_satellites': glonassSatellites,
+      'gps_satellites': gpsSatellites,
+      'id': id,
+      'io_control': ioControl,
+      'io_status': ioStatus,
+      'oil_level': oilLevel,
+      'oil_pressure_1': oilPressure1,
+      'oil_pressure_2': oilPressure2,
+      'packet_loss': packetLoss,
+      'pilot_status': pilotStatus,
+      'raw_latitude': rawLatitude,
+      'raw_longitude': rawLongitude,
+      'report_timestamp': reportTimestamp,
+      'report_type': reportType,
+      'running_time': runningTime,
+      'sequence_number': sequenceNumber,
+      'signal_strength': signalStrength,
+      'system_status': systemStatus,
+      'temperature': temperature,
+    };
+  }
+}
+
 class Device {
   final String? deviceId;
   final String? name;
@@ -203,6 +319,11 @@ class Device {
   final String? mainImageUrl;
   final List<dynamic>? maintenanceManuals;
   final List<dynamic>? operationManuals;
+  // 新增字段
+  final int? runningTime;
+  final int? engineSpeed;
+  final int? pilotStatus;
+  final List<LatestReport>? latestReports;
 
   Device({
     this.deviceId,
@@ -233,7 +354,12 @@ class Device {
     this.deviceImages,
     this.mainImageUrl,
     this.maintenanceManuals,
-    this.operationManuals
+    this.operationManuals,
+    // 新增字段
+    this.runningTime,
+    this.engineSpeed,
+    this.pilotStatus,
+    this.latestReports,
   });
 
   factory Device.fromJson(Map<String, dynamic> json) {
@@ -270,7 +396,14 @@ class Device {
           .toList(),
       mainImageUrl: json['main_image_url'],
       maintenanceManuals: json['maintenance_manuals'],
-      operationManuals: json['operation_manuals']
+      operationManuals: json['operation_manuals'],
+      // 新增字段解析
+      runningTime: json['running_time'],
+      engineSpeed: json['engine_speed'],
+      pilotStatus: json['pilot_status'],
+      latestReports: (json['latest_reports'] as List<dynamic>?)
+          ?.map((e) => LatestReport.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 
@@ -304,7 +437,12 @@ class Device {
       'device_images': deviceImages?.map((e) => e.toJson()).toList(),
       'main_image_url': mainImageUrl,
       'operation_manuals': operationManuals,
-      'maintenance_manuals': maintenanceManuals
+      'maintenance_manuals': maintenanceManuals,
+      // 新增字段序列化
+      'running_time': runningTime,
+      'engine_speed': engineSpeed,
+      'pilot_status': pilotStatus,
+      'latest_reports': latestReports?.map((e) => e.toJson()).toList(),
     };
   }
 }

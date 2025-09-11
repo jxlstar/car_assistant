@@ -291,7 +291,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
                       const SizedBox(height: 4),
                       Text('PIN', style: TextStyle(color: Colors.grey[600])),
                       const SizedBox(height: 4),
-                      Text('Hours', style: TextStyle(color: Colors.grey[600])),
+                      Text('Minutes', style: TextStyle(color: Colors.grey[600])),
                     ],
                   ),
                   const SizedBox(width: 16),
@@ -305,7 +305,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
                         Text(device.pin ?? 'N/A',
                             style: const TextStyle(fontWeight: FontWeight.w500)),
                         const SizedBox(height: 4),
-                        Text('${device.runtimeHours?.toStringAsFixed(1) ?? 'N/A'}h',
+                        Text('${device.runningTime?.toStringAsFixed(0) ?? 'N/A'}min',
                             style: const TextStyle(fontWeight: FontWeight.w500)),
                       ],
                     ),
@@ -332,18 +332,62 @@ class _EquipmentPageState extends State<EquipmentPage> {
             ),
             child: Padding(
               padding: const EdgeInsets.all(12.0),
-              child: Row(
+              child: Column(
                 children: [
-                  const Icon(Icons.battery_full, color: Colors.blue, size: 30),
-                  const SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  Row(
                     children: [
-                      const Text('Battery', style: TextStyle(color: Colors.grey)),
-                      Text(
-                        '${device.battery?.toStringAsFixed(2) ?? 'N/A'}%',
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                      const Icon(Icons.battery_full, color: Colors.blue, size: 30),
+                      const SizedBox(width: 8),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Battery', style: TextStyle(color: Colors.grey)),
+                          Text(
+                            '${device.battery?.toStringAsFixed(0) ?? 'N/A'}mv',
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5.0),
+                  ),
+                  Row(
+                    children: [
+                      const Icon(Icons.thermostat, color: Colors.blue, size: 30),
+                      const SizedBox(width: 8),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Water Temp', style: TextStyle(color: Colors.grey)),
+                          Text(
+                            '${device.waterTemperature?.toStringAsFixed(0) ?? 'N/A'}°C',
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5.0),
+                  ),
+                  Row(
+                    children: [
+                      const Icon(Icons.autorenew, color: Colors.blue, size: 30),
+                      const SizedBox(width: 8),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Engine Speed', style: TextStyle(color: Colors.grey)),
+                          Text(
+                            '${device.engineSpeed?.toStringAsFixed(0) ?? 'N/A'}rpm',
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -363,33 +407,75 @@ class _EquipmentPageState extends State<EquipmentPage> {
             ),
             child: Padding(
               padding: const EdgeInsets.all(12.0),
-              child: Row(
+              child: Column(
                 children: [
-                  SizedBox(
-                    width: 30,
-                    height: 30,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        CircularProgressIndicator(
-                          value: (device.fuel ?? 0) / 100.0,
-                          strokeWidth: 4,
-                          backgroundColor: Colors.grey[300],
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                              (device.fuel ?? 0) > 20 ? Colors.green : Colors.red),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  Row(
                     children: [
-                      const Text('Fuel', style: TextStyle(color: Colors.grey)),
-                      Text(
-                        '${device.fuel?.toStringAsFixed(0) ?? 'N/A'}%',
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                      SizedBox(
+                        width: 23,
+                        height: 23,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            CircularProgressIndicator(
+                              value: (device.fuel ?? 0) / 100.0,
+                              strokeWidth: 4,
+                              backgroundColor: Colors.grey[300],
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  (device.fuel ?? 0) > 20 ? Colors.green : Colors.red),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Fuel', style: TextStyle(color: Colors.grey)),
+                          Text(
+                            '${device.fuel?.toStringAsFixed(0) ?? 'N/A'}%',
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5.0),
+                  ),
+                  Row(
+                    children: [
+                      const Icon(Icons.speed, color: Colors.blue, size: 30),
+                      const SizedBox(width: 8),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Pilot', style: TextStyle(color: Colors.grey)),
+                          Text(
+                            '${((device.pilotStatus ?? 0 )/ 100).toStringAsFixed(0)}MPa',
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5.0),
+                  ),
+                  Row(
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('', style: TextStyle(color: Colors.grey)),
+                          Text(
+                            '',
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                        ],
                       ),
                     ],
                   ),

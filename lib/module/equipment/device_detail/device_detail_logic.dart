@@ -34,6 +34,8 @@ class DeviceDetailLogic extends GetxController {
       LoggerUtil.i('Device detail====$response  ');
       if (response.success && response.data != null) {
         state.deviceDetail = Device.fromJson(response.data?['data']);
+        // 根据设备的ctrl_status设置inhibitRestart状态
+        state.inhibitRestart = (state.deviceDetail?.ctrlStatus == 1);
         LoggerUtil.d('Device detail loaded successfully: ${response.data}');
       } else {
         state.errorMessage = response.message ?? 'Failed to load device details';
@@ -115,13 +117,13 @@ class DeviceDetailLogic extends GetxController {
   
   // 获取运行时长
   String get runtimeHours {
-    return state.deviceDetail?.runtimeHours.toString() ?? '0';
+    return '${state.deviceDetail?.runningTime.toString() ?? '0' } min';
   }
   
   // 获取电量
   String get batteryLevel {
-    String? formatted = state.deviceDetail?.battery?.toStringAsFixed(2);
-    return ' ${formatted ?? 0}%';
+    String? formatted = state.deviceDetail?.battery?.toStringAsFixed(0);
+    return ' ${formatted ?? 0}mv';
   }
   
   // 获取油量
@@ -131,13 +133,22 @@ class DeviceDetailLogic extends GetxController {
   
   // 获取水温
   String get waterTemperature {
-    return '${state.deviceDetail?.waterTemperature ?? 0}°F';
+    return '${state.deviceDetail?.waterTemperature ?? 0}°c';
+  }
+
+  String get enginSpeed {
+    return '${state.deviceDetail?.engineSpeed ?? 0}rpm';
+  }
+
+  String get pilot {
+    return '${((state.deviceDetail?.pilotStatus ?? 0) / 100).toStringAsFixed(0)}MPa';
   }
   
   // 获取当前位置
   String get currentLocation {
     return state.deviceDetail?.location?.address ?? 'No location available';
   }
+
   
   // 检查是否有有效的位置信息
   bool get hasValidLocation {
@@ -167,5 +178,9 @@ class DeviceDetailLogic extends GetxController {
       };
     }
     return {'latitude': 28.5383, 'longitude': -81.3792}; // Default Orlando coordinates
+  }
+  // 获取inhibit restart状态（基于ctrl_status）
+  bool get inhibitRestartStatus {
+    return state.deviceDetail?.ctrlStatus == 1;
   }
 }

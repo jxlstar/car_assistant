@@ -61,6 +61,8 @@ class EquipmentLogic extends GetxController {
         runtimeHours: device.runtimeHours,
         status: status,
         statusName: device.statusName,
+        ctrlStatus: device.ctrlStatus,
+        engStatus: device.engStatus,
         lastOnlineAt: device.lastOnlineAt,
         battery: device.battery,
         batteryStatus: device.batteryStatus,
@@ -77,6 +79,13 @@ class EquipmentLogic extends GetxController {
         nextMaintenanceTime: device.nextMaintenanceTime,
         deviceImages: device.deviceImages,
         mainImageUrl: device.mainImageUrl,
+        maintenanceManuals: device.maintenanceManuals,
+        operationManuals: device.operationManuals,
+        // 新增字段
+        runningTime: device.runningTime,
+        engineSpeed: device.engineSpeed,
+        pilotStatus: device.pilotStatus,
+        latestReports: device.latestReports,
       );
       state.devices[index] = updatedDevice;
       update();
@@ -105,6 +114,8 @@ class EquipmentLogic extends GetxController {
         runtimeHours: device.runtimeHours,
         status: device.status,
         statusName: device.statusName,
+        ctrlStatus: device.ctrlStatus,
+        engStatus: device.engStatus,
         lastOnlineAt: device.lastOnlineAt,
         battery: device.battery,
         batteryStatus: device.batteryStatus,
@@ -121,6 +132,13 @@ class EquipmentLogic extends GetxController {
         nextMaintenanceTime: device.nextMaintenanceTime,
         deviceImages: device.deviceImages,
         mainImageUrl: device.mainImageUrl,
+        maintenanceManuals: device.maintenanceManuals,
+        operationManuals: device.operationManuals,
+        // 新增字段
+        runningTime: device.runningTime,
+        engineSpeed: device.engineSpeed,
+        pilotStatus: device.pilotStatus,
+        latestReports: device.latestReports,
       );
       state.devices[index] = updatedDevice;
       update();
@@ -142,6 +160,8 @@ class EquipmentLogic extends GetxController {
         runtimeHours: device.runtimeHours,
         status: device.status,
         statusName: device.statusName,
+        ctrlStatus: device.ctrlStatus,
+        engStatus: device.engStatus,
         lastOnlineAt: device.lastOnlineAt,
         battery: device.battery,
         batteryStatus: device.batteryStatus,
@@ -158,6 +178,13 @@ class EquipmentLogic extends GetxController {
         nextMaintenanceTime: device.nextMaintenanceTime,
         deviceImages: device.deviceImages,
         mainImageUrl: device.mainImageUrl,
+        maintenanceManuals: device.maintenanceManuals,
+        operationManuals: device.operationManuals,
+        // 新增字段
+        runningTime: device.runningTime,
+        engineSpeed: device.engineSpeed,
+        pilotStatus: device.pilotStatus,
+        latestReports: device.latestReports,
       );
       state.devices[index] = updatedDevice;
       update();
@@ -233,12 +260,17 @@ class EquipmentLogic extends GetxController {
         timestamp: DateTime.now().millisecondsSinceEpoch ~/ 1000,
       ),
       status: 1,
+      // 新增字段的默认值
+      runningTime: 225,
+      engineSpeed: 0,
+      pilotStatus: 32767,
+      latestReports: [],
     );
   state.devices.add(device);
   update(); // Notify UI update
- }
+  }
 
- Future<void> fetchDeviceList() async {
+  Future<void> fetchDeviceList() async {
     try{
       final response = await ApiService.getDeviceList();
       LoggerUtil.i('Device list==$response');

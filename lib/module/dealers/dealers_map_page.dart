@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dealers_state.dart';
 
@@ -98,6 +100,17 @@ class _DealersMapPageState extends State<DealersMapPage> {
           zoom: 5,
         ),
         markers: _markers,
+        // 禁用双击放大
+        zoomGesturesEnabled: true,
+        scrollGesturesEnabled: true,
+        tiltGesturesEnabled: true,
+        rotateGesturesEnabled: true,
+        // 禁用双击放大手势
+        onTap: (_) {}, // 添加onTap来覆盖默认双击行为
+        gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{},
+        // 隐藏右下角定位按钮
+        myLocationButtonEnabled: false,
+        myLocationEnabled: false,
       ),
     );
   }

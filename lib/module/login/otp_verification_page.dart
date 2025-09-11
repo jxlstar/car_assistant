@@ -6,9 +6,9 @@ import '../../core/utils/logger_util.dart';
 import 'set_password_page.dart';
 
 enum OtpType {
-  register,        // 注册
-  changePassword,  // 修改密码
-  forgotPassword,  // 忘记密码
+  register,        // Registration
+  changePassword,  // Change password
+  forgotPassword,  // Forgot password
 }
 
 class OtpVerificationPage extends StatefulWidget {
@@ -36,17 +36,17 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
   @override
   void initState() {
     super.initState();
-    // 初始焦点在第一个输入框
+    // Initial focus on the first input box
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNodes[0].requestFocus();
     });
     
-    // 为每个输入框添加监听器
+    // Add listeners for each input box
     for (int i = 0; i < _controllers.length; i++) {
       _controllers[i].addListener(_checkNextButtonState);
     }
     
-    // 开始倒计时
+    // Start countdown
     _startCountdown();
   }
 
@@ -163,10 +163,10 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
 
   void _handleNext() {
     if (_isNextEnabled) {
-      // 获取输入的验证码
+      // Get the entered verification code
       String verificationCode = _controllers.map((controller) => controller.text).join();
       
-      // 跳转到设置密码页面
+      // Navigate to set password page
       if (mounted) {
         Navigator.of(context).push(
           MaterialPageRoute(

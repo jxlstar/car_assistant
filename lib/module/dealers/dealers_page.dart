@@ -1,5 +1,7 @@
 import 'package:car_assistant/module/dealers/dealers_map_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -208,6 +210,17 @@ class _DealersPageState extends State<DealersPage> with SingleTickerProviderStat
                   logic.state.mapController = controller;
                   logic.updateMapCamera();
                 },
+                // 禁用双击放大
+                zoomGesturesEnabled: false,
+                scrollGesturesEnabled: false,
+                tiltGesturesEnabled: false,
+                rotateGesturesEnabled: false,
+                // 禁用双击放大手势
+                onTap: (_) {}, // 添加onTap来覆盖默认双击行为
+                gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{},
+                // 隐藏右下角定位按钮
+                myLocationButtonEnabled: false,
+                myLocationEnabled: false,
               ),
             ),
           ),
