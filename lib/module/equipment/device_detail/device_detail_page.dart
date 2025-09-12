@@ -1023,10 +1023,10 @@ class DeviceDetailPage extends StatelessWidget {
                     sideTitles: SideTitles(
                       showTitles: true,
                       interval: 500,
-                      reservedSize: 42,
+                      reservedSize: 60,
                       getTitlesWidget: (double value, TitleMeta meta) {
                         return Text(
-                          '${value.toInt()}',
+                          '${value.toInt()}(rpm)',
                           style: TextStyle(
                             color: Colors.grey[600],
                             fontWeight: FontWeight.bold,
@@ -1092,7 +1092,7 @@ class DeviceDetailPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Time (min)',
+                'X：min\nY：rpm',
                 style: TextStyle(
                   color: Colors.grey[600],
                   fontSize: 12,

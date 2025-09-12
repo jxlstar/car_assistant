@@ -75,6 +75,12 @@ class DeviceDetailLogic extends GetxController {
       if (response.success) {
         // API调用成功，更新本地状态
         state.inhibitRestart = value;
+        
+        // 如果是解锁操作（从开启状态变为关闭状态），在折线图数据中增加一个单位rpm
+        if (!value && state.deviceDetail != null) {
+          _addRpmDataPoint();
+        }
+        
         LoggerUtil.i('Device ${value ? "lock" : "unlock"} successful: ${response.message}');
         
         // 显示成功提示
@@ -89,6 +95,64 @@ class DeviceDetailLogic extends GetxController {
     } finally {
       // state.isLoading = false;
       update();
+    }
+  }
+  
+  // 在折线图数据中添加一个rpm数据点
+  void _addRpmDataPoint() {
+    if (state.deviceDetail?.latestReports != null) {
+      // 获取当前引擎转速，如果没有则使用默认值
+      final currentEngineSpeed = state.deviceDetail?.engineSpeed ?? 1000;
+      
+      // 创建新的报告数据点
+      final newReport = LatestReport(
+        engineSpeed: currentEngineSpeed + 1, // 增加1个单位rpm
+        reportTimestamp: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        deviceId: state.deviceId,
+      );
+      
+      // 添加到latestReports数组中
+      final updatedReports = List<LatestReport>.from(state.deviceDetail!.latestReports!);
+      updatedReports.add(newReport);
+      
+      // 更新设备详情中的latestReports
+      state.deviceDetail = Device(
+        deviceId: state.deviceDetail?.deviceId,
+        name: state.deviceDetail?.name,
+        model: state.deviceDetail?.model,
+        pin: state.deviceDetail?.pin,
+        brand: state.deviceDetail?.brand,
+        year: state.deviceDetail?.year,
+        runtimeHours: state.deviceDetail?.runtimeHours,
+        status: state.deviceDetail?.status,
+        statusName: state.deviceDetail?.statusName,
+        ctrlStatus: state.deviceDetail?.ctrlStatus,
+        engStatus: state.deviceDetail?.engStatus,
+        lastOnlineAt: state.deviceDetail?.lastOnlineAt,
+        battery: state.deviceDetail?.battery,
+        batteryStatus: state.deviceDetail?.batteryStatus,
+        fuel: state.deviceDetail?.fuel,
+        fuelStatus: state.deviceDetail?.fuelStatus,
+        oilPressure: state.deviceDetail?.oilPressure,
+        waterTemperature: state.deviceDetail?.waterTemperature,
+        locationStatus: state.deviceDetail?.locationStatus,
+        locationStatusName: state.deviceDetail?.locationStatusName,
+        location: state.deviceDetail?.location,
+        lockStatus: state.deviceDetail?.lockStatus,
+        lockStatusName: state.deviceDetail?.lockStatusName,
+        lastMaintenanceTime: state.deviceDetail?.lastMaintenanceTime,
+        nextMaintenanceTime: state.deviceDetail?.nextMaintenanceTime,
+        deviceImages: state.deviceDetail?.deviceImages,
+        mainImageUrl: state.deviceDetail?.mainImageUrl,
+        maintenanceManuals: state.deviceDetail?.maintenanceManuals,
+        operationManuals: state.deviceDetail?.operationManuals,
+        runningTime: state.deviceDetail?.runningTime,
+        engineSpeed: currentEngineSpeed + 1, // 同时更新当前引擎转速
+        pilotStatus: state.deviceDetail?.pilotStatus,
+        latestReports: updatedReports,
+      );
+      
+      LoggerUtil.i('Added new RPM data point: ${currentEngineSpeed + 1}');
     }
   }
   

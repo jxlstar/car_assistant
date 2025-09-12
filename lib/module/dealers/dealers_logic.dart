@@ -1,3 +1,4 @@
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../core/network/api_service.dart';
@@ -216,20 +217,16 @@ class DealersLogic extends GetxController {
           // 更新本地数据
           loadDealers(isRefresh: true);
           loadFavoriteDealers();
-          Get.snackbar(
-            '成功',
-            !favorite ? '已添加到收藏' : '已取消收藏',
-            snackPosition: SnackPosition.BOTTOM,
-          );
+          Fluttertoast.showToast(msg: !favorite ? 'Added to favorites' : 'Removed from favorites');
         } else {
-          Get.snackbar('错误', responseData['message'] ?? '操作失败');
+          Get.snackbar('Error', responseData['message'] ?? 'Operation failed');
         }
       } else {
-        Get.snackbar('错误', response.message ?? '网络错误');
+        Get.snackbar('Error', response.message ?? 'Network error');
       }
     } catch (e) {
       LoggerUtil.e('更新收藏状态失败: $e');
-      Get.snackbar('错误', '更新收藏状态失败');
+      Get.snackbar('Error', 'Failed to update favorite status');
     }
   }
   
