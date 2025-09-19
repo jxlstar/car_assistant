@@ -181,13 +181,13 @@ class DeviceDetailLogic extends GetxController {
   
   // 获取运行时长
   String get runtimeHours {
-    return '${state.deviceDetail?.runningTime.toString() ?? '0' } min';
+    return '${((state.deviceDetail?.runningTime ?? 0) / 60).toString()} h';
   }
   
   // 获取电量
   String get batteryLevel {
-    String? formatted = state.deviceDetail?.battery?.toStringAsFixed(0);
-    return ' ${formatted ?? 0}mv';
+    String? formatted = ((state.deviceDetail?.battery ?? 0) / 1000).toStringAsFixed(1);
+    return ' ${formatted}v';
   }
   
   // 获取油量
@@ -197,7 +197,7 @@ class DeviceDetailLogic extends GetxController {
   
   // 获取水温
   String get waterTemperature {
-    return '${state.deviceDetail?.waterTemperature ?? 0}°c';
+    return '${state.deviceDetail?.waterTemperature ?? 0}°F';
   }
 
   String get enginSpeed {
@@ -246,5 +246,11 @@ class DeviceDetailLogic extends GetxController {
   // 获取inhibit restart状态（基于ctrl_status）
   bool get inhibitRestartStatus {
     return state.deviceDetail?.ctrlStatus == 1;
+  }
+  
+  // 切换Pro模式
+  void toggleProMode() {
+    state.isProMode = !state.isProMode;
+    update();
   }
 }

@@ -12,141 +12,161 @@ class ApiService {
   }
 
   // 用户注册
-    static Future<ApiResponse<Map<String, dynamic>>> register({
-      required String email,
-      required String password,
-      required String verificationCode,
-      String? fullName,
-      String? phone,
-    }) {
-      return _request.post<Map<String, dynamic>>('/api/app/auth/register', data: {
-        'email': email,
-        'password': password,
-        'verification_code': verificationCode,
-        if (fullName != null) 'full_name': fullName,
-        if (phone != null) 'phone': phone,
-      });
-    }
+  static Future<ApiResponse<Map<String, dynamic>>> register({
+    required String email,
+    required String password,
+    required String verificationCode,
+    String? fullName,
+    String? phone,
+  }) {
+    return _request.post<Map<String, dynamic>>('/api/app/auth/register', data: {
+      'email': email,
+      'password': password,
+      'verification_code': verificationCode,
+      if (fullName != null) 'full_name': fullName,
+      if (phone != null) 'phone': phone,
+    });
+  }
 
-    // 用户登录
-    static Future<ApiResponse<Map<String, dynamic>>> login({
-      required String email,
-      required String password,
-    }) {
-      return _request.post<Map<String, dynamic>>('/api/app/auth/login', data: {
-        'email': email,
-        'password': password,
-      });
-    }
+  // 用户登录
+  static Future<ApiResponse<Map<String, dynamic>>> login({
+    required String email,
+    required String password,
+  }) {
+    return _request.post<Map<String, dynamic>>('/api/app/auth/login', data: {
+      'email': email,
+      'password': password,
+    });
+  }
 
-    // 退出登录
-    static Future<ApiResponse<Map<String, dynamic>>> logout() {
-      return _request.post<Map<String, dynamic>>('/api/app/auth/logout');
-    }
+  // 退出登录
+  static Future<ApiResponse<Map<String, dynamic>>> logout() {
+    return _request.post<Map<String, dynamic>>('/api/app/auth/logout');
+  }
 
-    // 刷新token
-    static Future<ApiResponse<Map<String, dynamic>>> refreshToken() {
-      return _request.post<Map<String, dynamic>>('/api/app/auth/refresh');
-    }
+  // 刷新token
+  static Future<ApiResponse<Map<String, dynamic>>> refreshToken() {
+    return _request.post<Map<String, dynamic>>('/api/app/auth/refresh');
+  }
 
+  // 发送验证码
+  static Future<ApiResponse<Map<String, dynamic>>> sendVerificationCode({
+    required String email,
+    required String type, // register, reset_password
+  }) {
+    return _request.post<Map<String, dynamic>>(
+        '/api/app/auth/send-verification-code',
+        data: {
+          'email': email,
+          'type': type,
+        });
+  }
 
-    // 发送验证码
-    static Future<ApiResponse<Map<String, dynamic>>> sendVerificationCode({
-      required String email,
-      required String type, // register, reset_password
-    }) {
-      return _request.post<Map<String, dynamic>>('/api/app/auth/send-verification-code', data: {
-        'email': email,
-        'type': type,
-      });
-    }
+  // 验证码重置密码
+  static Future<ApiResponse<Map<String, dynamic>>> resetPasswordWithCode({
+    required String email,
+    required String verificationCode,
+    required String newPassword,
+  }) {
+    return _request.post<Map<String, dynamic>>(
+        '/api/app/auth/reset-password-with-code',
+        data: {
+          'email': email,
+          'verification_code': verificationCode,
+          'new_password': newPassword,
+        });
+  }
 
-    // 验证码重置密码
-    static Future<ApiResponse<Map<String, dynamic>>> resetPasswordWithCode({
-      required String email,
-      required String verificationCode,
-      required String newPassword,
-    }) {
-      return _request.post<Map<String, dynamic>>('/api/app/auth/reset-password-with-code', data: {
-        'email': email,
-        'verification_code': verificationCode,
-        'new_password': newPassword,
-      });
-    }
-    // 获取设备列表
-    static Future<ApiResponse<Map<String, dynamic>>> getDeviceList() {
-      return _request.get<Map<String, dynamic>>('/api/app/devices/bound');
-    }
+  // 获取设备列表
+  static Future<ApiResponse<Map<String, dynamic>>> getDeviceList() {
+    return _request.get<Map<String, dynamic>>('/api/app/devices/bound');
+  }
 
-    // 获取设备详情
-    static Future<ApiResponse<Map<String, dynamic>>> getDeviceDetail(String deviceId) {
-      return _request.get<Map<String, dynamic>>('/api/app/devices/$deviceId/details');
-    }
+  // 获取设备详情
+  static Future<ApiResponse<Map<String, dynamic>>> getDeviceDetail(
+      String deviceId) {
+    return _request
+        .get<Map<String, dynamic>>('/api/app/devices/$deviceId/details');
+  }
 
-    // 绑定设备
-    static Future<ApiResponse<Map<String, dynamic>>> bindDevice({
-      required String rockNumber,
-      required String deviceName,
-    }) {
-      return _request.post<Map<String, dynamic>>('/api/app/devices/bind', data: {
-        'rock_number': rockNumber,
-        'device_name': deviceName,
-      });
-    }
+  // 绑定设备
+  static Future<ApiResponse<Map<String, dynamic>>> bindDevice({
+    required String rockNumber,
+    required String deviceName,
+  }) {
+    return _request.post<Map<String, dynamic>>('/api/app/devices/bind', data: {
+      'rock_number': rockNumber,
+      'device_name': deviceName,
+    });
+  }
 
-    // 解绑设备
-    static Future<ApiResponse<Map<String, dynamic>>> unbindDevice(String deviceId) {
-      return _request.post<Map<String, dynamic>>('/api/app/devices/unbind', data: {
-        'device_id': deviceId,
-      });
-    }
-    // 获取经销商列表
-    static Future<ApiResponse<Map<String, dynamic>>> getDealerList() {
-      return _request.get<Map<String, dynamic>>('/api/app/dealers?page=1&page_size=50');
-    }
-    // 收藏代理商
-    static Future<ApiResponse> addDealerToFavorites(dynamic dealerId) async {
+  // 解绑设备
+  static Future<ApiResponse<Map<String, dynamic>>> unbindDevice(
+      String deviceId) {
+    return _request
+        .post<Map<String, dynamic>>('/api/app/devices/unbind', data: {
+      'device_id': deviceId,
+    });
+  }
 
-      LoggerUtil.i('收藏&&addDealerToFavorites=====$dealerId');
-      return await _request.post('/api/app/dealers/$dealerId/favorite',);
-    }
-  // 取消收藏代理商
-    static Future<ApiResponse> removeDealerFromFavorites(dynamic dealerId) async {
-      return await _request.delete('/api/app/dealers/$dealerId/favorite',
+  // 获取经销商列表
+  static Future<ApiResponse<Map<String, dynamic>>> getDealerList() {
+    return _request
+        .get<Map<String, dynamic>>('/api/app/dealers?page=1&page_size=50');
+  }
+
+  // 收藏代理商
+  static Future<ApiResponse> addDealerToFavorites(dynamic dealerId) async {
+    LoggerUtil.i('收藏&&addDealerToFavorites=====$dealerId');
+    return await _request.post(
+      '/api/app/dealers/$dealerId/favorite',
     );
   }
-    static Future<ApiResponse> getFavoriteDealers() async {
-      return await _request.get('/api/app/dealers/favorites?page=1&page_size=20',);
-    }
-    static Future<ApiResponse> getDealerDetail(dynamic dealerId) async {
-      return await _request.get('/api/app/dealers/$dealerId');
-    }
 
-    // 获取用户信息
-    static Future<ApiResponse<Map<String, dynamic>>> getUserInfo() {
-      return _request.get<Map<String, dynamic>>('/api/app/user/profile');
-    }
+  // 取消收藏代理商
+  static Future<ApiResponse> removeDealerFromFavorites(dynamic dealerId) async {
+    return await _request.delete(
+      '/api/app/dealers/$dealerId/favorite',
+    );
+  }
 
-    // 更新用户信息
-    static Future<ApiResponse<Map<String, dynamic>>> updateUserInfo(Map<String, dynamic> data) {
-      return _request.put<Map<String, dynamic>>('/api/app/user/profile', data: data);
-    }
+  static Future<ApiResponse> getFavoriteDealers() async {
+    return await _request.get(
+      '/api/app/dealers/favorites?page=1&page_size=20',
+    );
+  }
 
-    // 上传头像
-    static Future<ApiResponse<Map<String, dynamic>>> uploadAvatar(String filePath) {
-      return _request.uploadFile<Map<String, dynamic>>(
-        '/api/app/user/avatar',
-        filePath,
-        fieldName: 'avatar',
-      );
-    }
+  static Future<ApiResponse> getDealerDetail(dynamic dealerId) async {
+    return await _request.get('/api/app/dealers/$dealerId');
+  }
+
+  // 获取用户信息
+  static Future<ApiResponse<Map<String, dynamic>>> getUserInfo() {
+    return _request.get<Map<String, dynamic>>('/api/app/user/profile');
+  }
+
+  // 更新用户信息
+  static Future<ApiResponse<Map<String, dynamic>>> updateUserInfo(
+      Map<String, dynamic> data) {
+    return _request.put<Map<String, dynamic>>('/api/app/user/profile',
+        data: data);
+  }
+
+  // 上传头像
+  static Future<ApiResponse<Map<String, dynamic>>> uploadAvatar(
+      String filePath) {
+    return _request.uploadFile<Map<String, dynamic>>(
+      '/api/app/user/avatar',
+      filePath,
+      fieldName: 'avatar',
+    );
+  }
 
   // 查询设备
-  static Future<ApiResponse<Map<String, dynamic>>> searchDevice({
-    required String rockNumber,
-    required String model
-  }) {
-    return _request.post<Map<String, dynamic>>('/api/app/devices/search', data: {
+  static Future<ApiResponse<Map<String, dynamic>>> searchDevice(
+      {required String rockNumber, required String model}) {
+    return _request
+        .post<Map<String, dynamic>>('/api/app/devices/search', data: {
       'rock_number': rockNumber,
       'model': model,
     });
@@ -156,11 +176,13 @@ class ApiService {
   static void setAuthToken(String token) {
     _request.setAuthToken(token);
   }
+
 // 获取存储的token
- static bool isLogin() {
-   String? authToken = StorageService.getString('auth_token');
+  static bool isLogin() {
+    String? authToken = StorageService.getString('auth_token');
     return authToken != null ? true : false;
   }
+
   static void clearAuthToken() {
     _request.clearAuthToken();
   }
@@ -174,23 +196,28 @@ class ApiService {
   }
 
   // 获取设备分类（二级）
-  static Future<ApiResponse<Map<String, dynamic>>> getResourceCategories(String brandId) {
-    return _request.get<Map<String, dynamic>>('/api/app/resources/categories/$brandId');
+  static Future<ApiResponse<Map<String, dynamic>>> getResourceCategories(
+      String brandId) {
+    return _request
+        .get<Map<String, dynamic>>('/api/app/resources/categories/$brandId');
   }
 
   // 获取设备型号（三级）
-  static Future<ApiResponse<Map<String, dynamic>>> getResourceModels(String categoryId) {
-    return _request.get<Map<String, dynamic>>('/api/app/resources/models/$categoryId');
+  static Future<ApiResponse<Map<String, dynamic>>> getResourceModels(
+      String categoryId) {
+    return _request
+        .get<Map<String, dynamic>>('/api/app/resources/models/$categoryId');
   }
 
   // 获取消息列表
   static Future<ApiResponse<Map<String, dynamic>>> getMessageList({
     String type = 'all',
-    String status = 'all', 
+    String status = 'all',
     int page = 1,
     int pageSize = 20,
   }) {
-    return _request.get<Map<String, dynamic>>('/api/app/messages', queryParameters: {
+    return _request
+        .get<Map<String, dynamic>>('/api/app/messages', queryParameters: {
       'type': type,
       'status': status,
       'page': page,
@@ -199,23 +226,40 @@ class ApiService {
   }
 
   // 标记消息为已读
-  static Future<ApiResponse<Map<String, dynamic>>> markMessageAsRead(String messageId) {
-    return _request.put<Map<String, dynamic>>('/api/app/messages/$messageId/read');
+  static Future<ApiResponse<Map<String, dynamic>>> markMessageAsRead(
+      String messageId) {
+    return _request
+        .put<Map<String, dynamic>>('/api/app/messages/$messageId/read');
   }
 
   // 故障码查询接口
-  static Future<ApiResponse<Map<String, dynamic>>> getFaultCodeDetail(String code) {
-    return _request.get<Map<String, dynamic>>('/api/app/diagnosis/fault-codes/code/$code');
+  static Future<ApiResponse<Map<String, dynamic>>> getFaultCodeDetail(
+      String code) {
+    return _request
+        .get<Map<String, dynamic>>('/api/app/diagnosis/fault-codes/code/$code');
   }
 
   // 设备锁定接口
   static Future<ApiResponse<Map<String, dynamic>>> lockDevice(String deviceId) {
-    return _request.post<Map<String, dynamic>>('/api/app/devices/$deviceId/lock');
+    return _request
+        .post<Map<String, dynamic>>('/api/app/devices/$deviceId/lock');
   }
 
   // 设备解锁接口
-  static Future<ApiResponse<Map<String, dynamic>>> unlockDevice(String deviceId) {
-    return _request.post<Map<String, dynamic>>('/api/app/devices/$deviceId/unlock');
+  static Future<ApiResponse<Map<String, dynamic>>> unlockDevice(
+      String deviceId) {
+    return _request
+        .post<Map<String, dynamic>>('/api/app/devices/$deviceId/unlock');
   }
 
+// 修改设备名称
+  static Future<ApiResponse<Map<String, dynamic>>> updateDeviceName({
+    required String deviceId,
+    required String deviceName,
+  }) {
+    return _request.put<Map<String, dynamic>>(
+      '/api/app/devices/$deviceId/name',
+      data: {'device_name': deviceName},
+    );
+  }
 }

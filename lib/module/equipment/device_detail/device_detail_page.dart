@@ -9,6 +9,7 @@ import '../../../r.dart';
 import '../../../utils/colors_util.dart';
 import '../equipment_state.dart';
 import '../map_detail/map_detail_page.dart';
+import '../pressure_chart/pressure_chart_page.dart';
 import 'device_detail_logic.dart';
 import '../fault_code_query/fault_code_query_page.dart';
 import '../share_dialog/share_dialog.dart';
@@ -16,14 +17,14 @@ import '../../../module/pdf/pdf_viewer_page.dart';
 
 class DeviceDetailPage extends StatelessWidget {
   final String? deviceId;
-  
+
   const DeviceDetailPage({super.key, this.deviceId});
 
   @override
   Widget build(BuildContext context) {
     // 初始化Logic，传递deviceId
     final logic = Get.put(DeviceDetailLogic());
-    
+
     // 如果通过构造函数传递了deviceId，则设置到state中
     if (deviceId != null) {
       logic.state.deviceId = deviceId;
@@ -39,28 +40,40 @@ class DeviceDetailPage extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          // IconButton(
-          //   icon: Icon(Icons.lock_outline, color: Colors.grey[600]),
-          //   onPressed: () {},
-          // ),
-          // IconButton(
-          //   icon: Icon(Icons.more_horiz, color: Colors.black),
-          //   onPressed: () {},
-          // ),
           GetBuilder<DeviceDetailLogic>(
             builder: (logic) {
-              return IconButton(
-                icon: Image.asset(R.assetsImageShareIcon, height: 20),
-                onPressed: () {
-                  if (logic.state.deviceDetail != null) {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return ShareDialog(device: {},);
-                      },
-                    );
-                  }
-                },
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // // Pro按钮
+                  // IconButton(
+                  //   icon: Image.asset(
+                  //     logic.state.isProMode
+                  //         ? R.assetsImageProSelect
+                  //         : R.assetsImageProUnselect,
+                  //     height: 40,
+                  //   ),
+                  //   onPressed: () {
+                  //     logic.toggleProMode();
+                  //   },
+                  // ),
+                  // 分享按钮
+                  IconButton(
+                    icon: Image.asset(R.assetsImageShareIcon, height: 20),
+                    onPressed: () {
+                      if (logic.state.deviceDetail != null) {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return ShareDialog(
+                              device: {},
+                            );
+                          },
+                        );
+                      }
+                    },
+                  ),
+                ],
               );
             },
           ),
@@ -73,7 +86,7 @@ class DeviceDetailPage extends StatelessWidget {
               child: CircularProgressIndicator(),
             );
           }
-          
+
           if (logic.state.errorMessage != null) {
             return Center(
               child: Column(
@@ -94,13 +107,13 @@ class DeviceDetailPage extends StatelessWidget {
               ),
             );
           }
-          
+
           if (logic.state.deviceDetail == null) {
             return Center(
               child: Text('No device detail data available'),
             );
           }
-          
+
           return RefreshIndicator(
             color: Colors.white,
             backgroundColor: Colors.blue,
@@ -112,40 +125,54 @@ class DeviceDetailPage extends StatelessWidget {
                 children: [
                   // Device Header
                   _buildDeviceHeader(logic),
-                  
+
                   // Status Cards
                   _buildStatusCards(logic),
-                  
+
                   SizedBox(height: 16),
-                  
+
                   // Coolant Temperature
                   _buildCoolantTemperature(logic),
-                  
-                  SizedBox(height: 20),
-                  
+                  SizedBox(height: 16),
+
+                  _buildCurveControls(logic, context),
+                  SizedBox(height: 16),
+                  if(logic.state.isProMode) ...[
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: _buildResourceItem(
+                          icon: Icons.speed,
+                          title: 'Pilot Pressure Curve',
+                          context: context),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: _buildResourceItem(
+                          icon: Icons.settings,
+                          title: 'System Pressure Curve',
+                          context: context),
+                    ),
+                  ],
                   // Map Section
                   _buildMapSection(logic, context),
-                  
+
                   SizedBox(height: 16),
-                  
-                  // Engine Speed Chart
-                  _buildEngineSpeedChart(logic),
-                  
+
                   SizedBox(height: 16),
-                  
+
                   // Location Info
                   // _buildLocationInfo(logic),
-                  
+
                   SizedBox(height: 24),
-                  
+
                   // Machine Controls
                   _buildMachineControls(logic, context),
-                  
+
                   SizedBox(height: 24),
-                  
+
                   // Resources Section
                   _buildResourcesSection(context, logic.state.deviceDetail),
-                  
+
                   SizedBox(height: 100), // Bottom padding for navigation
                 ],
               ),
@@ -155,7 +182,7 @@ class DeviceDetailPage extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildDeviceHeader(DeviceDetailLogic logic) {
     return Container(
       padding: EdgeInsets.all(20),
@@ -200,7 +227,7 @@ class DeviceDetailPage extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'Minutes   ${logic.runtimeHours}',
+                  'Hours   ${logic.runtimeHours}',
                   style: TextStyle(
                     color: Colors.grey[600],
                     fontSize: 14,
@@ -213,7 +240,7 @@ class DeviceDetailPage extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildStatusCards(DeviceDetailLogic logic) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20),
@@ -318,7 +345,7 @@ class DeviceDetailPage extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildCoolantTemperature(DeviceDetailLogic logic) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20),
@@ -389,7 +416,8 @@ class DeviceDetailPage extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.autorenew, color: Colors.blue, size: 20),
+                          const Icon(Icons.autorenew,
+                              color: Colors.blue, size: 20),
                           SizedBox(width: 8),
                           Text(
                             'Engine Speed',
@@ -414,7 +442,8 @@ class DeviceDetailPage extends StatelessWidget {
               ),
             ],
           ),
-          Padding(padding: EdgeInsets.symmetric(vertical: 8)),
+          // Pro模式下显示的压力信息
+          SizedBox(height: 12),
           Row(
             children: [
               Expanded(
@@ -439,7 +468,50 @@ class DeviceDetailPage extends StatelessWidget {
                           Icon(Icons.speed, color: Colors.blue, size: 20),
                           SizedBox(width: 8),
                           Text(
-                            'Pilot',
+                            'System Pressure',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        '0 MPa', // 暂时使用占位符
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(width: 12),
+              Expanded(
+                child: Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.speed, color: Colors.blue, size: 20),
+                          SizedBox(width: 8),
+                          Text(
+                            'Pilot Pressure',
                             style: TextStyle(
                               color: Colors.grey[600],
                               fontSize: 14,
@@ -454,7 +526,6 @@ class DeviceDetailPage extends StatelessWidget {
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
-                        textAlign: TextAlign.center,
                       ),
                     ],
                   ),
@@ -466,7 +537,7 @@ class DeviceDetailPage extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildMapSection(DeviceDetailLogic logic, BuildContext context) {
     navigateAction() {
       if (logic.hasValidLocation) {
@@ -639,7 +710,12 @@ class DeviceDetailPage extends StatelessWidget {
           ),
           SizedBox(height: 4),
           Text(
-            logic.state.deviceDetail?.location?.timestamp != null ? DateTime.fromMillisecondsSinceEpoch(logic.state.deviceDetail!.location!.timestamp! * 1000).toString().substring(0, 16) : '',
+            logic.state.deviceDetail?.location?.timestamp != null
+                ? DateTime.fromMillisecondsSinceEpoch(
+                        logic.state.deviceDetail!.location!.timestamp! * 1000)
+                    .toString()
+                    .substring(0, 16)
+                : '',
             style: TextStyle(
               color: Colors.grey[600],
               fontSize: 14,
@@ -649,7 +725,7 @@ class DeviceDetailPage extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildMachineControls(DeviceDetailLogic logic, BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20),
@@ -692,7 +768,8 @@ class DeviceDetailPage extends StatelessWidget {
                 ),
                 Switch(
                   value: logic.inhibitRestartStatus,
-                  onChanged: (value) => _showInhibitRestartConfirmDialog(context, logic, value),
+                  onChanged: (value) =>
+                      _showInhibitRestartConfirmDialog(context, logic, value),
                   activeColor: Colors.blue,
                 ),
               ],
@@ -703,8 +780,64 @@ class DeviceDetailPage extends StatelessWidget {
     );
   }
 
+  //
+  Widget _buildCurveControls(DeviceDetailLogic logic, BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Curve',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 5),
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.power_settings_new, color: Colors.grey[600]),
+                SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    'Curve Open',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                Switch(
+                  value: logic.state.isProMode,
+                  onChanged: (value) =>
+                      logic.toggleProMode(),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
   // 显示禁止重启确认对话框
-  void _showInhibitRestartConfirmDialog(BuildContext context, DeviceDetailLogic logic, bool value) {
+  void _showInhibitRestartConfirmDialog(
+      BuildContext context, DeviceDetailLogic logic, bool value) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -717,7 +850,7 @@ class DeviceDetailPage extends StatelessWidget {
             ),
           ),
           content: Text(
-            value 
+            value
                 ? 'Are you sure you want to lock this device? This will prevent the device from restarting.'
                 : 'Are you sure you want to unlock this device? This will allow the device to restart normally.',
             style: TextStyle(fontSize: 16),
@@ -754,7 +887,7 @@ class DeviceDetailPage extends StatelessWidget {
       },
     );
   }
-  
+
   Widget _buildResourcesSection(BuildContext context, Device? device) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20),
@@ -770,36 +903,32 @@ class DeviceDetailPage extends StatelessWidget {
           ),
           SizedBox(height: 16),
           _buildResourceItem(
-            icon: Icons.build,
-            title: 'Machine maintenance',
-            subtitle: 'Last ${device?.lastMaintenanceTime != null ? DateTime.fromMillisecondsSinceEpoch(device!.lastMaintenanceTime! * 1000).toString().substring(0, 10) : 'N/A'}\nNext ${device?.nextMaintenanceTime != null ? DateTime.fromMillisecondsSinceEpoch(device!.nextMaintenanceTime! * 1000).toString().substring(0, 10) : 'N/A'}',
-              context: context
-          ),
+              icon: Icons.build,
+              title: 'Machine maintenance',
+              subtitle:
+                  'Last ${device?.lastMaintenanceTime != null ? DateTime.fromMillisecondsSinceEpoch(device!.lastMaintenanceTime! * 1000).toString().substring(0, 10) : 'N/A'}\nNext ${device?.nextMaintenanceTime != null ? DateTime.fromMillisecondsSinceEpoch(device!.nextMaintenanceTime! * 1000).toString().substring(0, 10) : 'N/A'}',
+              context: context),
           _buildResourceItem(
-            icon: Icons.error_outline,
-            title: 'Fault code query',
-              context: context
-          ),
+              icon: Icons.error_outline,
+              title: 'Fault code query',
+              context: context),
           _buildResourceItem(
-            icon: Icons.description,
-            title: 'Documents and manuals',
-              context: context
-          ),
+              icon: Icons.description,
+              title: 'Documents and manuals',
+              context: context),
           _buildResourceItem(
-            icon: Icons.schedule,
-            title: 'Maintenance plan',
-              context: context
-          ),
+              icon: Icons.schedule,
+              title: 'Maintenance plan',
+              context: context),
           _buildResourceItem(
-            icon: Icons.info_outline,
-            title: 'Warranty Information',
-            context: context
-          ),
+              icon: Icons.info_outline,
+              title: 'Warranty Information',
+              context: context),
         ],
       ),
     );
   }
-  
+
   Widget _buildResourceItem({
     required IconData icon,
     required String title,
@@ -819,8 +948,9 @@ class DeviceDetailPage extends StatelessWidget {
         if (title == 'Machine maintenance') {
           final logic = Get.find<DeviceDetailLogic>();
           final device = logic.state.deviceDetail;
-          
-          if (device?.maintenanceManuals != null && device!.maintenanceManuals!.isNotEmpty) {
+
+          if (device?.maintenanceManuals != null &&
+              device!.maintenanceManuals!.isNotEmpty) {
             // 取第一个PDF文件
             final pdfUrl = device.maintenanceManuals!.first;
             Navigator.push(
@@ -845,8 +975,9 @@ class DeviceDetailPage extends StatelessWidget {
         if (title == 'Documents and manuals') {
           final logic = Get.find<DeviceDetailLogic>();
           final device = logic.state.deviceDetail;
-          
-          if (device?.operationManuals != null && device!.operationManuals!.isNotEmpty) {
+
+          if (device?.operationManuals != null &&
+              device!.operationManuals!.isNotEmpty) {
             // 取第一个PDF文件
             final pdfUrl = device.operationManuals!.first;
             Navigator.push(
@@ -868,8 +999,57 @@ class DeviceDetailPage extends StatelessWidget {
             );
           }
         }
-        if (title == '') {
-          //  maintenance_manuals
+        if (title == 'System Pressure Curve') {
+          final logic = Get.find<DeviceDetailLogic>();
+          if (logic.state.deviceDetail?.latestReports != null &&
+              logic.state.deviceDetail!.latestReports!.isNotEmpty) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PressureChartPage(
+                  title: 'System Pressure',
+                  latestReports: logic.state.deviceDetail!.latestReports!,
+                  isSystemPressure: true,
+                ),
+              ),
+            );
+          } else {
+            Fluttertoast.showToast(
+              msg: "No pressure data available",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.CENTER,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.black,
+              textColor: Colors.white,
+              fontSize: 16.0,
+            );
+          }
+        }
+        if (title == 'Pilot Pressure Curve') {
+          final logic = Get.find<DeviceDetailLogic>();
+          if (logic.state.deviceDetail?.latestReports != null &&
+              logic.state.deviceDetail!.latestReports!.isNotEmpty) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PressureChartPage(
+                  title: 'Pilot Pressure',
+                  latestReports: logic.state.deviceDetail!.latestReports!,
+                  isSystemPressure: false,
+                ),
+              ),
+            );
+          } else {
+            Fluttertoast.showToast(
+              msg: "No pressure data available",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.CENTER,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.black,
+              textColor: Colors.white,
+              fontSize: 16.0,
+            );
+          }
         }
       },
       child: Container(
@@ -920,189 +1100,9 @@ class DeviceDetailPage extends StatelessWidget {
       ),
     );
   }
-  // 构建转速折线图
+/*
   Widget _buildEngineSpeedChart(DeviceDetailLogic logic) {
-    final latestReports = logic.state.deviceDetail?.latestReports;
-
-    // 如果没有数据或数组为空，不显示图表
-    if (latestReports == null || latestReports.isEmpty) {
-      return SizedBox.shrink();
-    }
-
-    // 过滤出有engine_speed数据的报告
-    final validReports = latestReports
-        .where((report) => report.engineSpeed != null)
-        .toList();
-
-    if (validReports.isEmpty) {
-      return SizedBox.shrink();
-    }
-
-    // 创建折线图数据点
-    List<FlSpot> spots = [];
-    for (int i = 0; i < validReports.length; i++) {
-      spots.add(FlSpot(i.toDouble(), validReports[i].engineSpeed!.toDouble()));
-    }
-
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Engine Speed Trend',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: 16),
-          Container(
-            height: 250,
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: Offset(0, 2),
-                ),
-              ],
-            ),
-            child: LineChart(
-              LineChartData(
-                gridData: FlGridData(
-                  show: true,
-                  drawVerticalLine: true,
-                  horizontalInterval: 500,
-                  verticalInterval: 1,
-                  getDrawingHorizontalLine: (value) {
-                    return FlLine(
-                      color: Colors.grey[300]!,
-                      strokeWidth: 1,
-                    );
-                  },
-                  getDrawingVerticalLine: (value) {
-                    return FlLine(
-                      color: Colors.grey[300]!,
-                      strokeWidth: 1,
-                    );
-                  },
-                ),
-                titlesData: FlTitlesData(
-                  show: true,
-                  rightTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  topTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 30,
-                      interval: 1,
-                      getTitlesWidget: (double value, TitleMeta meta) {
-                        return SideTitleWidget(
-                          axisSide: meta.axisSide,
-                          child: Text(
-                            '${value.toInt()}',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      interval: 500,
-                      reservedSize: 60,
-                      getTitlesWidget: (double value, TitleMeta meta) {
-                        return Text(
-                          '${value.toInt()}(rpm)',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                borderData: FlBorderData(
-                  show: true,
-                  border: Border.all(
-                    color: Colors.grey[300]!,
-                    width: 1,
-                  ),
-                ),
-                minX: 0,
-                maxX: (validReports.length - 1).toDouble(),
-                minY: 0,
-                maxY: spots.map((spot) => spot.y).reduce((a, b) => a > b ? a : b) * 1.1,
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: spots,
-                    isCurved: true,
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.blue,
-                        Colors.lightBlue,
-                      ],
-                    ),
-                    barWidth: 3,
-                    isStrokeCapRound: true,
-                    dotData: FlDotData(
-                      show: true,
-                      getDotPainter: (spot, percent, barData, index) {
-                        return FlDotCirclePainter(
-                          radius: 4,
-                          color: Colors.blue,
-                          strokeWidth: 2,
-                          strokeColor: Colors.white,
-                        );
-                      },
-                    ),
-                    belowBarData: BarAreaData(
-                      show: true,
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.blue.withOpacity(0.3),
-                          Colors.blue.withOpacity(0.1),
-                        ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'X：min\nY：rpm',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 12,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+    // ... 原有的转速图表代码 ...
   }
+  */
 }
-

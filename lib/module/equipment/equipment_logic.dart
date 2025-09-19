@@ -211,6 +211,22 @@ class EquipmentLogic extends GetxController {
       LoggerUtil.i('Bind failed====$e');
     }
   }
+  Future<void> updateDeviceName(String deviceId, String newName) async {
+    if(deviceId == '' || newName.isEmpty) return;
+    try{
+      final response = await ApiService.updateDeviceName(
+          deviceId: deviceId,
+          deviceName: newName
+      );
+      if(response.success) {
+        Fluttertoast.showToast(msg: 'Device name updated successfully',gravity: ToastGravity.CENTER);
+        // Update local device name
+        fetchDeviceList();
+      }
+    }catch(e){
+      Fluttertoast.showToast(msg: 'Failed to update device name',gravity: ToastGravity.CENTER);
+    }
+  }
 
   // Remove device by device ID
   void removeDevice(String deviceId) {

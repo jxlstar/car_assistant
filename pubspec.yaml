@@ -93,3 +93,5 @@ flutter:
     - assets/image/source_icon.png
     - assets/image/waji.png
     - assets/image/dealers_icon.png
+    - assets/image/pro_select.png
+    - assets/image/pro_unselect.png

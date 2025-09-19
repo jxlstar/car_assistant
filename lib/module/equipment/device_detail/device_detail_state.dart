@@ -17,5 +17,8 @@ class DeviceDetailState {
   // 控制开关状态
   bool inhibitRestart = false;
   
+  // Pro按钮状态
+  bool isProMode = false;
+  
   DeviceDetailState();
 }

@@ -258,11 +258,36 @@ class _EquipmentPageState extends State<EquipmentPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    device.name ?? 'Unknown Device',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            device.name ?? 'Unknown Device',
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        SizedBox(width: 5,),
+                        GestureDetector(
+                          onTap: () {
+                            _showEditDeviceNameDialog(context, device, logic);
+                          },
+                          child: Container(
+                            width: 30,
+                            height: 30,
+                            decoration: BoxDecoration(
+                              color: ColorsUtil.hexColor('#E4F2FF'),
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: const Icon(Icons.edit, color: Colors.blue, size: 24),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   GestureDetector(
@@ -278,7 +303,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
                       ),
                       child: const Icon(Icons.remove, color: Colors.blue, size: 24),
                     ),
-                  ),
+                  )
                 ],
               ),
               const SizedBox(height: 8),
@@ -291,7 +316,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
                       const SizedBox(height: 4),
                       Text('PIN', style: TextStyle(color: Colors.grey[600])),
                       const SizedBox(height: 4),
-                      Text('Minutes', style: TextStyle(color: Colors.grey[600])),
+                      Text('Hours', style: TextStyle(color: Colors.grey[600])),
                     ],
                   ),
                   const SizedBox(width: 16),
@@ -305,7 +330,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
                         Text(device.pin ?? 'N/A',
                             style: const TextStyle(fontWeight: FontWeight.w500)),
                         const SizedBox(height: 4),
-                        Text('${device.runningTime?.toStringAsFixed(0) ?? 'N/A'}min',
+                        Text('${((device.runningTime ?? 0)/60).toStringAsFixed(2)}h',
                             style: const TextStyle(fontWeight: FontWeight.w500)),
                       ],
                     ),
@@ -343,7 +368,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
                         children: [
                           const Text('Battery', style: TextStyle(color: Colors.grey)),
                           Text(
-                            '${device.battery?.toStringAsFixed(0) ?? 'N/A'}mv',
+                            '${((device.battery ?? 0) / 1000).toStringAsFixed(1)}v',
                             style: const TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.bold),
                           ),
@@ -363,7 +388,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
                         children: [
                           const Text('Water Temp', style: TextStyle(color: Colors.grey)),
                           Text(
-                            '${device.waterTemperature?.toStringAsFixed(0) ?? 'N/A'}°C',
+                            '${device.waterTemperature?.toStringAsFixed(0) ?? 'N/A'}°F',
                             style: const TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.bold),
                           ),
@@ -605,5 +630,42 @@ class _EquipmentPageState extends State<EquipmentPage> {
       },
     );
   }
+void _showEditDeviceNameDialog(BuildContext context, Device device, EquipmentLogic logic) {
+  final TextEditingController nameController = TextEditingController(text: device.name ?? '');
 
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Edit Device Name'),
+        content: TextField(
+          controller: nameController,
+          decoration: const InputDecoration(
+            hintText: 'Enter device name',
+            border: OutlineInputBorder(),
+          ),
+          maxLength: 10,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              final newName = nameController.text.trim();
+              if (newName.isNotEmpty) {
+                Navigator.of(context).pop();
+                await logic.updateDeviceName(device.deviceId ?? '', newName);
+              }
+            },
+            child: const Text('Confirm'),
+          ),
+        ],
+      );
+    },
+  );
+}
 

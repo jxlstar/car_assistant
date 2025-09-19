@@ -25,4 +25,8 @@ class R {
   static final String assetsImageWaji = 'assets/image/waji.png';
   /// ![](http://127.0.0.1:1234/assets/image/dealers_icon.png)
   static final String assetsImageDealersIcon = 'assets/image/dealers_icon.png';
+  /// ![](http://127.0.0.1:1234/assets/image/pro_select.png)
+  static final String assetsImageProSelect = 'assets/image/pro_select.png';
+  /// ![](http://127.0.0.1:1234/assets/image/pro_unselect.png)
+  static final String assetsImageProUnselect = 'assets/image/pro_unselect.png';
 }
