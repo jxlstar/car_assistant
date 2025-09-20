@@ -100,7 +100,6 @@ class _FaultCodeQueryPageState extends State<FaultCodeQueryPage> {
             TextField(
               controller: _codeController,
               decoration: InputDecoration(
-                hintText: 'R',
                 hintStyle: TextStyle(color: Colors.grey[400]),
                 border: UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.grey[300]!),

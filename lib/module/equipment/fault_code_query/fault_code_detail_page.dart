@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class FaultCodeDetailPage extends StatelessWidget {
   final Map<String, dynamic> faultCodeData;
@@ -132,6 +133,62 @@ class FaultCodeDetailPage extends StatelessWidget {
                   color: Colors.black87,
                   height: 1.5,
                 ),
+              ),
+            ),
+            const SizedBox(height: 32),
+            // 配件购买部分
+            const Text(
+              'Parts Purchase',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Need replacement parts? Visit our online store for mini excavator parts.',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black87,
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  InkWell(
+                    onTap: () async {
+                      final uri = Uri.parse('https://shop.rippa.com/collections/mini-excavator-parts');
+                      if (await canLaunchUrl(uri)) {
+                        await launchUrl(uri, mode: LaunchMode.externalApplication);
+                      } else {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Unable to open link')),
+                          );
+                        }
+                      }
+                    },
+                    child: const Text(
+                      'https://shop.rippa.com/collections/mini-excavator-parts',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.blue,
+                        decoration: TextDecoration.underline,
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 24), // 底部额外间距

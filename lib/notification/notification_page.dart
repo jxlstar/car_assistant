@@ -45,7 +45,7 @@ class _NotificationPageState extends State<NotificationPage>
             title: Row(
               children: [
                 const Text(
-                  '消息通知',
+                  'Notifications',  // Changed from '消息通知'
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 18,
@@ -90,7 +90,7 @@ class _NotificationPageState extends State<NotificationPage>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text('警告'),
+                      const Text('Warnings'),  // Changed from '警告'
                       if (controller.state.warningCount > 0)
                         Container(
                           margin: const EdgeInsets.only(left: 4),
@@ -114,7 +114,7 @@ class _NotificationPageState extends State<NotificationPage>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text('消息'),
+                      const Text('Messages'),  // Changed from '消息'
                       if (controller.state.infoCount + controller.state.systemCount > 0)
                         Container(
                           margin: const EdgeInsets.only(left: 4),
@@ -164,7 +164,7 @@ class _NotificationPageState extends State<NotificationPage>
             Icon(Icons.warning_amber, size: 64, color: Colors.grey),
             SizedBox(height: 16),
             Text(
-              '暂无警告消息',
+              'No warning messages',  // Changed from '暂无警告消息'
               style: TextStyle(fontSize: 16, color: Colors.grey),
             ),
           ],
@@ -200,7 +200,7 @@ class _NotificationPageState extends State<NotificationPage>
             Icon(Icons.message, size: 64, color: Colors.grey),
             SizedBox(height: 16),
             Text(
-              '暂无消息',
+              'No messages',  // Changed from '暂无消息'
               style: TextStyle(fontSize: 16, color: Colors.grey),
             ),
           ],
@@ -244,7 +244,7 @@ class _NotificationPageState extends State<NotificationPage>
           if (message.isRead == false) {
             controller.markAsRead(message.id!);
           }
-          // 处理消息点击事件，可以根据actionUrl进行跳转
+          // Handle message click events, can navigate based on actionUrl  // Changed from '处理消息点击事件，可以根据actionUrl进行跳转'
           _handleMessageTap(message);
         },
         borderRadius: BorderRadius.circular(8),
@@ -257,7 +257,7 @@ class _NotificationPageState extends State<NotificationPage>
                 children: [
                   Expanded(
                     child: Text(
-                      message.title ?? '无标题',
+                      message.title ?? 'No title',  // Changed from '无标题'
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: message.isRead == false 
@@ -308,7 +308,7 @@ class _NotificationPageState extends State<NotificationPage>
               ],
               const SizedBox(height: 8),
               Text(
-                message.content ?? '无内容',
+                message.content ?? 'No content',  // Changed from '无内容'
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey[700],
@@ -333,7 +333,7 @@ class _NotificationPageState extends State<NotificationPage>
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        '需要处理',
+                        'Action required',  // Changed from '需要处理'
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.orange[700],
@@ -352,11 +352,11 @@ class _NotificationPageState extends State<NotificationPage>
   }
 
   void _handleMessageTap(MessageItem message) {
-    // 根据消息类型和actionUrl处理跳转逻辑
+    // Handle navigation logic based on message type and actionUrl  // Changed from '根据消息类型和actionUrl处理跳转逻辑'
     if (message.actionUrl != null) {
-      // 这里可以根据actionUrl进行页面跳转
-      // 例如跳转到设备详情页、维护页面等
-      print('跳转到: ${message.actionUrl}');
+      // Can navigate to different pages based on actionUrl here  // Changed from '这里可以根据actionUrl进行页面跳转'
+      // For example, navigate to device details page, maintenance page, etc.  // Changed from '例如跳转到设备详情页、维护页面等'
+      print('Navigate to: ${message.actionUrl}');  // Changed from '跳转到'
     }
   }
 }

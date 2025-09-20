@@ -6,6 +6,10 @@
 	<false/>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+    <string>This app needs camera access to take photos for feedback</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>This app needs photo library access to select photos for feedback</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

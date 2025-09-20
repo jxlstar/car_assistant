@@ -73,35 +73,35 @@ class MessageItem {
     };
   }
 
-  // 获取消息类型的中文显示
+  // Get message type display name in English  // Changed from '获取消息类型的中文显示'
   String get typeDisplayName {
     switch (type) {
       case 'warning':
-        return '警告';
+        return 'Warning';  // Changed from '警告'
       case 'info':
-        return '信息';
+        return 'Info';  // Changed from '信息'
       case 'system':
-        return '系统';
+        return 'System';  // Changed from '系统'
       default:
-        return '未知';
+        return 'Unknown';  // Changed from '未知'
     }
   }
 
-  // 获取优先级的中文显示
+  // Get priority display name in English  // Changed from '获取优先级的中文显示'
   String get priorityDisplayName {
     switch (priority) {
       case 'high':
-        return '高';
+        return 'High';  // Changed from '高'
       case 'medium':
-        return '中';
+        return 'Medium';  // Changed from '中'
       case 'low':
-        return '低';
+        return 'Low';  // Changed from '低'
       default:
-        return '普通';
+        return 'Normal';  // Changed from '普通'
     }
   }
 
-  // 获取消息类型图标
+  // Get message type icon
   IconData get typeIcon {
     switch (type) {
       case 'warning':
@@ -115,7 +115,7 @@ class MessageItem {
     }
   }
 
-  // 格式化时间显示
+  // Format time display in English  // Changed from '格式化时间显示'
   String get formattedTime {
     if (timestamp == null) return '';
     final dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp! * 1000);
@@ -123,13 +123,13 @@ class MessageItem {
     final difference = now.difference(dateTime);
 
     if (difference.inDays > 0) {
-      return '${difference.inDays}天前';
+      return '${difference.inDays} days ago';  // Changed from '天前'
     } else if (difference.inHours > 0) {
-      return '${difference.inHours}小时前';
+      return '${difference.inHours} hours ago';  // Changed from '小时前'
     } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes}分钟前';
+      return '${difference.inMinutes} minutes ago';  // Changed from '分钟前'
     } else {
-      return '刚刚';
+      return 'Just now';  // Changed from '刚刚'
     }
   }
 }

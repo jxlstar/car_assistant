@@ -154,16 +154,16 @@ class DeviceDetailPage extends StatelessWidget {
                     ),
                   ],
                   // Map Section
-                  _buildMapSection(logic, context),
+                 if(logic.hasValidLocation) _buildMapSection(logic, context),
 
-                  SizedBox(height: 16),
+                  if(logic.hasValidLocation) SizedBox(height: 16),
 
-                  SizedBox(height: 16),
+                  if(logic.hasValidLocation)SizedBox(height: 16),
 
                   // Location Info
                   // _buildLocationInfo(logic),
 
-                  SizedBox(height: 24),
+                  if(logic.hasValidLocation) SizedBox(height: 24),
 
                   // Machine Controls
                   _buildMachineControls(logic, context),
@@ -787,14 +787,6 @@ class DeviceDetailPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Curve',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: 5),
           Container(
             padding: EdgeInsets.symmetric(vertical: 6, horizontal: 16),
             decoration: BoxDecoration(
@@ -814,7 +806,7 @@ class DeviceDetailPage extends StatelessWidget {
                 SizedBox(width: 16),
                 Expanded(
                   child: Text(
-                    'Curve Open',
+                    'Professional',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
