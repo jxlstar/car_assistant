@@ -239,6 +239,20 @@ class ApiService {
         .get<Map<String, dynamic>>('/api/app/diagnosis/fault-codes/code/$code');
   }
 
+   // 故障码快速搜索接口
+  static Future<ApiResponse<Map<String, dynamic>>> searchFaultCodesQuick({
+    required String keyword,
+    int limit = 20,
+  }) {
+    return _request.post<Map<String, dynamic>>(
+      '/api/app/diagnosis/fault-codes/quick-search',
+      data: {
+        'keyword': keyword,
+        'limit': limit,
+      },
+    );
+  }
+
   // 设备锁定接口
   static Future<ApiResponse<Map<String, dynamic>>> lockDevice(String deviceId) {
     return _request

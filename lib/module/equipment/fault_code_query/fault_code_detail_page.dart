@@ -1,3 +1,4 @@
+import 'package:car_assistant/core/utils/logger_util.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -22,7 +23,13 @@ class FaultCodeDetailPage extends StatelessWidget {
     if (causes is List && causes.isNotEmpty) {
       causesText = causes.join('、');
     }
-    
+    if (causes is String ) {
+      causesText = causes;
+    }
+
+    LoggerUtil.e('causesText=====$causesText');
+
+    LoggerUtil.e('causes=====$causes');
     // 组合Problem内容：title + description
     String problemText = '';
     if (title.isNotEmpty && description.isNotEmpty) {
