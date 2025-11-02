@@ -73,18 +73,13 @@ class DeviceDetailLogic extends GetxController {
       }
       LoggerUtil.i('Device lock/unlock response data===: $response');
       if (response.success) {
-        // API调用成功，更新本地状态
-        state.inhibitRestart = value;
-        
-        // 如果是解锁操作（从开启状态变为关闭状态），在折线图数据中增加一个单位rpm
-        if (!value && state.deviceDetail != null) {
-          _addRpmDataPoint();
-        }
-        
         LoggerUtil.i('Device ${value ? "lock" : "unlock"} successful: ${response.message}');
         
         // 显示成功提示
         Fluttertoast.showToast(msg: response.message, gravity: ToastGravity.CENTER);
+        
+        // API调用成功，重新请求设备详情接口刷新页面数据
+        await loadDeviceDetail();
       } else {
         // API调用失败，显示错误信息
         Fluttertoast.showToast(msg: response.message, gravity: ToastGravity.CENTER);
@@ -245,7 +240,7 @@ class DeviceDetailLogic extends GetxController {
   }
   // 获取inhibit restart状态（基于ctrl_status）
   bool get inhibitRestartStatus {
-    return state.deviceDetail?.ctrlStatus == 1;
+    return state.inhibitRestart;
   }
   
   // 切换Pro模式
