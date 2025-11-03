@@ -176,7 +176,7 @@ class DeviceDetailLogic extends GetxController {
   
   // 获取运行时长
   String get runtimeHours {
-    return '${((state.deviceDetail?.runningTime ?? 0) / 60).toString()} h';
+    return '${((state.deviceDetail?.runningTime ?? 0) / 60).toStringAsFixed(2)} h';
   }
   
   // 获取电量
