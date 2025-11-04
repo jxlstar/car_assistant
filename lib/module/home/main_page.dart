@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../r.dart';
 import '../equipment/equipment_page.dart';
-import '../feedback/feedback_page.dart';
 import '../resources/resources_page.dart';
 import '../dealers/dealers_page.dart';
 import '../personal/personal_page.dart';
@@ -45,10 +45,11 @@ class _MainPageState extends State<MainPage> {
           body: _pages[_currentIndex],
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.white,
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => const FeedbackPage()),
-          );
+        onPressed: () async {
+          final url = Uri.parse('http://workorder.rippa.com/');
+          if (await canLaunchUrl(url)) {
+            await launchUrl(url, mode: LaunchMode.externalApplication);
+          }
         },
         child: const Icon(Icons.feedback),
       ),

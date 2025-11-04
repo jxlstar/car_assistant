@@ -233,6 +233,13 @@ class DeviceDetailPage extends StatelessWidget {
                     fontSize: 14,
                   ),
                 ),
+                Text(
+                  'Last Online Time   ${logic.lastOnlineTime}',
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 14,
+                  ),
+                ),
               ],
             ),
           ),

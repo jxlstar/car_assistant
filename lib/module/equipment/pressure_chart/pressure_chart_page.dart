@@ -210,10 +210,13 @@ class PressureChartPage extends StatelessWidget {
                               child: Transform.rotate(
                                 angle: -math.pi / 2,  // 旋转-90度（-π/2）
                                 child: Text(
-                                  // Pilot Pressure 显示2位小数，System Pressure 显示整数
+                                  // System Pressure 显示整数
+                                  // Pilot Pressure: 大于等于10显示整数，小于10显示2位小数
                                   isSystemPressure 
                                       ? value.toStringAsFixed(0)
-                                      : value.toStringAsFixed(2),
+                                      : (value >= 10 
+                                          ? value.toStringAsFixed(0)
+                                          : value.toStringAsFixed(2)),
                                   style: TextStyle(
                                     color: Colors.grey[600],
                                     fontWeight: FontWeight.bold,
