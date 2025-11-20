@@ -202,6 +202,23 @@ class DeviceDetailLogic extends GetxController {
     return ' ${formatted}v';
   }
   
+  // 判断是否运行（eng_status: 1=运行，2=停机）
+  bool get isRunning {
+    final engStatus = state.deviceDetail?.engStatus;
+    return engStatus == 1;
+  }
+  
+  // 判断是否在线（status: 0=离线，1=在线）
+  bool get isOnline {
+    final status = state.deviceDetail?.status;
+    return status == 1;
+  }
+  
+  // 获取状态名称
+  String get statusName {
+    return state.deviceDetail?.statusName ?? 'Unknown';
+  }
+  
   // 获取油量
   String get fuelLevel {
     return '${state.deviceDetail?.fuel ?? 0}%';

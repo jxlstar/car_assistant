@@ -516,9 +516,12 @@ class _EquipmentPageState extends State<EquipmentPage> {
   Widget _buildFooter(Device device) {
     final location = device.location;
     final address = location?.address ?? 'Unknown Location';
-    DateTime date = DateTime.fromMillisecondsSinceEpoch(location?.timestamp ?? 0);
+    // 使用 last_updated_at 字段显示时间
+    DateTime date = device.lastUpdatedAt != null
+        ? DateTime.fromMillisecondsSinceEpoch(device.lastUpdatedAt! * 1000)
+        : DateTime.fromMillisecondsSinceEpoch(0);
 
-    final timestamp = location?.timestamp != null
+    final timestamp = device.lastUpdatedAt != null
         ? DateFormat('MMM dd, yyyy HH:mm').format(date)
         : '';
 
@@ -565,10 +568,13 @@ class _EquipmentPageState extends State<EquipmentPage> {
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.end,
                       ),
-                      Text(
-                        timestamp,
-                        style: TextStyle(fontSize: 10, color: Colors.grey[600]),
-                      ),
+                      if (timestamp.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          timestamp,
+                          style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                        ),
+                      ],
                     ],
                   ),
                 ),

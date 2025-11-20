@@ -204,12 +204,56 @@ class DeviceDetailPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  logic.deviceName,
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        logic.deviceName,
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // 运行/停机状态
+                        Icon(
+                          logic.isRunning ? Icons.power : Icons.power_off,
+                          color: logic.isRunning ? Colors.green : Colors.grey,
+                          size: 20,
+                        ),
+                        SizedBox(width: 4),
+                        Text(
+                          logic.isRunning ? 'Running' : 'Stopped',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 14,
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        // 在线/离线状态
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: logic.isOnline ? Colors.green : Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        SizedBox(width: 4),
+                        Text(
+                          logic.statusName,
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
                 SizedBox(height: 4),
                 Text(

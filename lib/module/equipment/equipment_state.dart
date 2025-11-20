@@ -302,6 +302,7 @@ class Device {
   final int? ctrlStatus;
   final int? engStatus;
   final int? lastOnlineAt;
+  final int? lastUpdatedAt;
   final double? battery;
   final String? batteryStatus;
   final double? fuel;
@@ -338,6 +339,7 @@ class Device {
     this.ctrlStatus,
     this.engStatus,
     this.lastOnlineAt,
+    this.lastUpdatedAt,
     this.battery,
     this.batteryStatus,
     this.fuel,
@@ -376,6 +378,7 @@ class Device {
       ctrlStatus: json['ctrl_status'],
       engStatus: json['eng_status'],
       lastOnlineAt: json['last_online_at'],
+      lastUpdatedAt: json['last_updated_at'],
       battery: (json['battery'] as num?)?.toDouble(),
       batteryStatus: json['battery_status'],
       fuel: (json['fuel'] as num?)?.toDouble(),
@@ -421,6 +424,7 @@ class Device {
       'ctrl_status': ctrlStatus,
       'eng_status': engStatus,
       'last_online_at': lastOnlineAt,
+      'last_updated_at': lastUpdatedAt,
       'battery': battery,
       'battery_status': batteryStatus,
       'fuel': fuel,
