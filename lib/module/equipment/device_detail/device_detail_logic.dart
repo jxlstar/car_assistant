@@ -179,21 +179,28 @@ class DeviceDetailLogic extends GetxController {
     return '${((state.deviceDetail?.runningTime ?? 0) / 60).toStringAsFixed(2)} h';
   }
   
-  // 获取上次在线时间（格式：年月日时分秒）
+  // 获取上次在线时间（根据时间差显示相对时间）
   String get lastOnlineTime {
     if (state.deviceDetail?.lastOnlineAt == null) {
       return 'N/A';
     }
     final timestamp = state.deviceDetail!.lastOnlineAt!;
     final dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
-    // 格式：YYYY-MM-DD HH:MM:SS
-    final year = dateTime.year.toString().padLeft(4, '0');
-    final month = dateTime.month.toString().padLeft(2, '0');
-    final day = dateTime.day.toString().padLeft(2, '0');
-    final hour = dateTime.hour.toString().padLeft(2, '0');
-    final minute = dateTime.minute.toString().padLeft(2, '0');
-    final second = dateTime.second.toString().padLeft(2, '0');
-    return '$year-$month-$day $hour:$minute:$second';
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+    
+    final minutes = difference.inMinutes;
+    final hours = difference.inHours;
+    
+    if (minutes < 5) {
+      return 'Within 5 minutes';
+    } else if (minutes < 30) {
+      return 'Within half an hour';
+    } else if (hours < 2) {
+      return 'Within 2 hours';
+    } else {
+      return 'Over 2 hours';
+    }
   }
   
   // 获取电量
