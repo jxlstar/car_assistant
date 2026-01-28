@@ -77,6 +77,7 @@ class _MapDetailPageState extends State<MapDetailPage> {
           // Google地图区域
           Expanded(
             child: GoogleMap(
+              key: ValueKey('device_map_detail_${widget.deviceName}'),
               onMapCreated: (GoogleMapController controller) {
                 _mapController = controller;
               },

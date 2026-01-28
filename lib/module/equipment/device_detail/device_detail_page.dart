@@ -640,6 +640,7 @@ class DeviceDetailPage extends StatelessWidget {
               ),
               child: logic.hasValidLocation
                   ? GoogleMap(
+                      key: ValueKey('device_map_${logic.state.deviceId}'),
                       initialCameraPosition: CameraPosition(
                         target: LatLng(
                           logic.locationCoordinates['latitude']!,

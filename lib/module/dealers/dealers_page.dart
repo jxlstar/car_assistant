@@ -201,6 +201,7 @@ class _DealersPageState extends State<DealersPage> with SingleTickerProviderStat
                 borderRadius: BorderRadius.circular(12),
               ),
               child: GoogleMap(
+                key: const ValueKey('dealers_map'),
                 initialCameraPosition: const CameraPosition(
                   target: LatLng(37.7749, -122.4194), // 默认位置
                   zoom: 12,

@@ -94,6 +94,7 @@ class _DealersMapPageState extends State<DealersMapPage> {
         title: const Text('Dealers Map'),
       ),
       body: GoogleMap(
+        key: const ValueKey('dealers_map_detail'),
         onMapCreated: _onMapCreated,
         initialCameraPosition: const CameraPosition(
           target: LatLng(37.7749, -122.4194), // Default position

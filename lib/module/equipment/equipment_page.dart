@@ -458,7 +458,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
                         children: [
                           const Text('Fuel', style: TextStyle(color: Colors.grey)),
                           Text(
-                            '${device.fuel?.toStringAsFixed(0) ?? 'N/A'}%',
+                            '${(device.fuel ?? 0).toStringAsFixed(1)}%',
                             style: const TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.bold),
                           ),

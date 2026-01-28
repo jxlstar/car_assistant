@@ -179,14 +179,14 @@ class DeviceDetailLogic extends GetxController {
     return '${((state.deviceDetail?.runningTime ?? 0) / 60).toStringAsFixed(2)} h';
   }
   
-  // 获取上次在线时间（根据时间差显示相对时间）
+  // 获取上次在线时间（根据时间差显示相对时间，使用UTC时间）
   String get lastOnlineTime {
     if (state.deviceDetail?.lastOnlineAt == null) {
       return 'N/A';
     }
     final timestamp = state.deviceDetail!.lastOnlineAt!;
-    final dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
-    final now = DateTime.now();
+    final dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000, isUtc: true);
+    final now = DateTime.now().toUtc();
     final difference = now.difference(dateTime);
     
     final minutes = difference.inMinutes;
@@ -228,8 +228,8 @@ class DeviceDetailLogic extends GetxController {
   
   // 获取油量
   String get fuelLevel {
-    return '${state.deviceDetail?.fuel ?? 0}%';
-  }
+    return '${(state.deviceDetail?.fuel ?? 0).toStringAsFixed(1)}%';
+  } 
   
   // 获取水温
   String get waterTemperature {

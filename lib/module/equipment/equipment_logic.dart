@@ -121,7 +121,7 @@ class EquipmentLogic extends GetxController {
         lastUpdatedAt: device.lastUpdatedAt,
         battery: device.battery,
         batteryStatus: device.batteryStatus,
-        fuel: device.fuel,
+        fuel: device.fuel ?? 0,
         fuelStatus: device.fuelStatus,
         oilPressure: device.oilPressure,
         waterTemperature: device.waterTemperature,
