@@ -31,12 +31,12 @@ class DeviceDetailLogic extends GetxController {
       
       final response = await ApiService.getDeviceDetail(state.deviceId!);
       LoggerUtil.i('Device device_id detail====${state.deviceId}');
-      LoggerUtil.i('Device detail====$response  ');
+      LoggerUtil.i('Device detail====${response.data?['data']}  ');
       if (response.success && response.data != null) {
         state.deviceDetail = Device.fromJson(response.data?['data']);
         // 根据设备的ctrl_status设置inhibitRestart状态
         state.inhibitRestart = (state.deviceDetail?.ctrlStatus == 1);
-        LoggerUtil.d('Device detail loaded successfully: ${response.data}');
+        LoggerUtil.d('system_press: ${state.deviceDetail?.systemPress}');
       } else {
         state.errorMessage = response.message ?? 'Failed to load device details';
         LoggerUtil.e('Failed to load device details: ${response.message}');
@@ -231,9 +231,11 @@ class DeviceDetailLogic extends GetxController {
     return '${(state.deviceDetail?.fuel ?? 0).toStringAsFixed(1)}%';
   } 
   
-  // 获取水温
+  // 获取水温（华氏整数 + 摄氏整数，如 89℉/30℃）
   String get waterTemperature {
-    return '${state.deviceDetail?.waterTemperature ?? 0}°F';
+    final f = (state.deviceDetail?.waterTemperature ?? 0).round();
+    final c = ((f - 32) * 5 / 9).round();
+    return '$f℉/$c℃';
   }
 
   String get enginSpeed {
@@ -241,9 +243,15 @@ class DeviceDetailLogic extends GetxController {
   }
 
   String get pilot {
-    return '${((state.deviceDetail?.pilotStatus ?? 0) / 100).toStringAsFixed(0)}MPa';
+    final value = state.deviceDetail?.pilotStatus ?? 0;
+    if (value >= 32767) return '--';
+    return '${(value / 100).toStringAsFixed(0)}MPa';
   }
-  
+  String get sysPress {
+    final value = state.deviceDetail?.systemPress ?? 0;
+    if (value >= 32767) return '--';
+    return '${(value / 100).toStringAsFixed(0)}MPa';
+  }
   // 获取当前位置
   String get currentLocation {
     return state.deviceDetail?.location?.address ?? 'No location available';

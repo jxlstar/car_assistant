@@ -436,9 +436,9 @@ class DeviceDetailPage extends StatelessWidget {
                       ),
                       SizedBox(height: 8),
                       Text(
-                        ' ${logic.waterTemperature}',
+                        logic.waterTemperature,
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                         textAlign: TextAlign.center,
@@ -529,7 +529,7 @@ class DeviceDetailPage extends StatelessWidget {
                       ),
                       SizedBox(height: 8),
                       Text(
-                        '0 MPa', // 暂时使用占位符
+                        logic.sysPress, // 暂时使用占位符
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -632,114 +632,13 @@ class DeviceDetailPage extends StatelessWidget {
           SizedBox(height: 8),
           GestureDetector(
             onTap: navigateAction,
-            child: Container(
-              height: 200,
-              decoration: BoxDecoration(
-                color: Colors.lightBlue[100],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: logic.hasValidLocation
-                  ? GoogleMap(
-                      key: ValueKey('device_map_${logic.state.deviceId}'),
-                      initialCameraPosition: CameraPosition(
-                        target: LatLng(
-                          logic.locationCoordinates['latitude']!,
-                          logic.locationCoordinates['longitude']!,
-                        ),
-                        zoom: 15,
-                      ),
-                      markers: {
-                        Marker(
-                          markerId: MarkerId(logic.deviceName),
-                          position: LatLng(
-                            logic.locationCoordinates['latitude']!,
-                            logic.locationCoordinates['longitude']!,
-                          ),
-                          infoWindow: InfoWindow(
-                            title: logic.deviceName,
-                            snippet: logic.currentLocation,
-                          ),
-                        ),
-                      },
-                      scrollGesturesEnabled: false,
-                      zoomGesturesEnabled: false,
-                      myLocationButtonEnabled: false,
-                    )
-                  : Stack(
-                      children: [
-                        Container(
-                          width: double.infinity,
-                          height: double.infinity,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                Colors.lightBlue[200]!,
-                                Colors.lightBlue[100]!,
-                              ],
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          top: 80,
-                          left: 120,
-                          child: Container(
-                            padding: EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.black,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.location_on,
-                                    color: Colors.white, size: 16),
-                                SizedBox(width: 4),
-                                Text(
-                                  logic.deviceName,
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 16,
-                          left: 16,
-                          child: Text(
-                            'Google',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          top: 16,
-                          right: 16,
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.black54,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              'Click to view map',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+            child: _DeviceMapPreview(
+              hasValidLocation: logic.hasValidLocation,
+              deviceId: logic.state.deviceId,
+              latitude: logic.locationCoordinates['latitude']!,
+              longitude: logic.locationCoordinates['longitude']!,
+              deviceName: logic.deviceName,
+              currentLocation: logic.currentLocation,
             ),
           ),
         ],
@@ -1149,4 +1048,131 @@ class DeviceDetailPage extends StatelessWidget {
     // ... 原有的转速图表代码 ...
   }
   */
+}
+
+/// 独立 StatefulWidget 包装地图，使用稳定的 ObjectKey 避免 PlatformView 被重复创建导致 recreating_view 错误。
+class _DeviceMapPreview extends StatefulWidget {
+  final bool hasValidLocation;
+  final String? deviceId;
+  final double latitude;
+  final double longitude;
+  final String deviceName;
+  final String currentLocation;
+
+  const _DeviceMapPreview({
+    required this.hasValidLocation,
+    required this.deviceId,
+    required this.latitude,
+    required this.longitude,
+    required this.deviceName,
+    required this.currentLocation,
+  });
+
+  @override
+  State<_DeviceMapPreview> createState() => _DeviceMapPreviewState();
+}
+
+class _DeviceMapPreviewState extends State<_DeviceMapPreview> {
+  /// 稳定的 key，确保地图 widget 在父级重建时被复用，避免 PlatformView 重复创建。
+  late final Object _mapKey = Object();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 200,
+      decoration: BoxDecoration(
+        color: Colors.lightBlue[100],
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: widget.hasValidLocation
+          ? GoogleMap(
+              key: ObjectKey(_mapKey),
+              initialCameraPosition: CameraPosition(
+                target: LatLng(widget.latitude, widget.longitude),
+                zoom: 15,
+              ),
+              markers: {
+                Marker(
+                  markerId: MarkerId(widget.deviceName),
+                  position: LatLng(widget.latitude, widget.longitude),
+                  infoWindow: InfoWindow(
+                    title: widget.deviceName,
+                    snippet: widget.currentLocation,
+                  ),
+                ),
+              },
+              scrollGesturesEnabled: false,
+              zoomGesturesEnabled: false,
+              myLocationButtonEnabled: false,
+            )
+          : _buildPlaceholder(),
+    );
+  }
+
+  Widget _buildPlaceholder() {
+    return Stack(
+      children: [
+        Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.lightBlue[200]!,
+                Colors.lightBlue[100]!,
+              ],
+            ),
+          ),
+        ),
+        Positioned(
+          top: 80,
+          left: 120,
+          child: Container(
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.black,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.location_on, color: Colors.white, size: 16),
+                SizedBox(width: 4),
+                Text(
+                  widget.deviceName,
+                  style: TextStyle(color: Colors.white, fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Positioned(
+          bottom: 16,
+          left: 16,
+          child: Text(
+            'Google',
+            style: TextStyle(color: Colors.grey[600], fontSize: 12),
+          ),
+        ),
+        Positioned(
+          top: 16,
+          right: 16,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.black54,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              'Click to view map',
+              style: TextStyle(color: Colors.white, fontSize: 10),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }

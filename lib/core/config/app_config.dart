@@ -1,6 +1,8 @@
 class AppConfig {
   static const String appName = 'Car Assistant';
-  static const String baseUrl = 'http://ec2-18-208-182-137.compute-1.amazonaws.com:8081';
+  // static const String baseUrl = 'http://ec2-18-208-182-137.compute-1.amazonaws.com:8081';
+  static const String baseUrl = 'https://api.brightlineoptics.com';
+  
   static const int connectTimeout = 30000;
   static const int receiveTimeout = 30000;
   

@@ -344,6 +344,20 @@ class _EquipmentPageState extends State<EquipmentPage> {
     );
   }
 
+  /// 水温格式：华氏整数 + 摄氏整数，如 89℉/30℃
+  String _formatWaterTemp(double? waterTemperature) {
+    final f = (waterTemperature ?? 0).round();
+    final c = ((f - 32) * 5 / 9).round();
+    return '$f℉/$c℃';
+  }
+
+  /// Pilot 值 >= 32767 时显示 --，否则显示数值
+  String _formatPilotValue(int? pilotStatus) {
+    final value = pilotStatus ?? 0;
+    if (value >= 32767) return '--';
+    return '${(value / 100).toStringAsFixed(0)}MPa';
+  }
+
   Widget _buildStatusCards(Device device) {
     return Row(
       children: [
@@ -388,9 +402,9 @@ class _EquipmentPageState extends State<EquipmentPage> {
                         children: [
                           const Text('Water Temp', style: TextStyle(color: Colors.grey)),
                           Text(
-                            '${device.waterTemperature?.toStringAsFixed(0) ?? 'N/A'}°F',
+                            _formatWaterTemp(device.waterTemperature),
                             style: const TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
+                                fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -478,7 +492,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
                         children: [
                           const Text('Pilot', style: TextStyle(color: Colors.grey)),
                           Text(
-                            '${((device.pilotStatus ?? 0 )/ 100).toStringAsFixed(0)}MPa',
+                            _formatPilotValue(device.pilotStatus),
                             style: const TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.bold),
                           ),

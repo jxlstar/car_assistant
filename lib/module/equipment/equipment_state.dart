@@ -324,6 +324,7 @@ class Device {
   final int? runningTime;
   final int? engineSpeed;
   final int? pilotStatus;
+  final int? systemPress;
   final List<LatestReport>? latestReports;
 
   Device({
@@ -361,6 +362,7 @@ class Device {
     this.runningTime,
     this.engineSpeed,
     this.pilotStatus,
+    this.systemPress,
     this.latestReports,
   });
 
@@ -404,6 +406,7 @@ class Device {
       runningTime: json['running_time'],
       engineSpeed: json['engine_speed'],
       pilotStatus: json['pilot_status'],
+      systemPress: json['system_status'],
       latestReports: (json['latest_reports'] as List<dynamic>?)
           ?.map((e) => LatestReport.fromJson(e as Map<String, dynamic>))
           .toList(),

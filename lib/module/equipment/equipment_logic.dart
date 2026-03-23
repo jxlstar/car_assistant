@@ -242,7 +242,6 @@ class EquipmentLogic extends GetxController {
     update();
   }
 
-  // Clear all device data, e.g., on logout
   void clearDeviceData() {
     state.devices.clear();
     state.hasDevice = false;
@@ -256,37 +255,6 @@ class EquipmentLogic extends GetxController {
       state.devices.clear();
       update();
     }
-  }
-
-  void mockAddDevice(String name, String deviceId, String model, String pin) {
-  // Create new device instance
-    final device = Device(
-      deviceId: deviceId ?? 'EXC${DateTime.now().millisecondsSinceEpoch}',
-      name: name,
-      model: model,
-      pin: pin ?? 'CAT${model.replaceAll(' ', '')}${deviceId ?? ''}',
-      runtimeHours: 134.9, // Default runtime hours
-      battery: 85,
-      fuel: 72,
-      oilPressure: 45,
-      waterTemperature: 88,
-      lockStatus: false,
-      locationStatus: true,
-      location: DeviceLocation(
-        latitude: 39.9042,
-        longitude: 116.4074,
-        address: 'Beijing Chaoyang District Jianguo Road Construction Site',
-        timestamp: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-      ),
-      status: 1,
-      // 新增字段的默认值
-      runningTime: 225,
-      engineSpeed: 0,
-      pilotStatus: 32767,
-      latestReports: [],
-    );
-  state.devices.add(device);
-  update(); // Notify UI update
   }
 
   Future<void> fetchDeviceList() async {
@@ -303,7 +271,7 @@ class EquipmentLogic extends GetxController {
           List<Device> list = (responseData['devices'] as List)
               .map((item) => Device.fromJson(item))
               .toList();
-          
+          LoggerUtil.i('Device list first==${list.first.systemPress.toString()}');
           state.devices.addAll(list);
         }
         
